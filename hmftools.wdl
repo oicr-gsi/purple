@@ -4,8 +4,12 @@ workflow hmftools {
   input {
     File tumorBam
     File tumorBai
-    File? normalBam
-    File? normalBai
+    File normalBam
+    File normalBai
+    File svVCFfile
+    File smallsVCFfiles
+    String normName = basename("~{normBam}", ".filter.deduped.realigned.recalibrated.bam")
+    String tumorName = basename("~{tumorBam}", ".filter.deduped.realigned.recalibrated.bam")
   }
 
   parameter_meta {
@@ -13,15 +17,50 @@ workflow hmftools {
     normalBam: "Input normal file (bam or sam)."
   }
 
+  call amber {
+    input {
+      File tumorBam = tumorBam
+      File tumorBai = tumorBai
+      File normalBam = normalBam
+      File normalBai = normalBai
+      String normName = normName
+      String tumorName = tumorName
+    }
+  }
+
+  call cobalt {
+    input {
+      File tumorBam = tumorBam
+      File tumorBai = tumorBai
+      File normalBam = normalBam
+      File normalBai = normalBai
+      String normName = normName
+      String tumorName = tumorName
+    }
+  }
+
+  call purple {
+    input {
+      String normName = normName
+      String tumorName = tumorName
+      File amberDir = amber.amberDir
+      File cobaltDir = cobalt.cobaltDir
+      File svVCFfile = svVCFfile
+      File smallsVCFfiles = smallsVCFfiles
+    }
+  }
+
+  call linx {
+    input {
+      purpleDir = purple.purpleDir
+    }
+  }
+
   meta {
     author: "Felix Beaudry"
-    email: "afortuna@oicr.on.ca"
-    description: "performs somatic genomic rearrangement detection and classification"
+    email: "fbeaudry@oicr.on.ca"
+    description: "performs purity and ploidy estimation"
     dependencies: [
-    {
-      name: "GRIDSS",
-      url: "https://github.com/PapenfussLab/gridss"
-    },
     {
       name: "PURPLE",
       url: "https://github.com/hartwigmedical/hmftools/blob/master/purple/README.md"
@@ -29,101 +68,28 @@ workflow hmftools {
     {
       name: "LINX",
       url: "https://github.com/hartwigmedical/hmftools/blob/master/linx/README.md"
-    },
-    {
-      name: "VIRUSBreakend",
-      url: "https://github.com/PapenfussLab/gridss/blob/master/VIRUSBreakend_Readme.md"
     }
     ]
   }
 
-  call gridss {
-    input:
-      tumorBam = tumorBam
-      normalBam = normalBam
-  }
-
-  call cobalt {
-  
-  }
-
-  call amber {
-  
-  }
-
-
-
-  call purple {
-  
-  }
-
-  call linx {
-  
-  }
-
-  call virusbreakend {
-
-  }
-
   output {
-  }
-}
-
-task gridss {
-  input {
-    String modules = "argparser stringdist structuravariantannotation rtracklayer gridss/2.13.2 hg38/p12 hmftools/1.0 kraken2 bcftools hmftools-data/hg38"
-    String refFasta = "$HMFTOOLS_DATA_ROOT/hg38_random.fa"
-    String gridssScript = "${GRIDSS_ROOT}/gridss --jar ${GRIDSS_ROOT}/gridss-2.13.2-gridss-jar-with-dependencies.jar"
-    File normBam
-    File normBai
-    File tumorBam
-    File tumorBai
-    Int threads = 8
-    Int memory = 50
-    Int timeout = 100
-  }
-
-  command <<<
-    set -euo pipefail
-
-    ~{gridssScript} \
-    --reference ~{refFasta} \
-    --output ./ \
-    ~{normBam} ~{tumorBam}
-
-  >>>
-
-  runtime {
-    cpu: "~{threads}"
-    memory:  "~{memory} GB"
-    modules: "~{modules}"
-    timeout: "~{timeout}"
-  }
-
-  output {
-    File unfilteredVcf = "~{outputVcf}.allocated.vcf"
+    File purpleDir = "~{tumorName}.purple.zip"
+    File linxDir = "~{tumorName}.linx.zip"
   }
 }
 
 task amber {
   input {
-    String modules = "argparser stringdist structuravariantannotation rtracklayer gridss/2.13.2 hg38/p12 hmftools/1.0 kraken2 bcftools hmftools-data/hg38"
-    String refFasta = "${HMFTOOLS_DATA_ROOT}/hg38_random.fa"
-    String amberScript = "java -Xmx32G -cp ${HMFTOOLS_ROOT}/amber.jar com.hartwig.hmftools.amber.AmberApplication"
-    String colbaltScript = "java -Xmx8G -cp $HMFTOOLS_ROOT/cobalt.jar com.hartwig.hmftools.cobalt.CobaltApplication"
-    String bcftoolsScript = "$BCFTOOLS_ROOT/bin/bcftools view"
-    String purpleScript = "java -Xmx8G -jar $HMFTOOLS_ROOT/purple.jar"
+    File tumorBam
+    File tumorBai
     File normBam
     File normBai
     String normName = basename("~{normBam}", ".filter.deduped.realigned.recalibrated.bam")
-    File tumorBam
-    File tumorBai
     String tumorName = basename("~{tumorBam}", ".filter.deduped.realigned.recalibrated.bam")
+    String amberScript = "java -Xmx32G -cp ${HMFTOOLS_ROOT}/amber.jar com.hartwig.hmftools.amber.AmberApplication"
     String PON = "${HMFTOOLS_DATA_ROOT}/GermlineHetPon.38.vcf.gz"
-    String gcProfile = "${HMFTOOLS_DATA_ROOT}/GC_profile.1000bp.38.cnp"
-    String ensemblDir = "${HMFTOOLS_DATA_ROOT}/ensembl"
     String genomeVersion = "V38"
-    String gamma = 100
+    String modules = "argparser stringdist structuravariantannotation rtracklayer gridss/2.13.2 hg38/p12 hmftools/1.0 kraken2 bcftools hmftools-data/hg38"
     Int threads = 8
     Int memory = 32
     Int timeout = 100
@@ -132,16 +98,16 @@ task amber {
   command <<<
     set -euo pipefail
 
-    mkdir amber  
+    mkdir ~{tumorName}.amber  
 
     ~{amberScript} \
       -reference ~{normName} -reference_bam ~{normBam} \
       -tumor ~{tumorName} -tumor_bam ~{tumorBam} \
-      -output_dir amber/ \
+      -output_dir ~{tumorName}.amber/ \
       -loci ~{PON} \
       -ref_genome_version ~{genomeVersion}
 
-    zip amber/
+    zip ~{tumorName}.amber/
 
   >>>
 
@@ -153,29 +119,22 @@ task amber {
   }
 
   output {
-    File amberDir = "amber.zip"
+    File amberDir = "~{tumorName}.amber.zip"
   }
 }
 
 task cobalt {
   input {
-    String modules = "argparser stringdist structuravariantannotation rtracklayer gridss/2.13.2 hg38/p12 hmftools/1.0 kraken2 bcftools hmftools-data/hg38"
-    String refFasta = "${HMFTOOLS_DATA_ROOT}/hg38_random.fa"
-    String amberScript = "java -Xmx32G -cp ${HMFTOOLS_ROOT}/amber.jar com.hartwig.hmftools.amber.AmberApplication"
-    String colbaltScript = "java -Xmx8G -cp $HMFTOOLS_ROOT/cobalt.jar com.hartwig.hmftools.cobalt.CobaltApplication"
-    String bcftoolsScript = "$BCFTOOLS_ROOT/bin/bcftools view"
-    String purpleScript = "java -Xmx8G -jar $HMFTOOLS_ROOT/purple.jar"
+      File tumorBam
+    File tumorBai
     File normBam
     File normBai
     String normName = basename("~{normBam}", ".filter.deduped.realigned.recalibrated.bam")
-    File tumorBam
-    File tumorBai
     String tumorName = basename("~{tumorBam}", ".filter.deduped.realigned.recalibrated.bam")
-    String PON = "${HMFTOOLS_DATA_ROOT}/GermlineHetPon.38.vcf.gz"
+    String colbaltScript = "java -Xmx8G -cp $HMFTOOLS_ROOT/cobalt.jar com.hartwig.hmftools.cobalt.CobaltApplication"
     String gcProfile = "${HMFTOOLS_DATA_ROOT}/GC_profile.1000bp.38.cnp"
-    String ensemblDir = "${HMFTOOLS_DATA_ROOT}/ensembl"
-    String genomeVersion = "V38"
     String gamma = 100
+    String modules = "argparser stringdist structuravariantannotation rtracklayer gridss/2.13.2 hg38/p12 hmftools/1.0 kraken2 bcftools hmftools-data/hg38"
     Int threads = 8
     Int memory = 32
     Int timeout = 100
@@ -184,16 +143,16 @@ task cobalt {
   command <<<
     set -euo pipefail
 
-    mkdir cobalt 
+    mkdir ~{tumorName}.cobalt 
 
     ~{colbaltScript} \
-      -reference ~{normSample} -reference_bam ~{normBam} \
-      -tumor ~{tumorSample} -tumor_bam ~{tumorBam} \
-      -output_dir cobalt/ \
+      -reference ~{normName} -reference_bam ~{normBam} \
+      -tumor ~{tumorName} -tumor_bam ~{tumorBam} \
+      -output_dir ~{tumorName}.cobalt/ \
       -gc_profile ~{gcProfile} \
       -pcf_gamma ~{gamma}
 
-    zip cobalt
+    zip ~{tumorName}.cobalt
 
   >>>
 
@@ -205,25 +164,22 @@ task cobalt {
   }
 
   output {
-    File unfilteredVcf = "~{outputVcf}.allocated.vcf"
+    File cobaltDir = "~{tumorName}.cobalt.zip"
   }
 }
 
 task purple {
   input {
+    File svVCFfile
+    File smallsVCFfiles
+    String normName
+    String tumorName
+    File amberDir
+    File cobaltDir
     String modules = "argparser stringdist structuravariantannotation rtracklayer gridss/2.13.2 hg38/p12 hmftools/1.0 kraken2 bcftools hmftools-data/hg38"
     String refFasta = "${HMFTOOLS_DATA_ROOT}/hg38_random.fa"
-    String amberScript = "java -Xmx32G -cp ${HMFTOOLS_ROOT}/amber.jar com.hartwig.hmftools.amber.AmberApplication"
-    String colbaltScript = "java -Xmx8G -cp $HMFTOOLS_ROOT/cobalt.jar com.hartwig.hmftools.cobalt.CobaltApplication"
     String bcftoolsScript = "$BCFTOOLS_ROOT/bin/bcftools view"
     String purpleScript = "java -Xmx8G -jar $HMFTOOLS_ROOT/purple.jar"
-    File normBam
-    File normBai
-    String normName = basename("~{normBam}", ".filter.deduped.realigned.recalibrated.bam")
-    File tumorBam
-    File tumorBai
-    String tumorName = basename("~{tumorBam}", ".filter.deduped.realigned.recalibrated.bam")
-    String PON = "${HMFTOOLS_DATA_ROOT}/GermlineHetPon.38.vcf.gz"
     String gcProfile = "${HMFTOOLS_DATA_ROOT}/GC_profile.1000bp.38.cnp"
     String ensemblDir = "${HMFTOOLS_DATA_ROOT}/ensembl"
     String genomeVersion = "V38"
@@ -236,19 +192,19 @@ task purple {
   command <<<
     set -euo pipefail
 
-    unzip amber cobalt 
+    unzip ~{amberDir} ~{cobaltDir} 
 
     ~{bcftoolsScript} -f 'PASS' \
-      ~{smalls_vcf} \
-      -s ~{tumorSample} \
-      >~{tumorSample}.SMALLS.PASS.vcf
+      ~{smallsVCFfiles} \
+      -s ~{tumorName} \
+      >~{tumorName}.SMALLS.PASS.vcf
 
     ~{bcftoolsScript} -f 'PASS' \
-      ~{SV_vcf} \
+      ~{svVCFfile} \
       -s ~{tumorSample} \
       >~{tumorSample}.SV.PASS.vcf
 
-    mkdir purple 
+    mkdir ~{tumorName}.purple 
 
     ~{purpleScript} \
       -no_charts \
@@ -256,13 +212,13 @@ task purple {
       -ref_genome ~{refFasta}  \
       -gc_profile ~{gcProfile} \
       -ensembl_data_dir ~{ensemblDir}  \
-      -reference ~{normSample} -tumor ~{tumorSample}  \
-      -amber amber/ -cobalt cobalt/ \
-      -somatic_vcf ~{tumorSample}.SMALLS.PASS.vcf \
-      -structural_vcf ~{tumorSample}.SV.PASS.vcf
-      -output_dir purple/
+      -reference ~{normName} -tumor ~{tumorName}  \
+      -amber ~{tumorName}.amber/ -cobalt ~{tumorName}.cobalt/ \
+      -somatic_vcf ~{tumorName}.SMALLS.PASS.vcf \
+      -structural_vcf ~{tumorName}.SV.PASS.vcf
+      -output_dir ~{tumorName}.purple/
 
-      zip purple
+      zip ~{tumorName}.purple
 
   >>>
 
@@ -274,24 +230,19 @@ task purple {
   }
 
   output {
-    File unfilteredVcf = "~{outputVcf}.allocated.vcf"
+    File purpleDir = "~{tumorName}.purple.zip"
   }
 }
 
 
 task linx {
   input {
-    String modules = "argparser stringdist structuravariantannotation rtracklayer gridss/2.13.2 hg38/p12 hmftools/1.0 kraken2 bcftools hmftools-data/hg38"
-    String refFasta = "$HMFTOOLS_DATA_ROOT/hg38_random.fa"
-    File normBam
-    File normBai
-    File tumorBam
-    File tumorBai
-    string fragileSitesFile = ${HMFTOOLS_DATA_ROOT}/fragile_sites_hmf.38.csv
-    string lineElementFile = ${HMFTOOLS_DATA_ROOT}/line_elements.38.csv
-    string knownFusionFile = ${HMFTOOLS_DATA_ROOT}/known_fusion_data.38.csv
+    File purpleDir
+    String fragileSitesFile = "${HMFTOOLS_DATA_ROOT}/fragile_sites_hmf.38.csv"
+    String lineElementFile = "${HMFTOOLS_DATA_ROOT}/line_elements.38.csv"
+    String knownFusionFile = "${HMFTOOLS_DATA_ROOT}/known_fusion_data.38.csv"
     String genomeVersion = "38"
-    String gamma = 100
+    String modules = "argparser stringdist structuravariantannotation rtracklayer gridss/2.13.2 hg38/p12 hmftools/1.0 kraken2 bcftools hmftools-data/hg38"
     Int threads = 8
     Int memory = 8
     Int timeout = 100
@@ -300,9 +251,9 @@ task linx {
   command <<<
     set -euo pipefail
 
-    unzip purple
+    unzip ~{purpleDir}
 
-    mkdir linx 
+    mkdir ~{tumorName}.linx 
 
     java -Xmx8G -jar $HMFTOOLS_ROOT/linx.jar \
       -check_fusions -log_debug \
@@ -311,50 +262,12 @@ task linx {
       -line_element_file ~{lineElementFile} \
       -known_fusion_file ~{knownFusionFile} \
       -ensembl_data_dir ~{ensemblDir}
-      -sample $tumorSample \
-      -sv_vcf purple/~{tumorSample}.purple.sv.vcf.gz \
-      -purple_dir purple/ \
-      -output_dir linx/
+      -sample ~{tumorName} \
+      -sv_vcf ~{tumorName}.purple/~{tumorSample}.purple.sv.vcf.gz \
+      -purple_dir ~{tumorName}.purple/ \
+      -output_dir ~{tumorName}.linx/
 
-    zip linx
-
-  >>>
-
-  runtime {
-    cpu: "~{threads}"
-    memory:  "~{memory} GB"
-    modules: "~{modules}"
-    timeout: "~{timeout}"
-  }
-
-  output {
-    File unfilteredVcf = "~{outputVcf}.allocated.vcf"
-  }
-}
-
-task virusbreakend {
-  input {
-    String modules = "argparser stringdist structuravariantannotation rtracklayer gridss/2.13.2 hg38/p12 hmftools/1.0 kraken2 bcftools hmftools-data/hg38"
-    String refFasta = "$HMFTOOLS_DATA_ROOT/hg38_random.fa"
-    File normBam
-    File normBai
-    File tumorBam
-    File tumorBai
-    File gcProfile = ${HMFTOOLS_DATA_ROOT}/GC_profile.1000bp.38.cnp
-    String gamma = 100
-    Int threads = 8
-    Int memory = 8
-    Int timeout = 100
-  }
-
-  command <<<
-    set -euo pipefail
-
-    $GRIDSS_ROOT/virusbreakend \
-      --kraken2db $VIRUSBREAKEND_DB_ROOT/ \
-      --reference ${testDir}/hg38_random.fa \
-      --output ${sample}.virusbreakend.vcf \
-      ${sample}.bam
+    zip ~{tumorName}.linx
 
   >>>
 
@@ -366,6 +279,7 @@ task virusbreakend {
   }
 
   output {
-    File unfilteredVcf = "~{outputVcf}.allocated.vcf"
+    File linxDir = "~{tumorName}.linx.zip"
   }
 }
+
