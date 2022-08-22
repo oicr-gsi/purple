@@ -4,55 +4,59 @@ workflow hmftools {
   input {
     File tumorBam
     File tumorBai
-    File normalBam
-    File normalBai
+    File normBam
+    File normBai
     File svVCFfile
     File smallsVCFfiles
     String normName = basename("~{normBam}", ".filter.deduped.realigned.recalibrated.bam")
     String tumorName = basename("~{tumorBam}", ".filter.deduped.realigned.recalibrated.bam")
+    Boolean runLinx = false
   }
 
   parameter_meta {
-    tumorBam: "Input tumor file (bam or sam)."
-    normalBam: "Input normal file (bam or sam)."
+    tumorBam: "Input tumor file (bam)."
+    tumorBai: "Input tumor file index (bai)."
+    normBam: "Input normal file (bam)."
+    normBai: "Input normal file index (bai)."
+    svVCFfile: "somatic Structural Variant File (.vcf) from gridss."
+    smallsVCFfiles: "somatic small (SNV+indel) Variant File (.vcf) [tested with mutect2]."
   }
 
   call amber {
-    input {
-      File tumorBam = tumorBam
-      File tumorBai = tumorBai
-      File normalBam = normalBam
-      File normalBai = normalBai
-      String normName = normName
-      String tumorName = tumorName
-    }
+    input:
+      tumorBam = tumorBam,
+      tumorBai = tumorBai,
+      normBam = normBam,
+      normBai = normBai,
+      normName = normName,
+      tumorName = tumorName
   }
 
   call cobalt {
-    input {
-      File tumorBam = tumorBam
-      File tumorBai = tumorBai
-      File normalBam = normalBam
-      File normalBai = normalBai
-      String normName = normName
-      String tumorName = tumorName
-    }
+    input:
+      tumorBam = tumorBam,
+      tumorBai = tumorBai,
+      normBam = normBam,
+      normBai = normBai,
+      normName = normName,
+      tumorName = tumorName
   }
 
   call purple {
-    input {
-      String normName = normName
-      String tumorName = tumorName
-      File amberDir = amber.amberDir
-      File cobaltDir = cobalt.cobaltDir
-      File svVCFfile = svVCFfile
-      File smallsVCFfiles = smallsVCFfiles
-    }
+    input:
+      normName = normName,
+      tumorName = tumorName,
+      amberDir = amber.amberDir,
+      cobaltDir = cobalt.cobaltDir,
+      svVCFfile = svVCFfile,
+      smallsVCFfiles = smallsVCFfiles
   }
 
-  call linx {
-    input {
-      purpleDir = purple.purpleDir
+  if(runLinx == true){
+    call linx {
+      input:
+        tumorName = tumorName,
+        purpleDir = purple.purpleDir
     }
   }
 
@@ -74,7 +78,7 @@ workflow hmftools {
 
   output {
     File purpleDir = "~{tumorName}.purple.zip"
-    File linxDir = "~{tumorName}.linx.zip"
+    File? linxDir = "~{tumorName}.linx.zip"
   }
 }
 
@@ -86,8 +90,8 @@ task amber {
     File normBai
     String normName = basename("~{normBam}", ".filter.deduped.realigned.recalibrated.bam")
     String tumorName = basename("~{tumorBam}", ".filter.deduped.realigned.recalibrated.bam")
-    String amberScript = "java -Xmx32G -cp ${HMFTOOLS_ROOT}/amber.jar com.hartwig.hmftools.amber.AmberApplication"
-    String PON = "${HMFTOOLS_DATA_ROOT}/GermlineHetPon.38.vcf.gz"
+    String amberScript = "java -Xmx32G -cp $HMFTOOLS_ROOT/amber.jar com.hartwig.hmftools.amber.AmberApplication"
+    String PON = "$HMFTOOLS_DATA_ROOT/GermlineHetPon.38.vcf.gz"
     String genomeVersion = "V38"
     String modules = "argparser stringdist structuravariantannotation rtracklayer gridss/2.13.2 hg38/p12 hmftools/1.0 kraken2 bcftools hmftools-data/hg38"
     Int threads = 8
@@ -125,14 +129,14 @@ task amber {
 
 task cobalt {
   input {
-      File tumorBam
+    File tumorBam
     File tumorBai
     File normBam
     File normBai
     String normName = basename("~{normBam}", ".filter.deduped.realigned.recalibrated.bam")
     String tumorName = basename("~{tumorBam}", ".filter.deduped.realigned.recalibrated.bam")
     String colbaltScript = "java -Xmx8G -cp $HMFTOOLS_ROOT/cobalt.jar com.hartwig.hmftools.cobalt.CobaltApplication"
-    String gcProfile = "${HMFTOOLS_DATA_ROOT}/GC_profile.1000bp.38.cnp"
+    String gcProfile = "$HMFTOOLS_DATA_ROOT/GC_profile.1000bp.38.cnp"
     String gamma = 100
     String modules = "argparser stringdist structuravariantannotation rtracklayer gridss/2.13.2 hg38/p12 hmftools/1.0 kraken2 bcftools hmftools-data/hg38"
     Int threads = 8
@@ -177,11 +181,11 @@ task purple {
     File amberDir
     File cobaltDir
     String modules = "argparser stringdist structuravariantannotation rtracklayer gridss/2.13.2 hg38/p12 hmftools/1.0 kraken2 bcftools hmftools-data/hg38"
-    String refFasta = "${HMFTOOLS_DATA_ROOT}/hg38_random.fa"
+    String refFasta = "$HMFTOOLS_DATA_ROOT/hg38_random.fa"
     String bcftoolsScript = "$BCFTOOLS_ROOT/bin/bcftools view"
     String purpleScript = "java -Xmx8G -jar $HMFTOOLS_ROOT/purple.jar"
-    String gcProfile = "${HMFTOOLS_DATA_ROOT}/GC_profile.1000bp.38.cnp"
-    String ensemblDir = "${HMFTOOLS_DATA_ROOT}/ensembl"
+    String gcProfile = "$HMFTOOLS_DATA_ROOT/GC_profile.1000bp.38.cnp"
+    String ensemblDir = "$HMFTOOLS_DATA_ROOT/ensembl"
     String genomeVersion = "V38"
     String gamma = 100
     Int threads = 8
@@ -201,8 +205,8 @@ task purple {
 
     ~{bcftoolsScript} -f 'PASS' \
       ~{svVCFfile} \
-      -s ~{tumorSample} \
-      >~{tumorSample}.SV.PASS.vcf
+      -s ~{tumorName} \
+      >~{tumorName}.SV.PASS.vcf
 
     mkdir ~{tumorName}.purple 
 
@@ -238,10 +242,13 @@ task purple {
 task linx {
   input {
     File purpleDir
-    String fragileSitesFile = "${HMFTOOLS_DATA_ROOT}/fragile_sites_hmf.38.csv"
-    String lineElementFile = "${HMFTOOLS_DATA_ROOT}/line_elements.38.csv"
-    String knownFusionFile = "${HMFTOOLS_DATA_ROOT}/known_fusion_data.38.csv"
+    String tumorName
+    String fragileSitesFile = "$HMFTOOLS_DATA_ROOT/fragile_sites_hmf.38.csv"
+    String lineElementFile = "$HMFTOOLS_DATA_ROOT/line_elements.38.csv"
+    String knownFusionFile = "$HMFTOOLS_DATA_ROOT/known_fusion_data.38.csv"
+    String ensemblDir = "$HMFTOOLS_DATA_ROOT/ensembl"
     String genomeVersion = "38"
+    String linxScript = "java -Xmx8G -jar $HMFTOOLS_ROOT/linx.jar"
     String modules = "argparser stringdist structuravariantannotation rtracklayer gridss/2.13.2 hg38/p12 hmftools/1.0 kraken2 bcftools hmftools-data/hg38"
     Int threads = 8
     Int memory = 8
@@ -255,7 +262,7 @@ task linx {
 
     mkdir ~{tumorName}.linx 
 
-    java -Xmx8G -jar $HMFTOOLS_ROOT/linx.jar \
+     ~{linxScript} \
       -check_fusions -log_debug \
       -ref_genome_version ~{genomeVersion} \
       -fragile_site_file ~{fragileSitesFile} \
@@ -263,7 +270,7 @@ task linx {
       -known_fusion_file ~{knownFusionFile} \
       -ensembl_data_dir ~{ensemblDir}
       -sample ~{tumorName} \
-      -sv_vcf ~{tumorName}.purple/~{tumorSample}.purple.sv.vcf.gz \
+      -sv_vcf ~{tumorName}.purple/~{tumorName}.purple.sv.vcf.gz \
       -purple_dir ~{tumorName}.purple/ \
       -output_dir ~{tumorName}.linx/
 
