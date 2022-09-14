@@ -223,11 +223,16 @@ ggplot(fittedSegmentsDF_2,aes(x=minorAllele_fz,y=tumorCopyNumber,color=log(bafCo
   labs(x="B allele Frequency",y="Copy Number",shape="Segment Size") #+  
   theme(panel.grid.minor = element_blank())
   
+  
+  fittedSegmentsDF_2$Chromosome <-  factor(fittedSegmentsDF_2$chromosome, levels= chr_order, ordered = T)
+  
+chr_order <- c("chr10","chr11","chr12","chr13","chr14","chr15","chr16","chr17","chr18","chr19","chr1","chr20","chr21","chr22","chr2","chr3","chr4","chr5","chr6","chr7","chr8","chr9","chrX")
+  
 ggplot(fittedSegmentsDF_2) + 
   geom_segment(aes(x=start, xend=end, y=majorAlleleCopyNumber, yend=majorAlleleCopyNumber),color="red",size=2) + 
   geom_segment(aes(x=start, xend=end, y=minorAlleleCopyNumber, yend=minorAlleleCopyNumber),color="blue",size=2) + 
   
-  facet_grid(.~chromosome,scales = "free",space="free")+ 
+  facet_grid(.~Chromosome,scales = "free",space="free")+ 
 
   scale_y_continuous(limits = c(0, 8), breaks = seq(0, 8, by = 1)) +
   theme(axis.title.x=element_blank(),
