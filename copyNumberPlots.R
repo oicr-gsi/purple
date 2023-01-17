@@ -8,12 +8,11 @@ library(argparser)
 theme_set(theme_bw())
 colours = c("#8dd3c7", "#ffffb3", "#bebada", "#fb8072", "#80b1d3", "#fdb462", "#b3de69")
 
-
 ####functions####
 
 copynumber_plot <- function(copyNumberRegions,colours) {
   
-  colours = setNames(mapColours, c("MACN0", "MACN1","MACN2","MACN3","MACN4", "MACN5+"))
+  mapColours = setNames(colours, c("MACN0", "MACN1","MACN2","MACN3","MACN4", "MACN5+"))
   
   totalBafCount = sum(copyNumberRegions$bafCount)
   
