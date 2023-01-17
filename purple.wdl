@@ -10,7 +10,6 @@ workflow hmftools {
     File smallsVCFfiles
     String normName = basename("~{normBam}", ".filter.deduped.realigned.recalibrated.bam")
     String tumorName = basename("~{tumorBam}", ".filter.deduped.realigned.recalibrated.bam")
-    Boolean runLinx = false
   }
 
   parameter_meta {
@@ -52,14 +51,6 @@ workflow hmftools {
       smallsVCFfiles = smallsVCFfiles
   }
 
-  if(runLinx == true){
-    call linx {
-      input:
-        tumorName = tumorName,
-        purpleDir = purple.purpleDir
-    }
-  }
-
   meta {
     author: "Felix Beaudry"
     email: "fbeaudry@oicr.on.ca"
@@ -68,17 +59,12 @@ workflow hmftools {
     {
       name: "PURPLE",
       url: "https://github.com/hartwigmedical/hmftools/blob/master/purple/README.md"
-    },
-    {
-      name: "LINX",
-      url: "https://github.com/hartwigmedical/hmftools/blob/master/linx/README.md"
     }
     ]
   }
 
   output {
     File purpleDir = "~{tumorName}.purple.zip"
-    File? linxDir = "~{tumorName}.linx.zip"
   }
 }
 
@@ -237,56 +223,3 @@ task purple {
     File purpleDir = "~{tumorName}.purple.zip"
   }
 }
-
-
-task linx {
-  input {
-    File purpleDir
-    String tumorName
-    String fragileSitesFile = "$HMFTOOLS_DATA_ROOT/fragile_sites_hmf.38.csv"
-    String lineElementFile = "$HMFTOOLS_DATA_ROOT/line_elements.38.csv"
-    String knownFusionFile = "$HMFTOOLS_DATA_ROOT/known_fusion_data.38.csv"
-    String ensemblDir = "$HMFTOOLS_DATA_ROOT/ensembl"
-    String genomeVersion = "38"
-    String linxScript = "java -Xmx8G -jar $HMFTOOLS_ROOT/linx.jar"
-    String modules = "argparser stringdist structuravariantannotation rtracklayer gridss/2.13.2 hg38/p12 hmftools/1.0 kraken2 bcftools hmftools-data/hg38"
-    Int threads = 8
-    Int memory = 8
-    Int timeout = 100
-  }
-
-  command <<<
-    set -euo pipefail
-
-    unzip ~{purpleDir}
-
-    mkdir ~{tumorName}.linx 
-
-     ~{linxScript} \
-      -check_fusions -log_debug \
-      -ref_genome_version ~{genomeVersion} \
-      -fragile_site_file ~{fragileSitesFile} \
-      -line_element_file ~{lineElementFile} \
-      -known_fusion_file ~{knownFusionFile} \
-      -ensembl_data_dir ~{ensemblDir}
-      -sample ~{tumorName} \
-      -sv_vcf ~{tumorName}.purple/~{tumorName}.purple.sv.vcf.gz \
-      -purple_dir ~{tumorName}.purple/ \
-      -output_dir ~{tumorName}.linx/
-
-    zip ~{tumorName}.linx
-
-  >>>
-
-  runtime {
-    cpu: "~{threads}"
-    memory:  "~{memory} GB"
-    modules: "~{modules}"
-    timeout: "~{timeout}"
-  }
-
-  output {
-    File linxDir = "~{tumorName}.linx.zip"
-  }
-}
-
