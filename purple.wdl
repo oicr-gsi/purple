@@ -1,54 +1,56 @@
 version 1.0
 
-workflow hmftools {
+workflow purple {
   input {
-    File tumorBam
-    File tumorBai
-    File normBam
-    File normBai
-    File svVCFfile
-    File smallsVCFfiles
-    String normName = basename("~{normBam}", ".filter.deduped.realigned.recalibrated.bam")
-    String tumorName = basename("~{tumorBam}", ".filter.deduped.realigned.recalibrated.bam")
+    File tumour_bam
+    File tumour_bai
+    File normal_bam
+    File normal_bai
+    File SV_vcf
+    File smalls_vcf
+    String normal_name
+    String tumour_name
   }
 
   parameter_meta {
-    tumorBam: "Input tumor file (bam)."
-    tumorBai: "Input tumor file index (bai)."
-    normBam: "Input normal file (bam)."
-    normBai: "Input normal file index (bai)."
-    svVCFfile: "somatic Structural Variant File (.vcf) from gridss."
-    smallsVCFfiles: "somatic small (SNV+indel) Variant File (.vcf) [tested with mutect2]."
+    tumour_bam: "Input tumor file (bam)."
+    tumour_bai: "Input tumor file index (bai)."
+    tumour_name: "Name of tumour sample"
+    normal_bam: "Input normal file (bam)."
+    normal_bai: "Input normal file index (bai)."
+    normal_name: "Name of normal sample"
+    SV_vcf: "somatic Structural Variant File (.vcf) from gridss."
+    smalls_vcf: "somatic small (SNV+indel) Variant File (.vcf) [tested with mutect2]."
   }
 
   call amber {
     input:
-      tumorBam = tumorBam,
-      tumorBai = tumorBai,
-      normBam = normBam,
-      normBai = normBai,
-      normName = normName,
-      tumorName = tumorName
+      tumour_bam = tumour_bam,
+      tumour_bai = tumour_bai,
+      normal_bam = normal_bam,
+      normal_bai = normal_bai,
+      normal_name = normal_name,
+      tumour_name = tumour_name
   }
 
   call cobalt {
     input:
-      tumorBam = tumorBam,
-      tumorBai = tumorBai,
-      normBam = normBam,
-      normBai = normBai,
-      normName = normName,
-      tumorName = tumorName
+      tumour_bam = tumour_bam,
+      tumour_bai = tumour_bai,
+      normal_bam = normal_bam,
+      normal_bai = normal_bai,
+      normal_name = normal_name,
+      tumour_name = tumour_name
   }
 
   call purple {
     input:
-      normName = normName,
-      tumorName = tumorName,
-      amberDir = amber.amberDir,
-      cobaltDir = cobalt.cobaltDir,
-      svVCFfile = svVCFfile,
-      smallsVCFfiles = smallsVCFfiles
+      normal_name = normal_name,
+      tumour_name = tumour_name,
+      amber_directory = amber.output_directory,
+      cobalt_directory = cobalt.output_directory,
+      SV_vcf = SV_vcf,
+      smalls_vcf = smalls_vcf
   }
 
   meta {
@@ -64,18 +66,18 @@ workflow hmftools {
   }
 
   output {
-    File purpleDir = "~{tumorName}.purple.zip"
+    File purple_directory = "~{tumour_name}.purple.zip"
   }
 }
 
 task amber {
   input {
-    File tumorBam
-    File tumorBai
-    File normBam
-    File normBai
-    String normName = basename("~{normBam}", ".filter.deduped.realigned.recalibrated.bam")
-    String tumorName = basename("~{tumorBam}", ".filter.deduped.realigned.recalibrated.bam")
+    String tumour_name
+    File tumour_bam
+    File tumour_bai
+    String normal_name
+    File normal_bam
+    File normal_bai
     String amberScript = "java -Xmx32G -cp $HMFTOOLS_ROOT/amber.jar com.hartwig.hmftools.amber.AmberApplication"
     String PON = "$HMFTOOLS_DATA_ROOT/GermlineHetPon.38.vcf.gz"
     String genomeVersion = "V38"
@@ -88,16 +90,16 @@ task amber {
   command <<<
     set -euo pipefail
 
-    mkdir ~{tumorName}.amber  
+    mkdir ~{tumour_name}.amber  
 
     ~{amberScript} \
-      -reference ~{normName} -reference_bam ~{normBam} \
-      -tumor ~{tumorName} -tumor_bam ~{tumorBam} \
-      -output_dir ~{tumorName}.amber/ \
+      -reference ~{normal_name} -reference_bam ~{normal_bam} \
+      -tumor ~{tumour_name} -tumor_bam ~{tumour_bam} \
+      -output_dir ~{tumour_name}.amber/ \
       -loci ~{PON} \
       -ref_genome_version ~{genomeVersion}
 
-    zip ~{tumorName}.amber/
+    zip ~{tumour_name}.amber/
 
   >>>
 
@@ -109,18 +111,18 @@ task amber {
   }
 
   output {
-    File amberDir = "~{tumorName}.amber.zip"
+    File output_directory = "~{tumour_name}.amber.zip"
   }
 }
 
 task cobalt {
   input {
-    File tumorBam
-    File tumorBai
-    File normBam
-    File normBai
-    String normName = basename("~{normBam}", ".filter.deduped.realigned.recalibrated.bam")
-    String tumorName = basename("~{tumorBam}", ".filter.deduped.realigned.recalibrated.bam")
+    String tumour_name
+    File tumour_bam
+    File tumour_bai
+    String normal_name
+    File normal_bam
+    File normal_bai
     String colbaltScript = "java -Xmx8G -cp $HMFTOOLS_ROOT/cobalt.jar com.hartwig.hmftools.cobalt.CobaltApplication"
     String gcProfile = "$HMFTOOLS_DATA_ROOT/GC_profile.1000bp.38.cnp"
     String gamma = 100
@@ -133,16 +135,16 @@ task cobalt {
   command <<<
     set -euo pipefail
 
-    mkdir ~{tumorName}.cobalt 
+    mkdir ~{tumour_name}.cobalt 
 
     ~{colbaltScript} \
-      -reference ~{normName} -reference_bam ~{normBam} \
-      -tumor ~{tumorName} -tumor_bam ~{tumorBam} \
-      -output_dir ~{tumorName}.cobalt/ \
+      -reference ~{normal_name} -reference_bam ~{normal_bam} \
+      -tumor ~{tumour_name} -tumor_bam ~{tumour_bam} \
+      -output_dir ~{tumour_name}.cobalt/ \
       -gc_profile ~{gcProfile} \
       -pcf_gamma ~{gamma}
 
-    zip ~{tumorName}.cobalt
+    zip ~{tumour_name}.cobalt
 
   >>>
 
@@ -154,18 +156,18 @@ task cobalt {
   }
 
   output {
-    File cobaltDir = "~{tumorName}.cobalt.zip"
+    File output_directory = "~{tumour_name}.cobalt.zip"
   }
 }
 
 task purple {
   input {
-    File svVCFfile
-    File smallsVCFfiles
-    String normName
-    String tumorName
-    File amberDir
-    File cobaltDir
+    String normal_name
+    String tumour_name
+    File amber_directory
+    File cobalt_directory
+    File SV_vcf
+    File smalls_vcf
     String modules = "argparser stringdist structuravariantannotation rtracklayer gridss/2.13.2 hg38/p12 hmftools/1.0 kraken2 bcftools hmftools-data/hg38"
     String refFasta = "$HMFTOOLS_DATA_ROOT/hg38_random.fa"
     String bcftoolsScript = "$BCFTOOLS_ROOT/bin/bcftools view"
@@ -182,33 +184,27 @@ task purple {
   command <<<
     set -euo pipefail
 
-    unzip ~{amberDir} ~{cobaltDir} 
+    unzip ~{amber_directory} ~{cobalt_directory} 
 
-    ~{bcftoolsScript} -f 'PASS' \
-      ~{smallsVCFfiles} \
-      -s ~{tumorName} \
-      >~{tumorName}.SMALLS.PASS.vcf
+    ~{bcftoolsScript} -f 'PASS' ~{smalls_vcf}  >~{tumour_name}.SMALLS.PASS.vcf
 
-    ~{bcftoolsScript} -f 'PASS' \
-      ~{svVCFfile} \
-      -s ~{tumorName} \
-      >~{tumorName}.SV.PASS.vcf
+    ~{bcftoolsScript} -f 'PASS' ~{SV_vcf} >~{tumour_name}.SV.PASS.vcf
 
-    mkdir ~{tumorName}.purple 
+    mkdir ~{tumour_name}.purple 
 
     ~{purpleScript} \
       -no_charts \
-      -ref_genome_version ~{genomeVersion}
+      -ref_genome_version ~{genomeVersion} \
       -ref_genome ~{refFasta}  \
       -gc_profile ~{gcProfile} \
       -ensembl_data_dir ~{ensemblDir}  \
-      -reference ~{normName} -tumor ~{tumorName}  \
-      -amber ~{tumorName}.amber/ -cobalt ~{tumorName}.cobalt/ \
-      -somatic_vcf ~{tumorName}.SMALLS.PASS.vcf \
-      -structural_vcf ~{tumorName}.SV.PASS.vcf
-      -output_dir ~{tumorName}.purple/
+      -reference ~{normal_name} -tumor ~{tumour_name}  \
+      -amber ~{tumour_name}.amber -cobalt ~{tumour_name}.cobalt \
+      -somatic_vcf ~{tumour_name}.SMALLS.PASS.vcf \
+      -structural_vcf ~{tumour_name}.SV.PASS.vcf \
+      -output_dir ~{tumour_name}.purple/
 
-      zip ~{tumorName}.purple
+      zip ~{tumour_name}.purple
 
   >>>
 
@@ -220,6 +216,8 @@ task purple {
   }
 
   output {
-    File purpleDir = "~{tumorName}.purple.zip"
+    File purple_directory = "~{tumour_name}.purple.zip"
+    File smalls_pass = "~{tumour_name}.SMALLS.PASS.vcf"
+    File SV_pass = "~{tumour_name}.SV.PASS.vcf"
   }
 }

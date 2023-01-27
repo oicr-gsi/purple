@@ -1,0 +1,9 @@
+{
+  "hmftools.normBam": "File",
+  "hmftools.normBai": "File",
+  "hmftools.svVCFfile": "File",
+  "hmftools.smallsVCFfiles": "File",
+  "hmftools.tumorBai": "File",
+  "hmftools.tumorBam": "File"
+}
+
