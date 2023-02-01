@@ -55,7 +55,7 @@ workflow purple {
       tumour_name = tumour_name
   }
 
-  call purple {
+  call runPURPLE {
     input:
       normal_name = normal_name,
       tumour_name = tumour_name,
@@ -75,6 +75,9 @@ workflow purple {
       url: "https://github.com/hartwigmedical/hmftools/blob/master/purple/README.md"
     }
     ]
+    output_meta: {
+			purple_directory: "zipped directory containing all PURPLE output"
+		}
   }
 
   output {
@@ -98,6 +101,22 @@ task amber {
     Int memory = 32
     Int timeout = 100
   }
+
+  parameter_meta {
+    tumour_name: "Name for Tumour sample"
+    tumour_bam: "Tumour bam"
+    tumour_bai: "Matching bai for Tumour bam"
+    normal_name: "Name for Normal sample"
+    normal_bam: "Normal bam"
+    normal_bai: "Matching bai for Normal bam"
+    amberScript: "location of AMBER script"
+    PON: "Panel of Normal (PON) file, generated for AMBER"
+    genomeVersion: "genome version for AMBER, default set to V38"
+		modules: "Required environment modules"
+		memory: "Memory allocated for this job (GB)"
+		threads: "Requested CPU threads"
+		timeout: "Hours before task timeout"
+	}
 
   command <<<
     set -euo pipefail
@@ -125,6 +144,13 @@ task amber {
   output {
     File output_directory = "~{tumour_name}.amber.zip"
   }
+
+  meta {
+		output_meta: {
+			output_directory: "Zipped AMBER results directory"
+		}
+	}
+
 }
 
 task cobalt {
@@ -143,6 +169,22 @@ task cobalt {
     Int memory = 32
     Int timeout = 100
   }
+
+  parameter_meta {
+    tumour_name: "Name for Tumour sample"
+    tumour_bam: "Tumour bam"
+    tumour_bai: "Matching bai for Tumour bam"
+    normal_name: "Name for Normal sample"
+    normal_bam: "Normal bam"
+    normal_bai: "Matching bai for Normal bam"
+    colbaltScript: "location of COBALT script"
+    gcProfile: "GC profile, generated for COBALT"
+    gamma: "gamma (penalty) value for segmenting"
+		modules: "Required environment modules"
+		memory: "Memory allocated for this job (GB)"
+		threads: "Requested CPU threads"
+		timeout: "Hours before task timeout"
+	}
 
   command <<<
     set -euo pipefail
@@ -170,6 +212,13 @@ task cobalt {
   output {
     File output_directory = "~{tumour_name}.cobalt.zip"
   }
+
+  meta {
+		output_meta: {
+			output_directory: "Zipped COBALT results directory"
+		}
+	}
+
 }
 
 task filterVCF {
@@ -177,13 +226,25 @@ task filterVCF {
   input {
     String tumour_name
     File vcf
-    String modules = "bcftools"
     String bcftoolsScript = "$BCFTOOLS_ROOT/bin/bcftools view"
+    String modules = "bcftools"
     Int threads = 8
     Int memory = 32
     Int timeout = 100
   }
-    command <<<
+
+  parameter_meta {
+    tumour_name: "Name for Tumour sample"
+    vcf: "VCF file for filtering"
+    bcftoolsScript: "location of BCFTOOLS script, including view command"
+		modules: "Required environment modules"
+		memory: "Memory allocated for this job (GB)"
+		threads: "Requested CPU threads"
+		timeout: "Hours before task timeout"
+	}
+
+  
+  command <<<
     set -euo pipefail
 
     ~{bcftoolsScript} -f 'PASS' ~{vcf}  >~{tumour_name}.PASS.vcf
@@ -200,9 +261,16 @@ task filterVCF {
   output {
     File filtered_vcf = "~{tumour_name}.PASS.vcf"
   }
+
+  meta {
+		output_meta: {
+			filtered_vcf: "Filtered VCF"
+		}
+	}
+
 }
 
-task purple {
+task runPURPLE {
   input {
     String normal_name
     String tumour_name
@@ -210,17 +278,34 @@ task purple {
     File cobalt_directory
     File SV_vcf
     File smalls_vcf
-    String modules = "argparser stringdist structuravariantannotation rtracklayer gridss/2.13.2 hg38/p12 hmftools/1.0 kraken2 bcftools hmftools-data/hg38"
-    String refFasta = "$HMFTOOLS_DATA_ROOT/hg38_random.fa"
-    String purpleScript = "java -Xmx8G -jar $HMFTOOLS_ROOT/purple.jar"
-    String gcProfile = "$HMFTOOLS_DATA_ROOT/GC_profile.1000bp.38.cnp"
     String ensemblDir = "$HMFTOOLS_DATA_ROOT/ensembl"
+    String refFasta = "$HMFTOOLS_DATA_ROOT/hg38_random.fa"
     String genomeVersion = "V38"
-    String gamma = 100
+    String gcProfile = "$HMFTOOLS_DATA_ROOT/GC_profile.1000bp.38.cnp"
+    String purpleScript = "java -Xmx8G -jar $HMFTOOLS_ROOT/purple.jar"
+    String modules = "argparser stringdist structuravariantannotation rtracklayer gridss/2.13.2 hg38/p12 hmftools/1.0 kraken2 bcftools hmftools-data/hg38"
     Int threads = 8
     Int memory = 32
     Int timeout = 100
   }
+
+  parameter_meta {
+    tumour_name: "Name for Tumour sample"
+    normal_name: "Name for Normal sample"
+    amber_directory: "zipped output from AMBER"
+    cobalt_directory: "zipped output from COBALT"
+    SV_vcf: "filtered structural variant (SV) vcf"
+    smalls_vcf: "filtered SNV and indel (smalls) vcf"
+    ensemblDir: "Directory of Ensembl data for PURPLE"
+    refFasta: "fasta of reference genome"
+    gcProfile: "GC profile, generated for COBALT"
+    genomeVersion: "genome version for AMBER, default set to V38"
+    purpleScript: "location of PURPLE script"
+    modules: "Required environment modules"
+		memory: "Memory allocated for this job (GB)"
+		threads: "Requested CPU threads"
+		timeout: "Hours before task timeout"
+	}
 
   command <<<
     set -euo pipefail
@@ -254,4 +339,10 @@ task purple {
   output {
     File purple_directory = "~{tumour_name}.purple.zip"
   }
+
+  meta {
+		output_meta: {
+			purple_directory: "Zipped Output PURPLE directory"
+		}
+	}
 }
