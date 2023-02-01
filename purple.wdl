@@ -43,14 +43,26 @@ workflow purple {
       tumour_name = tumour_name
   }
 
+  call filterVCF as filterSV {
+    input: 
+      vcf = SV_vcf,
+      tumour_name = tumour_name
+  }
+
+  call filterVCF as filterSMALL {
+    input: 
+      vcf = smalls_vcf,
+      tumour_name = tumour_name
+  }
+
   call purple {
     input:
       normal_name = normal_name,
       tumour_name = tumour_name,
       amber_directory = amber.output_directory,
       cobalt_directory = cobalt.output_directory,
-      SV_vcf = SV_vcf,
-      smalls_vcf = smalls_vcf
+      SV_vcf = filterSV.filtered_vcf,
+      smalls_vcf = filterSMALL.filtered_vcf
   }
 
   meta {
@@ -99,7 +111,7 @@ task amber {
       -loci ~{PON} \
       -ref_genome_version ~{genomeVersion}
 
-    zip ~{tumour_name}.amber/
+    zip -r ~{tumour_name}.amber.zip ~{tumour_name}.amber/
 
   >>>
 
@@ -144,7 +156,7 @@ task cobalt {
       -gc_profile ~{gcProfile} \
       -pcf_gamma ~{gamma}
 
-    zip ~{tumour_name}.cobalt
+    zip -r ~{tumour_name}.cobalt.zip ~{tumour_name}.cobalt/
 
   >>>
 
@@ -160,6 +172,36 @@ task cobalt {
   }
 }
 
+task filterVCF {
+  
+  input {
+    String tumour_name
+    File vcf
+    String modules = "bcftools"
+    String bcftoolsScript = "$BCFTOOLS_ROOT/bin/bcftools view"
+    Int threads = 8
+    Int memory = 32
+    Int timeout = 100
+  }
+    command <<<
+    set -euo pipefail
+
+    ~{bcftoolsScript} -f 'PASS' ~{vcf}  >~{tumour_name}.PASS.vcf
+
+  >>>
+
+  runtime {
+    cpu: "~{threads}"
+    memory:  "~{memory} GB"
+    modules: "~{modules}"
+    timeout: "~{timeout}"
+  }
+
+  output {
+    File filtered_vcf = "~{tumour_name}.PASS.vcf"
+  }
+}
+
 task purple {
   input {
     String normal_name
@@ -170,7 +212,6 @@ task purple {
     File smalls_vcf
     String modules = "argparser stringdist structuravariantannotation rtracklayer gridss/2.13.2 hg38/p12 hmftools/1.0 kraken2 bcftools hmftools-data/hg38"
     String refFasta = "$HMFTOOLS_DATA_ROOT/hg38_random.fa"
-    String bcftoolsScript = "$BCFTOOLS_ROOT/bin/bcftools view"
     String purpleScript = "java -Xmx8G -jar $HMFTOOLS_ROOT/purple.jar"
     String gcProfile = "$HMFTOOLS_DATA_ROOT/GC_profile.1000bp.38.cnp"
     String ensemblDir = "$HMFTOOLS_DATA_ROOT/ensembl"
@@ -184,12 +225,8 @@ task purple {
   command <<<
     set -euo pipefail
 
-    unzip ~{amber_directory} ~{cobalt_directory} 
-
-    ~{bcftoolsScript} -f 'PASS' ~{smalls_vcf}  >~{tumour_name}.SMALLS.PASS.vcf
-
-    ~{bcftoolsScript} -f 'PASS' ~{SV_vcf} >~{tumour_name}.SV.PASS.vcf
-
+    unzip ~{amber_directory} 
+    unzip ~{cobalt_directory} 
     mkdir ~{tumour_name}.purple 
 
     ~{purpleScript} \
@@ -200,12 +237,11 @@ task purple {
       -ensembl_data_dir ~{ensemblDir}  \
       -reference ~{normal_name} -tumor ~{tumour_name}  \
       -amber ~{tumour_name}.amber -cobalt ~{tumour_name}.cobalt \
-      -somatic_vcf ~{tumour_name}.SMALLS.PASS.vcf \
-      -structural_vcf ~{tumour_name}.SV.PASS.vcf \
+      -somatic_vcf ~{smalls_vcf} \
+      -structural_vcf ~{SV_vcf} \
       -output_dir ~{tumour_name}.purple/
 
-      zip ~{tumour_name}.purple
-
+      zip -r ~{tumour_name}.purple.zip ~{tumour_name}.purple/
   >>>
 
   runtime {
@@ -217,7 +253,5 @@ task purple {
 
   output {
     File purple_directory = "~{tumour_name}.purple.zip"
-    File smalls_pass = "~{tumour_name}.SMALLS.PASS.vcf"
-    File SV_pass = "~{tumour_name}.SV.PASS.vcf"
   }
 }
