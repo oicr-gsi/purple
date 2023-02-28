@@ -20,8 +20,8 @@ workflow purple {
     String normal_name
     String tumour_name
     String genomeVersion = "V38"
-    File? SV_vcf
-    File? smalls_vcf
+    Boolean doSV = true
+    Boolean doSMALL = true
   }
 
   parameter_meta {
@@ -73,18 +73,16 @@ Map[String,GenomeResources] resources = {
       gcProfile = resources [ genomeVersion ].gcProfile
   }
 
-  if(defined(SV_vcf)) {
+  if(doSV) {
     call filterSV {
       input: 
-        vcf = SV_vcf,
         tumour_name = tumour_name
     }
   }
 
-  else if(defined(smalls_vcf)) {
+  if(doSMALL) {
     call filterSMALL {
       input: 
-        vcf = smalls_vcf,
         tumour_name = tumour_name
     }
   }
@@ -95,8 +93,8 @@ Map[String,GenomeResources] resources = {
       tumour_name = tumour_name,
       amber_directory = amber.output_directory,
       cobalt_directory = cobalt.output_directory,
-      SV_vcf? = filterSV.filtered_vcf,
-      smalls_vcf? = filterSMALL.filtered_vcf,
+      SV_vcf = filterSV.filtered_vcf,
+      smalls_vcf = filterSMALL.filtered_vcf,
       genomeVersion = genomeVersion,
       modules = resources [ genomeVersion ].runPURPLEModules,
       gcProfile = resources [ genomeVersion ].gcProfile,
@@ -273,7 +271,7 @@ task filterSV {
   
   input {
     String tumour_name
-    File vcf
+    File? vcf
     String bcftoolsScript = "$BCFTOOLS_ROOT/bin/bcftools view"
     String modules = "bcftools"
     Int threads = 8
@@ -322,7 +320,7 @@ task filterSMALL {
   
   input {
     String tumour_name
-    File vcf
+    File? vcf
     String bcftoolsScript = "$BCFTOOLS_ROOT/bin/bcftools view"
     String modules = "bcftools"
     Int threads = 8
@@ -404,12 +402,12 @@ task runPURPLE {
 		timeout: "Hours before task timeout"
 	}
 
-  String SV_vcf_arg = if SV_vcf then
+  String SV_vcf_arg = if(defined(SV_vcf))then
                                   "-structural_vcf ~{SV_vcf}"
                                  else
                                   ""
 
-  String smalls_vcf_arg = if smalls_vcf then
+  String smalls_vcf_arg = if(defined(smalls_vcf))then
                                   "-somatic_vcf ~{smalls_vcf}"
                                  else
                                   ""
