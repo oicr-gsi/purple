@@ -1,0 +1,39 @@
+## Commands
+This section lists commands run by the PURPLE workflow
+
+### Run AMBER 
+
+    ~{amberScript} \
+      -reference ~{normal_name} -reference_bam ~{normal_bam} \
+      -tumor ~{tumour_name} -tumor_bam ~{tumour_bam} \
+      -output_dir ~{tumour_name}.amber/ \
+      -loci ~{PON} \
+      -ref_genome_version ~{genomeVersion}
+
+### Run COBALT 
+
+    ~{colbaltScript} \
+      -reference ~{normal_name} -reference_bam ~{normal_bam} \
+      -tumor ~{tumour_name} -tumor_bam ~{tumour_bam} \
+      -output_dir ~{tumour_name}.cobalt/ \
+      -gc_profile ~{gcProfile} \
+      -pcf_gamma ~{gamma}
+
+### Filter VCFs (both for SVs and for SNV+InDel) 
+
+    ~{bcftoolsScript} -f 'PASS' ~{vcf}  >~{tumour_name}.PASS.vcf
+
+### Run PURPLE 
+
+    ~{purpleScript} \
+      -no_charts \
+      -ref_genome_version ~{genomeVersion} \
+      -ref_genome ~{refFasta}  \
+      -gc_profile ~{gcProfile} \
+      -ensembl_data_dir ~{ensemblDir}  \
+      -reference ~{normal_name} -tumor ~{tumour_name}  \
+      -amber ~{tumour_name}.amber -cobalt ~{tumour_name}.cobalt \
+      -somatic_vcf ~{smalls_vcf} \
+      -structural_vcf ~{SV_vcf} \
+      -output_dir ~{tumour_name}.purple/
+
