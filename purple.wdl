@@ -17,11 +17,11 @@ workflow purple {
     File tumour_bai
     File normal_bam
     File normal_bai
-    File SV_vcf
-    File smalls_vcf
     String normal_name
     String tumour_name
-    String genomeVersion
+    String genomeVersion = "V38"
+    File? SV_vcf
+    File? smalls_vcf
   }
 
   parameter_meta {
@@ -37,14 +37,14 @@ workflow purple {
 
 Map[String,GenomeResources] resources = {
   "V38": {
+    "amberModules": "hmftools/1.1 hg38/p12 hmftools-data/hg38",
+    "cobaltModules": "hmftools/1.1 hg38/p12 hmftools-data/hg38",
+    "runPURPLEModules": "hmftools/1.1 hg38/p12 hmftools-data/hg38"
     "PON" : "$HMFTOOLS_DATA_ROOT/GermlineHetPon.38.vcf.gz",
-    "amberModules": "argparser stringdist structuravariantannotation rtracklayer gridss/2.13.2 hg38/p12 hmftools/1.0 kraken2 bcftools hmftools-data/hg38",
     "gcProfile": "$HMFTOOLS_DATA_ROOT/GC_profile.1000bp.38.cnp",
-    "cobaltModules": "argparser stringdist structuravariantannotation rtracklayer gridss/2.13.2 hg38/p12 hmftools/1.0 kraken2 bcftools hmftools-data/hg38",
     "ensemblDir": "$HMFTOOLS_DATA_ROOT/ensembl",
     "refFasta": "$HMFTOOLS_DATA_ROOT/hg38_random.fa",
     "gcProfile": "$HMFTOOLS_DATA_ROOT/GC_profile.1000bp.38.cnp",
-    "runPURPLEModules": "argparser stringdist structuravariantannotation rtracklayer gridss/2.13.2 hg38/p12 hmftools/1.0 kraken2 bcftools hmftools-data/hg38"
   }
 }
 
@@ -73,16 +73,20 @@ Map[String,GenomeResources] resources = {
       gcProfile = resources [ genomeVersion ].gcProfile
   }
 
-  call filterVCF as filterSV {
-    input: 
-      vcf = SV_vcf,
-      tumour_name = tumour_name
+  if SV_vcf{
+    call filterSV {
+      input: 
+        vcf = SV_vcf,
+        tumour_name = tumour_name
+    }
   }
 
-  call filterVCF as filterSMALL {
-    input: 
-      vcf = smalls_vcf,
-      tumour_name = tumour_name
+  if smalls_vcf{
+    call filterSMALL {
+      input: 
+        vcf = smalls_vcf,
+        tumour_name = tumour_name
+    }
   }
 
   call runPURPLE {
@@ -91,8 +95,8 @@ Map[String,GenomeResources] resources = {
       tumour_name = tumour_name,
       amber_directory = amber.output_directory,
       cobalt_directory = cobalt.output_directory,
-      SV_vcf = filterSV.filtered_vcf,
-      smalls_vcf = filterSMALL.filtered_vcf,
+      SV_vcf? = filterSV.filtered_vcf,
+      smalls_vcf? = filterSMALL.filtered_vcf,
       genomeVersion = genomeVersion,
       modules = resources [ genomeVersion ].runPURPLEModules,
       gcProfile = resources [ genomeVersion ].gcProfile,
@@ -116,7 +120,16 @@ Map[String,GenomeResources] resources = {
   }
 
   output {
-    File purple_directory = runPURPLE.purple_directory
+    File purple_qc = runPURPLE.purple_qc
+    File purple_purity = runPURPLE.purple_purity
+    File purple_purity_range = runPURPLE.purple_purity_range
+    File purple_segments = runPURPLE.purple_segments
+    File purple_cnv = runPURPLE.purple_cnv
+    File? purple_SV_index = runPURPLE.purple_SV_index
+    File? purple_SV = runPURPLE.purple_SV
+    File? purple_SMALL_index = runPURPLE.purple_SMALL_index
+    File? purple_SMALL = runPURPLE.purple_SMALL
+
   }
 }
 
@@ -256,7 +269,56 @@ task cobalt {
 
 }
 
-task filterVCF {
+task filterSV {
+  
+  input {
+    String tumour_name
+    File vcf
+    String bcftoolsScript = "$BCFTOOLS_ROOT/bin/bcftools view"
+    String modules = "bcftools"
+    Int threads = 8
+    Int memory = 32
+    Int timeout = 100
+  }
+
+  parameter_meta {
+    tumour_name: "Name for Tumour sample"
+    vcf: "VCF file for filtering"
+    bcftoolsScript: "location of BCFTOOLS script, including view command"
+		modules: "Required environment modules"
+		memory: "Memory allocated for this job (GB)"
+		threads: "Requested CPU threads"
+		timeout: "Hours before task timeout"
+	}
+
+  
+  command <<<
+    set -euo pipefail
+
+    ~{bcftoolsScript} -f 'PASS' ~{vcf}  >~{tumour_name}.PASS.vcf
+
+  >>>
+
+  runtime {
+    cpu: "~{threads}"
+    memory:  "~{memory} GB"
+    modules: "~{modules}"
+    timeout: "~{timeout}"
+  }
+
+  output {
+    File filtered_vcf = "~{tumour_name}.PASS.vcf"
+  }
+
+  meta {
+		output_meta: {
+			filtered_vcf: "Filtered VCF"
+		}
+	}
+
+}
+
+task filterSMALL {
   
   input {
     String tumour_name
@@ -311,8 +373,8 @@ task runPURPLE {
     String tumour_name
     File amber_directory
     File cobalt_directory
-    File SV_vcf
-    File smalls_vcf
+    File? SV_vcf
+    File? smalls_vcf
     String ensemblDir
     String refFasta
     String genomeVersion
@@ -342,26 +404,33 @@ task runPURPLE {
 		timeout: "Hours before task timeout"
 	}
 
+  String SV_vcf_arg = if SV_vcf then
+                                  "-structural_vcf ~{SV_vcf}"
+                                 else
+                                  ""
+
+  String smalls_vcf_arg = if smalls_vcf then
+                                  "-somatic_vcf ~{smalls_vcf}"
+                                 else
+                                  ""
+
   command <<<
     set -euo pipefail
 
     unzip ~{amber_directory} 
     unzip ~{cobalt_directory} 
-    mkdir ~{tumour_name}.purple 
+    mkdir purple_output 
 
     ~{purpleScript} \
-      -no_charts \
       -ref_genome_version ~{genomeVersion} \
       -ref_genome ~{refFasta}  \
       -gc_profile ~{gcProfile} \
       -ensembl_data_dir ~{ensemblDir}  \
       -reference ~{normal_name} -tumor ~{tumour_name}  \
       -amber ~{tumour_name}.amber -cobalt ~{tumour_name}.cobalt \
-      -somatic_vcf ~{smalls_vcf} \
-      -structural_vcf ~{SV_vcf} \
-      -output_dir ~{tumour_name}.purple/
+      ~{SV_vcf_arg} ~{smalls_vcf} \
+      -output_dir purple_output/
 
-      zip -r ~{tumour_name}.purple.zip ~{tumour_name}.purple/
   >>>
 
   runtime {
@@ -372,7 +441,15 @@ task runPURPLE {
   }
 
   output {
-    File purple_directory = "~{tumour_name}.purple.zip"
+    File purple_qc = "purple_output/~{tumour_name}.purple.qc"
+    File purple_purity = "purple_output/~{tumour_name}.purple.purity.tsv"
+    File purple_purity_range = "purple_output/~{tumour_name}.purple.purity.range.tsv"
+    File purple_segments = "purple_output/~{tumour_name}.purple.segment.tsv"
+    File purple_cnv = "purple_output/~{tumour_name}.purple.cnv.somatic.tsv"
+    File? purple_SV_index = "purple_output/~{tumour_name}.purple.sv.vcf.gz.tbi"
+    File? purple_SV = "purple_output/~{tumour_name}.purple.sv.vcf.gz"
+    File? purple_SMALL_index = "purple_output/~{tumour_name}.purple.somatic.vcf.gz.tbi"
+    File? purple_SMALL = "purple_output/~{tumour_name}.purple.somatic.vcf.gz"
   }
 
   meta {
