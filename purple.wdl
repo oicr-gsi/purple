@@ -39,12 +39,12 @@ Map[String,GenomeResources] resources = {
   "V38": {
     "amberModules": "hmftools/1.1 hg38/p12 hmftools-data/hg38",
     "cobaltModules": "hmftools/1.1 hg38/p12 hmftools-data/hg38",
-    "runPURPLEModules": "hmftools/1.1 hg38/p12 hmftools-data/hg38"
+    "runPURPLEModules": "hmftools/1.1 hg38/p12 hmftools-data/hg38",
     "PON" : "$HMFTOOLS_DATA_ROOT/GermlineHetPon.38.vcf.gz",
     "gcProfile": "$HMFTOOLS_DATA_ROOT/GC_profile.1000bp.38.cnp",
     "ensemblDir": "$HMFTOOLS_DATA_ROOT/ensembl",
     "refFasta": "$HMFTOOLS_DATA_ROOT/hg38_random.fa",
-    "gcProfile": "$HMFTOOLS_DATA_ROOT/GC_profile.1000bp.38.cnp",
+    "gcProfile": "$HMFTOOLS_DATA_ROOT/GC_profile.1000bp.38.cnp"
   }
 }
 
@@ -73,7 +73,7 @@ Map[String,GenomeResources] resources = {
       gcProfile = resources [ genomeVersion ].gcProfile
   }
 
-  if SV_vcf{
+  if(defined(SV_vcf)) {
     call filterSV {
       input: 
         vcf = SV_vcf,
@@ -81,7 +81,7 @@ Map[String,GenomeResources] resources = {
     }
   }
 
-  if smalls_vcf{
+  else if(defined(smalls_vcf)) {
     call filterSMALL {
       input: 
         vcf = smalls_vcf,
