@@ -1,5 +1,16 @@
 version 1.0
 
+struct GenomeResources {
+    String PON
+    String amberModules
+    String gcProfile
+    String cobaltModules
+    String ensemblDir
+    String refFasta
+    String gcProfile
+    String runPURPLEModules
+}
+
 workflow purple {
   input {
     File tumour_bam
@@ -10,6 +21,7 @@ workflow purple {
     File smalls_vcf
     String normal_name
     String tumour_name
+    String genomeVersion
   }
 
   parameter_meta {
@@ -23,6 +35,19 @@ workflow purple {
     smalls_vcf: "somatic small (SNV+indel) Variant File (.vcf) [tested with mutect2]."
   }
 
+Map[String,GenomeResources] resources = {
+  "V38": {
+    "PON" : "$HMFTOOLS_DATA_ROOT/GermlineHetPon.38.vcf.gz",
+    "amberModules": "argparser stringdist structuravariantannotation rtracklayer gridss/2.13.2 hg38/p12 hmftools/1.0 kraken2 bcftools hmftools-data/hg38",
+    "gcProfile": "$HMFTOOLS_DATA_ROOT/GC_profile.1000bp.38.cnp",
+    "cobaltModules": "argparser stringdist structuravariantannotation rtracklayer gridss/2.13.2 hg38/p12 hmftools/1.0 kraken2 bcftools hmftools-data/hg38",
+    "ensemblDir": "$HMFTOOLS_DATA_ROOT/ensembl",
+    "refFasta": "$HMFTOOLS_DATA_ROOT/hg38_random.fa",
+    "gcProfile": "$HMFTOOLS_DATA_ROOT/GC_profile.1000bp.38.cnp",
+    "runPURPLEModules": "argparser stringdist structuravariantannotation rtracklayer gridss/2.13.2 hg38/p12 hmftools/1.0 kraken2 bcftools hmftools-data/hg38"
+  }
+}
+
   call amber {
     input:
       tumour_bam = tumour_bam,
@@ -30,7 +55,10 @@ workflow purple {
       normal_bam = normal_bam,
       normal_bai = normal_bai,
       normal_name = normal_name,
-      tumour_name = tumour_name
+      tumour_name = tumour_name,
+      genomeVersion = genomeVersion,
+      modules = resources [ genomeVersion ].amberModules,
+      PON = resources [ genomeVersion ].PON
   }
 
   call cobalt {
@@ -40,7 +68,9 @@ workflow purple {
       normal_bam = normal_bam,
       normal_bai = normal_bai,
       normal_name = normal_name,
-      tumour_name = tumour_name
+      tumour_name = tumour_name,
+      modules = resources [ genomeVersion ].cobaltModules,
+      gcProfile = resources [ genomeVersion ].gcProfile
   }
 
   call filterVCF as filterSV {
@@ -62,7 +92,12 @@ workflow purple {
       amber_directory = amber.output_directory,
       cobalt_directory = cobalt.output_directory,
       SV_vcf = filterSV.filtered_vcf,
-      smalls_vcf = filterSMALL.filtered_vcf
+      smalls_vcf = filterSMALL.filtered_vcf,
+      genomeVersion = genomeVersion,
+      modules = resources [ genomeVersion ].runPURPLEModules,
+      gcProfile = resources [ genomeVersion ].gcProfile,
+      ensemblDir = resources [ genomeVersion ].ensemblDir,
+      refFasta = resources [ genomeVersion ].refFasta,
   }
 
   meta {
@@ -81,7 +116,7 @@ workflow purple {
   }
 
   output {
-    File purple_directory = "~{tumour_name}.purple.zip"
+    File purple_directory = runPURPLE.purple_directory
   }
 }
 
@@ -94,9 +129,9 @@ task amber {
     File normal_bam
     File normal_bai
     String amberScript = "java -Xmx32G -cp $HMFTOOLS_ROOT/amber.jar com.hartwig.hmftools.amber.AmberApplication"
-    String PON = "$HMFTOOLS_DATA_ROOT/GermlineHetPon.38.vcf.gz"
-    String genomeVersion = "V38"
-    String modules = "argparser stringdist structuravariantannotation rtracklayer gridss/2.13.2 hg38/p12 hmftools/1.0 kraken2 bcftools hmftools-data/hg38"
+    String PON
+    String genomeVersion
+    String modules
     Int threads = 8
     Int memory = 32
     Int timeout = 100
@@ -162,9 +197,9 @@ task cobalt {
     File normal_bam
     File normal_bai
     String colbaltScript = "java -Xmx8G -cp $HMFTOOLS_ROOT/cobalt.jar com.hartwig.hmftools.cobalt.CobaltApplication"
-    String gcProfile = "$HMFTOOLS_DATA_ROOT/GC_profile.1000bp.38.cnp"
+    String gcProfile
     String gamma = 100
-    String modules = "argparser stringdist structuravariantannotation rtracklayer gridss/2.13.2 hg38/p12 hmftools/1.0 kraken2 bcftools hmftools-data/hg38"
+    String modules
     Int threads = 8
     Int memory = 32
     Int timeout = 100
@@ -278,12 +313,12 @@ task runPURPLE {
     File cobalt_directory
     File SV_vcf
     File smalls_vcf
-    String ensemblDir = "$HMFTOOLS_DATA_ROOT/ensembl"
-    String refFasta = "$HMFTOOLS_DATA_ROOT/hg38_random.fa"
-    String genomeVersion = "V38"
-    String gcProfile = "$HMFTOOLS_DATA_ROOT/GC_profile.1000bp.38.cnp"
+    String ensemblDir
+    String refFasta
+    String genomeVersion
+    String gcProfile 
     String purpleScript = "java -Xmx8G -jar $HMFTOOLS_ROOT/purple.jar"
-    String modules = "argparser stringdist structuravariantannotation rtracklayer gridss/2.13.2 hg38/p12 hmftools/1.0 kraken2 bcftools hmftools-data/hg38"
+    String modules
     Int threads = 8
     Int memory = 32
     Int timeout = 100
