@@ -7,7 +7,6 @@ struct GenomeResources {
     String cobaltModules
     String ensemblDir
     String refFasta
-    String gcProfile
     String runPURPLEModules
 }
 
@@ -43,7 +42,6 @@ Map[String,GenomeResources] resources = {
     "cobaltModules": "argparser stringdist structuravariantannotation rtracklayer gridss/2.13.2 hg38/p12 hmftools/1.0 kraken2 bcftools hmftools-data/hg38",
     "ensemblDir": "$HMFTOOLS_DATA_ROOT/ensembl",
     "refFasta": "$HMFTOOLS_DATA_ROOT/hg38_random.fa",
-    "gcProfile": "$HMFTOOLS_DATA_ROOT/GC_profile.1000bp.38.cnp",
     "runPURPLEModules": "argparser stringdist structuravariantannotation rtracklayer gridss/2.13.2 hg38/p12 hmftools/1.0 kraken2 bcftools hmftools-data/hg38"
   }
 }
