@@ -1,9 +1,9 @@
 [
     {
         "arguments": {
-            "mrdetect.tumorvcf": {
+            "purple.normal_bam": {
                 "contents": {
-                    "configuration": "/.mounts/labs/gsi/testdata/mrdetect/1.0/input_data/TGL49_0143_Br_P_WG.chr21.vcf.gz",
+                    "configuration": "/.mounts/labs/prod/vidarr/output-clinical/2691/89a7/5974/269189a75974ec64f78e9c5035fbdc3a3c9977b20ef36a9970c860a839c82797/OCT_011633_Ly_R_WG_OCT_011633-BC.filter.deduped.realigned.recalibrated.bam",
                     "externalIds": [
                         {
                             "id": "TEST",
@@ -13,9 +13,9 @@
                 },
                 "type": "EXTERNAL"
             },
-            "mrdetect.tumorvcfindex": {
+            "purple.normal_bai": {
                 "contents": {
-                    "configuration": "/.mounts/labs/gsi/testdata/mrdetect/1.0/input_data/TGL49_0143_Br_P_WG.chr21.vcf.gz.tbi",
+                    "configuration": "/.mounts/labs/prod/vidarr/output-clinical/2691/89a7/5974/269189a75974ec64f78e9c5035fbdc3a3c9977b20ef36a9970c860a839c82797/OCT_011633_Ly_R_WG_OCT_011633-BC.filter.deduped.realigned.recalibrated.bai",
                     "externalIds": [
                         {
                             "id": "TEST",
@@ -25,9 +25,21 @@
                 },
                 "type": "EXTERNAL"
             },
-            "mrdetect.plasmabam": {
+            "purple.tumour_bai": {
                 "contents": {
-                    "configuration": "/.mounts/labs/gsi/testdata/mrdetect/1.0/input_data/TGL49_0143_Ct_T_WG.chr21.bam",
+                    "configuration": "/.mounts/labs/prod/vidarr/output-clinical/2691/89a7/5974/269189a75974ec64f78e9c5035fbdc3a3c9977b20ef36a9970c860a839c82797/OCT_011633_Ki_P_WG_OCT_011633-TS.filter.deduped.realigned.recalibrated.bai",
+                    "externalIds": [
+                        {
+                            "id": "TEST",
+                            "provider": "TEST"
+                        }
+                    ]
+                },
+                "type": "EXTERNAL"
+            },        
+            "purple.tumour_bam": {
+                "contents": {
+                    "configuration": "/.mounts/labs/prod/vidarr/output-clinical/2691/89a7/5974/269189a75974ec64f78e9c5035fbdc3a3c9977b20ef36a9970c860a839c82797/OCT_011633_Ki_P_WG_OCT_011633-TS.filter.deduped.realigned.recalibrated.bam",
                     "externalIds": [
                         {
                             "id": "TEST",
@@ -37,9 +49,9 @@
                 },
                 "type": "EXTERNAL"
             },
-            "mrdetect.plasmabai": {
+            "purple.smalls_vcf": {
                 "contents": {
-                    "configuration": "/.mounts/labs/gsi/testdata/mrdetect/1.0/input_data/TGL49_0143_Ct_T_WG.chr21.bam.bai",
+                    "configuration": "/.mounts/labs/CGI/scratch/fbeaudry/purple_test/OCT_011633/OCT_011633_Ki_P_WG_OCT_011633-TS.SM.filter.vcf",
                     "externalIds": [
                         {
                             "id": "TEST",
@@ -49,91 +61,56 @@
                 },
                 "type": "EXTERNAL"
             },
-            "mrdetect.detectSample.blocklist": "/.mounts/labs/gsi/testdata/mrdetect/1.0/input_data/HBCs.blacklist.chr21.vcf.gz",
-            "mrdetect.detectControl.blocklist": "/.mounts/labs/gsi/testdata/mrdetect/1.0/input_data/HBCs.blacklist.chr21.vcf.gz",
-            "mrdetect.controlFileList": "/.mounts/labs/gsi/testdata/mrdetect/1.0/input_data/HBC.chr21.bam.list",
-            "mrdetect.outputFileNamePrefix": "TGL49_0143_Ct_T_WG",
-            "mrdetect.tumorSampleName": "TGL49_0143_Br_P_T-92",
-            "mrdetect.filterVCF.tumorVCFfilter": null,
-            "mrdetect.filterVCF.tumorVAF": null,
-            "mrdetect.filterVCF.genome": null,
-            "mrdetect.filterVCF.difficultRegions": null,
-            "mrdetect.filterVCF.modules": null,
-            "mrdetect.filterVCF.jobMemory": null,
-            "mrdetect.filterVCF.threads": null,
-            "mrdetect.filterVCF.timeout": null,
-            "mrdetect.parseControls.jobMemory": null,
-            "mrdetect.parseControls.timeout": null,
-            "mrdetect.detectControl.plasmaSampleName": null,
-            "mrdetect.detectControl.tumorSampleName": null,
-            "mrdetect.detectControl.modules": null,
-            "mrdetect.detectControl.jobMemory": null,
-            "mrdetect.detectControl.threads": null,
-            "mrdetect.detectControl.timeout": null,
-            "mrdetect.detectControl.pickle": null,
-            "mrdetect.detectControl.pullreadsScript": null,
-            "mrdetect.detectControl.qualityscoreScript": null,
-            "mrdetect.detectControl.filterAndDetectScript": null,
-            "mrdetect.detectSample.plasmaSampleName": null,
-            "mrdetect.detectSample.tumorSampleName": null,
-            "mrdetect.detectSample.modules": null,
-            "mrdetect.detectSample.jobMemory": null,
-            "mrdetect.detectSample.threads": null,
-            "mrdetect.detectSample.timeout": null,
-            "mrdetect.detectSample.pickle": null,
-            "mrdetect.detectSample.pullreadsScript": null,
-            "mrdetect.detectSample.qualityscoreScript": null,
-            "mrdetect.detectSample.filterAndDetectScript": null,
-            "mrdetect.snvDetectionSummary.pvalue": "0.01",
-            "mrdetect.snvDetectionSummary.jobMemory": null,
-            "mrdetect.snvDetectionSummary.threads": null,
-            "mrdetect.snvDetectionSummary.timeout": null,
-            "mrdetect.snvDetectionSummary.modules": null,
-            "mrdetect.snvDetectionSummary.pwgtestscript": null
+            "purple.SV_vcf": {
+                "contents": {
+                    "configuration": "/.mounts/labs/CGI/scratch/fbeaudry/purple_test/OCT_011633/OCT_011633_Ki_P_WG_OCT_011633-TS.SV.filter.vcf",
+                    "externalIds": [
+                        {
+                            "id": "TEST",
+                            "provider": "TEST"
+                        }
+                    ]
+                },
+                "type": "EXTERNAL"
+            },
+            "purple.tumour_name": "OCT_011633_Ki_P_OCT_011633-TS",
+            "purple.normal_name": "OCT_011633_Ly_R_OCT_011633-BC",
+            "purple.amber.timeout": "100",
+            "purple.amber.amberScript": "java -Xmx32G -cp $HMFTOOLS_ROOT/amber.jar com.hartwig.hmftools.amber.AmberApplication",
+            "purple.filterSV.bcftoolsScript": "$BCFTOOLS_ROOT/bin/bcftools view",
+            "purple.genomeVersion": "V38",
+            "purple.filterSMALL.timeout": "100",
+            "purple.amber.memory": "32",
+            "purple.filterSV.threads": "8",
+            "purple.cobalt.gamma": "100",
+            "purple.filterSMALL.modules": "bcftools",
+            "purple.filterSMALL.memory": "32",
+            "purple.filterSMALL.threads": "8",
+            "purple.filterSV.timeout": "100",
+            "purple.runPURPLE.timeout": "100",
+            "purple.cobalt.memory": "32",
+            "purple.cobalt.timeout": "100",
+            "purple.filterSMALL.bcftoolsScript": "$BCFTOOLS_ROOT/bin/bcftools view",
+            "purple.filterSV.modules": "bcftools",
+            "purple.cobalt.colbaltScript": "java -Xmx8G -cp $HMFTOOLS_ROOT/cobalt.jar com.hartwig.hmftools.cobalt.CobaltApplication",
+            "purple.runPURPLE.purpleScript": "java -Xmx8G -jar $HMFTOOLS_ROOT/purple.jar",
+            "purple.cobalt.threads": "8",
+            "purple.filterSV.memory": "32",
+            "purple.runPURPLE.threads": "8",
+            "purple.amber.threads": "8",
+            "purple.runPURPLE.memory": "32"
      },
-        "description": "mrdetect workflow test",
+        "description": "purple workflow test",
         "engineArguments": {
           "write_to_cache": false,
           "read_from_cache": false
         },
-        "id": "TGL49_0143Test",
+        "id": "OCT_011633_Test",
         "metadata": {
-            "mrdetect.final_call": {
+            "purple.purple_directory": {
                 "contents": [
                     {
-                        "outputDirectory": "@SCRATCH@/@DATE@_Workflow_mrdetect_TGL49_0143Test_@JENKINSID@"
-                    }
-                ],
-                "type": "ALL"
-            },
-            "mrdetect.snvDetectionVAF": {
-                "contents": [
-                    {
-                        "outputDirectory": "@SCRATCH@/@DATE@_Workflow_mrdetect_TGL49_0143Test_@JENKINSID@"
-                    }
-                ],
-                "type": "ALL"
-            },
-            "mrdetect.snpcount": {
-                "contents": [
-                    {
-                        "outputDirectory": "@SCRATCH@/@DATE@_Workflow_mrdetect_TGL49_0143Test_@JENKINSID@"
-                    }
-                ],
-                "type": "ALL"
-            },
-            "mrdetect.snvDetectionResult": {
-                "contents": [
-                    {
-                        "outputDirectory": "@SCRATCH@/@DATE@_Workflow_mrdetect_TGL49_0143Test_@JENKINSID@"
-                    }
-                ],
-                "type": "ALL"
-            },
-            "mrdetect.pWGS_svg": {
-                "contents": [
-                    {
-                        "outputDirectory": "@SCRATCH@/@DATE@_Workflow_mrdetect_TGL49_0143Test_@JENKINSID@"
+                        "outputDirectory": "@SCRATCH@/@DATE@_Workflow_purple_OCT_011633_Test_@JENKINSID@"
                     }
                 ],
                 "type": "ALL"
@@ -143,7 +120,7 @@
             {
                 "metrics_calculate": "@CHECKOUT@/tests/calculate.sh",
                 "metrics_compare": "@CHECKOUT@/tests/compare.sh",
-                "output_metrics": "/.mounts/labs/gsi/testdata/mrdetect/1.1/output_metrics/TGL49_0143Test.metrics",
+                "output_metrics": "/.mounts/labs/gsi/testdata/purple/1.1/output_metrics/TGL49_0143Test.metrics",
                 "type": "script"
             }  
         ]
