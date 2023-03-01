@@ -82,7 +82,7 @@
             "purple.filterSMALL.timeout": 100,
             "purple.amber.memory": 32,
             "purple.filterSV.threads": 8,
-            "purple.cobalt.gamma": 100,
+            "purple.cobalt.gamma": "100",
             "purple.filterSMALL.modules": "bcftools",
             "purple.filterSMALL.memory": 32,
             "purple.filterSMALL.threads": 8,
