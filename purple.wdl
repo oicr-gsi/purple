@@ -19,7 +19,7 @@ workflow purple {
     File normal_bai
     String normal_name
     String tumour_name
-    String genomeVersion = "V38"
+    String genomeVersion = "38"
     Boolean doSV = true
     Boolean doSMALL = true
   }
@@ -36,14 +36,13 @@ workflow purple {
   }
 
 Map[String,GenomeResources] resources = {
-  "V38": {
-    "amberModules": "hmftools/1.1 hg38/p12 hmftools-data/hg38",
-    "cobaltModules": "hmftools/1.1 hg38/p12 hmftools-data/hg38",
-    "runPURPLEModules": "hmftools/1.1 hg38/p12 hmftools-data/hg38",
+  "38": {
+    "amberModules": "hmftools/1.1 hg38/p12 hmftools-data/5_31_38",
+    "cobaltModules": "hmftools/1.1 hg38/p12 hmftools-data/5_31_38",
+    "runPURPLEModules": "hmftools/1.1 hg38/p12 hmftools-data/5_31_38",
+    "refFasta": "$HG38_ROOT/hg38_random.fa",
     "PON" : "$HMFTOOLS_DATA_ROOT/GermlineHetPon.38.vcf.gz",
-    "gcProfile": "$HMFTOOLS_DATA_ROOT/GC_profile.1000bp.38.cnp",
     "ensemblDir": "$HMFTOOLS_DATA_ROOT/ensembl",
-    "refFasta": "$HMFTOOLS_DATA_ROOT/hg38_random.fa",
     "gcProfile": "$HMFTOOLS_DATA_ROOT/GC_profile.1000bp.38.cnp"
   }
 }
@@ -76,13 +75,17 @@ Map[String,GenomeResources] resources = {
   if(doSV) {
     call filterSV {
       input: 
-        tumour_name = tumour_name
+        tumour_name = tumour_name,
+        refFasta = resources [ genomeVersion ].refFasta,
+        genomeVersion = genomeVersion,
+        normal_name = normal_name
     }
   }
 
   if(doSMALL) {
     call filterSMALL {
       input: 
+        normal_name = normal_name,
         tumour_name = tumour_name
     }
   }
@@ -99,7 +102,7 @@ Map[String,GenomeResources] resources = {
       modules = resources [ genomeVersion ].runPURPLEModules,
       gcProfile = resources [ genomeVersion ].gcProfile,
       ensemblDir = resources [ genomeVersion ].ensemblDir,
-      refFasta = resources [ genomeVersion ].refFasta,
+      refFasta = resources [ genomeVersion ].refFasta
   }
 
   meta {
@@ -157,7 +160,7 @@ task amber {
     normal_bai: "Matching bai for Normal bam"
     amberScript: "location of AMBER script"
     PON: "Panel of Normal (PON) file, generated for AMBER"
-    genomeVersion: "genome version for AMBER, default set to V38"
+    genomeVersion: "genome version (37 or 38)"
 		modules: "Required environment modules"
 		memory: "Memory allocated for this job (GB)"
 		threads: "Requested CPU threads"
@@ -270,30 +273,46 @@ task cobalt {
 task filterSV {
   
   input {
+    String normal_name
     String tumour_name
     File? vcf
-    String bcftoolsScript = "$BCFTOOLS_ROOT/bin/bcftools view"
-    String modules = "bcftools"
+    String modules = "hmftools/1.1 hg38/p12 hmftools-data/hg38"
     Int threads = 8
     Int memory = 32
     Int timeout = 100
+    String gripssScript = "java -Xmx32G -jar $HMFTOOLS_ROOT/gripss.jar"
+    String refFasta
+    String genomeVersion
+    String pon_sgl_file = "/.mounts/labs/CGI/scratch/fbeaudry/purple_test/HMFtools-Resources_dna_pipeline_v5_31_38_sv_sgl_pon.38.bed"
+    String pon_sv_file = "/.mounts/labs/CGI/scratch/fbeaudry/purple_test/HMFtools-Resources_dna_pipeline_v5_31_38_sv_sv_pon.38.bedpe"
+    String known_hotspot_file = "/.mounts/labs/CGI/scratch/fbeaudry/purple_test/HMFtools-Resources_dna_pipeline_v5_31_38_sv_known_fusions.38.bedpe"
+    String repeat_mask_file = "/.mounts/labs/CGI/scratch/fbeaudry/purple_test/HMFtools-Resources_dna_pipeline_v5_31_38_sv_repeat_mask_data.38.fa.gz"
   }
 
   parameter_meta {
     tumour_name: "Name for Tumour sample"
     vcf: "VCF file for filtering"
-    bcftoolsScript: "location of BCFTOOLS script, including view command"
 		modules: "Required environment modules"
 		memory: "Memory allocated for this job (GB)"
 		threads: "Requested CPU threads"
 		timeout: "Hours before task timeout"
 	}
-
   
   command <<<
     set -euo pipefail
 
-    ~{bcftoolsScript} -f 'PASS' ~{vcf}  >~{tumour_name}.PASS.vcf
+    mkdir gripss
+
+    ~{gripssScript} \
+        -vcf ~{vcf}  \
+        -sample ~{tumour_name} -reference ~{normal_name} \
+        -ref_genome_version ~{genomeVersion} \
+        -ref_genome ~{refFasta} \
+        -pon_sgl_file ~{pon_sgl_file} \
+        -pon_sv_file ~{pon_sv_file} \
+        -known_hotspot_file ~{known_hotspot_file} \
+        -repeat_mask_file ~{repeat_mask_file} \
+        -output_dir gripss/ 
 
   >>>
 
@@ -305,7 +324,8 @@ task filterSV {
   }
 
   output {
-    File filtered_vcf = "~{tumour_name}.PASS.vcf"
+    File soft_filtered_vcf = "gripss/~{tumour_name}.gripss.vcf.gz"
+    File filtered_vcf = "gripss/~{tumour_name}.gripss.filtered.vcf.gz"
   }
 
   meta {
@@ -320,8 +340,11 @@ task filterSMALL {
   
   input {
     String tumour_name
+    String normal_name
     File? vcf
-    String bcftoolsScript = "$BCFTOOLS_ROOT/bin/bcftools view"
+    File? vcf_index
+    String regions = "chr1,chr10,chr11,chr12,chr13,chr14,chr15,chr16,chr17,chr18,chr19,chr2,chr20,chr21,chr22,chr3,chr4,chr5,chr6,chr7,chr8,chr9,chrX,chrY"
+    String bcftoolsScript = "$BCFTOOLS_ROOT/bin/bcftools"
     String modules = "bcftools"
     Int threads = 8
     Int memory = 32
@@ -338,11 +361,17 @@ task filterSMALL {
 		timeout: "Hours before task timeout"
 	}
 
-  
   command <<<
     set -euo pipefail
 
-    ~{bcftoolsScript} -f 'PASS' ~{vcf}  >~{tumour_name}.PASS.vcf
+    echo ~{normal_name} >samples.txt
+    echo ~{tumour_name} >>samples.txt
+
+    ~{bcftoolsScript} view \
+      -f 'PASS' \
+      -S samples.txt  \
+      -r ~{regions} \
+      ~{vcf} >~{tumour_name}.PASS.vcf
 
   >>>
 
@@ -403,7 +432,7 @@ task runPURPLE {
 	}
 
   String SV_vcf_arg = if(defined(SV_vcf))then
-                                  "-structural_vcf ~{SV_vcf}"
+                                  "-somatic_sv_vcf ~{SV_vcf}"
                                  else
                                   ""
 
@@ -426,8 +455,9 @@ task runPURPLE {
       -ensembl_data_dir ~{ensemblDir}  \
       -reference ~{normal_name} -tumor ~{tumour_name}  \
       -amber ~{tumour_name}.amber -cobalt ~{tumour_name}.cobalt \
-      ~{SV_vcf_arg} ~{smalls_vcf} \
-      -output_dir purple_output/
+      ~{SV_vcf_arg} ~{smalls_vcf_arg} \
+      -output_dir purple_output/ \
+      -no_charts
 
   >>>
 
