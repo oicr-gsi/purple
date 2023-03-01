@@ -120,7 +120,7 @@
             {
                 "metrics_calculate": "@CHECKOUT@/tests/calculate.sh",
                 "metrics_compare": "@CHECKOUT@/tests/compare.sh",
-                "output_metrics": "/.mounts/labs/gsi/testdata/purple/1.1/output_metrics/TGL49_0143Test.metrics",
+                "output_metrics": "/.mounts/labs/gsi/testdata/purple_test/OCT_011633_Test.metrics",
                 "type": "script"
             }  
         ]
