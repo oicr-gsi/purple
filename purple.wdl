@@ -9,6 +9,11 @@ struct GenomeResources {
     String refFasta
     String gcProfile
     String runPURPLEModules
+    String filterSVmodules
+    String pon_sgl_file
+    String pon_sv_file
+    String known_hotspot_file
+    String repeat_mask_file
 }
 
 workflow purple {
@@ -37,13 +42,18 @@ workflow purple {
 
 Map[String,GenomeResources] resources = {
   "38": {
-    "amberModules": "hmftools/1.1 hg38/p12 hmftools-data/5_31_38",
-    "cobaltModules": "hmftools/1.1 hg38/p12 hmftools-data/5_31_38",
-    "runPURPLEModules": "hmftools/1.1 hg38/p12 hmftools-data/5_31_38",
+    "amberModules": "hmftools/1.1 hg38/p12 hmftools-data/53138 ",
+    "cobaltModules": "hmftools/1.1 hg38/p12 hmftools-data/53138 ",
+    "runPURPLEModules": "hmftools/1.1 hg38/p12 hmftools-data/53138 ",
+    "filterSVmodules" = "hmftools/1.1 hg38/p12 hmftools-data/53138",
     "refFasta": "$HG38_ROOT/hg38_random.fa",
-    "PON" : "$HMFTOOLS_DATA_ROOT/GermlineHetPon.38.vcf.gz",
-    "ensemblDir": "$HMFTOOLS_DATA_ROOT/ensembl",
-    "gcProfile": "$HMFTOOLS_DATA_ROOT/GC_profile.1000bp.38.cnp"
+    "PON" : "$HMFTOOLS_DATA_ROOT/copy_number/GermlineHetPon.38.vcf",
+    "ensemblDir": "$HMFTOOLS_DATA_ROOT/ensembl_data",
+    "gcProfile": "$HMFTOOLS_DATA_ROOT/copy_number/GC_profile.1000bp.38.cnp",
+    "pon_sgl_file" = "$HMFTOOLS_DATA_ROOT/sv/sgl_pon.38.bed.gz",
+    "pon_sv_file" = "$HMFTOOLS_DATA_ROOT/sv/sv_pon.38.bedpe.gz",
+    "known_hotspot_file" = "$HMFTOOLS_DATA_ROOT/sv/known_fusions.38.bedpe",
+    "repeat_mask_file" = "$HMFTOOLS_DATA_ROOT/sv/repeat_mask_data.38.fa.gz"
   }
 }
 
@@ -78,7 +88,12 @@ Map[String,GenomeResources] resources = {
         tumour_name = tumour_name,
         refFasta = resources [ genomeVersion ].refFasta,
         genomeVersion = genomeVersion,
-        normal_name = normal_name
+        normal_name = normal_name,
+        pon_sgl_file = resources [ genomeVersion ].pon_sgl_file,
+        pon_sv_file = resources [ genomeVersion ].pon_sv_file,
+        known_hotspot_file = resources [ genomeVersion ].known_hotspot_file,
+        repeat_mask_file = resources [ genomeVersion ].repeat_mask_file,
+        filterSVmodules = resources [ genomeVersion ].filterSVmodules
     }
   }
 
@@ -276,17 +291,17 @@ task filterSV {
     String normal_name
     String tumour_name
     File? vcf
-    String modules = "hmftools/1.1 hg38/p12 hmftools-data/hg38"
-    Int threads = 8
-    Int memory = 32
+    Int threads = 1
+    Int memory = 80
     Int timeout = 100
-    String gripssScript = "java -Xmx32G -jar $HMFTOOLS_ROOT/gripss.jar"
+    String gripssScript = "java -Xmx80G -jar $HMFTOOLS_ROOT/gripss.jar"
     String refFasta
     String genomeVersion
-    String pon_sgl_file = "/.mounts/labs/CGI/scratch/fbeaudry/purple_test/HMFtools-Resources_dna_pipeline_v5_31_38_sv_sgl_pon.38.bed"
-    String pon_sv_file = "/.mounts/labs/CGI/scratch/fbeaudry/purple_test/HMFtools-Resources_dna_pipeline_v5_31_38_sv_sv_pon.38.bedpe"
-    String known_hotspot_file = "/.mounts/labs/CGI/scratch/fbeaudry/purple_test/HMFtools-Resources_dna_pipeline_v5_31_38_sv_known_fusions.38.bedpe"
-    String repeat_mask_file = "/.mounts/labs/CGI/scratch/fbeaudry/purple_test/HMFtools-Resources_dna_pipeline_v5_31_38_sv_repeat_mask_data.38.fa.gz"
+    String pon_sgl_file
+    String pon_sv_file
+    String known_hotspot_file
+    String repeat_mask_file
+    String filterSVmodules
   }
 
   parameter_meta {
