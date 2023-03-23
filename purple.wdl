@@ -45,15 +45,15 @@ Map[String,GenomeResources] resources = {
     "amberModules": "hmftools/1.1 hg38/p12 hmftools-data/53138 ",
     "cobaltModules": "hmftools/1.1 hg38/p12 hmftools-data/53138 ",
     "runPURPLEModules": "hmftools/1.1 hg38/p12 hmftools-data/53138 ",
-    "filterSVmodules" = "hmftools/1.1 hg38/p12 hmftools-data/53138",
+    "filterSVmodules": "hmftools/1.1 hg38/p12 hmftools-data/53138",
     "refFasta": "$HG38_ROOT/hg38_random.fa",
-    "PON" : "$HMFTOOLS_DATA_ROOT/copy_number/GermlineHetPon.38.vcf",
+    "PON" : "/.mounts/labs/CGI/scratch/fbeaudry/purple_test/GermlineHetPon.38.vcf.gz",
     "ensemblDir": "$HMFTOOLS_DATA_ROOT/ensembl_data",
     "gcProfile": "$HMFTOOLS_DATA_ROOT/copy_number/GC_profile.1000bp.38.cnp",
-    "pon_sgl_file" = "$HMFTOOLS_DATA_ROOT/sv/sgl_pon.38.bed.gz",
-    "pon_sv_file" = "$HMFTOOLS_DATA_ROOT/sv/sv_pon.38.bedpe.gz",
-    "known_hotspot_file" = "$HMFTOOLS_DATA_ROOT/sv/known_fusions.38.bedpe",
-    "repeat_mask_file" = "$HMFTOOLS_DATA_ROOT/sv/repeat_mask_data.38.fa.gz"
+    "pon_sgl_file": "$HMFTOOLS_DATA_ROOT/sv/sgl_pon.38.bed.gz",
+    "pon_sv_file": "$HMFTOOLS_DATA_ROOT/sv/sv_pon.38.bedpe.gz",
+    "known_hotspot_file": "$HMFTOOLS_DATA_ROOT/sv/known_fusions.38.bedpe",
+    "repeat_mask_file": "$HMFTOOLS_DATA_ROOT/sv/repeat_mask_data.38.fa.gz"
   }
 }
 
@@ -93,7 +93,7 @@ Map[String,GenomeResources] resources = {
         pon_sv_file = resources [ genomeVersion ].pon_sv_file,
         known_hotspot_file = resources [ genomeVersion ].known_hotspot_file,
         repeat_mask_file = resources [ genomeVersion ].repeat_mask_file,
-        filterSVmodules = resources [ genomeVersion ].filterSVmodules
+        modules = resources [ genomeVersion ].filterSVmodules
     }
   }
 
@@ -294,6 +294,7 @@ task filterSV {
     Int threads = 1
     Int memory = 80
     Int timeout = 100
+    String modules
     String gripssScript = "java -Xmx80G -jar $HMFTOOLS_ROOT/gripss.jar"
     String refFasta
     String genomeVersion
@@ -301,7 +302,6 @@ task filterSV {
     String pon_sv_file
     String known_hotspot_file
     String repeat_mask_file
-    String filterSVmodules
   }
 
   parameter_meta {
