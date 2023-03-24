@@ -2,18 +2,16 @@ version 1.0
 
 struct GenomeResources {
     String PON
-    String amberModules
+    String modules
     String gcProfile
-    String cobaltModules
     String ensemblDir
     String refFasta
     String gcProfile
-    String runPURPLEModules
-    String filterSVmodules
     String pon_sgl_file
     String pon_sv_file
     String known_hotspot_file
     String repeat_mask_file
+    String knownfusion
 }
 
 workflow purple {
@@ -42,10 +40,7 @@ workflow purple {
 
 Map[String,GenomeResources] resources = {
   "38": {
-    "amberModules": "hmftools/1.1 hg38/p12 hmftools-data/53138 ",
-    "cobaltModules": "hmftools/1.1 hg38/p12 hmftools-data/53138 ",
-    "runPURPLEModules": "hmftools/1.1 hg38/p12 hmftools-data/53138 ",
-    "filterSVmodules": "hmftools/1.1 hg38/p12 hmftools-data/53138",
+    "modules": "hmftools/1.1 hg38/p12 hmftools-data/53138 ",
     "refFasta": "$HG38_ROOT/hg38_random.fa",
     "PON" : "/.mounts/labs/CGI/scratch/fbeaudry/purple_test/GermlineHetPon.38.vcf.gz",
     "ensemblDir": "$HMFTOOLS_DATA_ROOT/ensembl_data",
@@ -53,7 +48,8 @@ Map[String,GenomeResources] resources = {
     "pon_sgl_file": "$HMFTOOLS_DATA_ROOT/sv/sgl_pon.38.bed.gz",
     "pon_sv_file": "$HMFTOOLS_DATA_ROOT/sv/sv_pon.38.bedpe.gz",
     "known_hotspot_file": "$HMFTOOLS_DATA_ROOT/sv/known_fusions.38.bedpe",
-    "repeat_mask_file": "$HMFTOOLS_DATA_ROOT/sv/repeat_mask_data.38.fa.gz"
+    "repeat_mask_file": "$HMFTOOLS_DATA_ROOT/sv/repeat_mask_data.38.fa.gz",
+    "knownfusion": "$HMFTOOLS_DATA_ROOT/sv/known_fusions.38.bedpe"
   }
 }
 
@@ -66,7 +62,7 @@ Map[String,GenomeResources] resources = {
       normal_name = normal_name,
       tumour_name = tumour_name,
       genomeVersion = genomeVersion,
-      modules = resources [ genomeVersion ].amberModules,
+      modules = resources [ genomeVersion ].modules,
       PON = resources [ genomeVersion ].PON
   }
 
@@ -78,7 +74,7 @@ Map[String,GenomeResources] resources = {
       normal_bai = normal_bai,
       normal_name = normal_name,
       tumour_name = tumour_name,
-      modules = resources [ genomeVersion ].cobaltModules,
+      modules = resources [ genomeVersion ].modules,
       gcProfile = resources [ genomeVersion ].gcProfile
   }
 
@@ -93,7 +89,7 @@ Map[String,GenomeResources] resources = {
         pon_sv_file = resources [ genomeVersion ].pon_sv_file,
         known_hotspot_file = resources [ genomeVersion ].known_hotspot_file,
         repeat_mask_file = resources [ genomeVersion ].repeat_mask_file,
-        modules = resources [ genomeVersion ].filterSVmodules
+        modules = resources [ genomeVersion ].modules
     }
   }
 
@@ -114,10 +110,23 @@ Map[String,GenomeResources] resources = {
       SV_vcf = filterSV.filtered_vcf,
       smalls_vcf = filterSMALL.filtered_vcf,
       genomeVersion = genomeVersion,
-      modules = resources [ genomeVersion ].runPURPLEModules,
+      modules = resources [ genomeVersion ].modules,
       gcProfile = resources [ genomeVersion ].gcProfile,
       ensemblDir = resources [ genomeVersion ].ensemblDir,
       refFasta = resources [ genomeVersion ].refFasta
+  }
+
+  if(doSV) {
+    call LINX{
+      input:
+          tumour_name = tumour_name, 
+          ensemblDir = resources [ genomeVersion ].ensemblDir,
+          genomeVersion = genomeVersion, 
+          fusions_file = resources [ genomeVersion ].knownfusion,
+          purple_sv = runPURPLE.purple_SV,
+          purple_dir = runPURPLE.purple_directory,
+          modules = resources [ genomeVersion ].modules
+    }
   }
 
   meta {
@@ -446,22 +455,12 @@ task runPURPLE {
 		timeout: "Hours before task timeout"
 	}
 
-  String SV_vcf_arg = if(defined(SV_vcf))then
-                                  "-somatic_sv_vcf ~{SV_vcf}"
-                                 else
-                                  ""
-
-  String smalls_vcf_arg = if(defined(smalls_vcf))then
-                                  "-somatic_vcf ~{smalls_vcf}"
-                                 else
-                                  ""
-
   command <<<
     set -euo pipefail
 
     unzip ~{amber_directory} 
     unzip ~{cobalt_directory} 
-    mkdir purple_output 
+    mkdir ~{tumour_name}.purple 
 
     ~{purpleScript} \
       -ref_genome_version ~{genomeVersion} \
@@ -470,9 +469,12 @@ task runPURPLE {
       -ensembl_data_dir ~{ensemblDir}  \
       -reference ~{normal_name} -tumor ~{tumour_name}  \
       -amber ~{tumour_name}.amber -cobalt ~{tumour_name}.cobalt \
-      ~{SV_vcf_arg} ~{smalls_vcf_arg} \
-      -output_dir purple_output/ \
+      ~{"-somatic_sv_vcf" + SV_vcf} \
+      ~{"-somatic_vcf" + smalls_vcf} \
+      -output_dir ~{tumour_name}.purple \
       -no_charts
+
+    zip -r ~{tumour_name}.purple.zip ~{tumour_name}.purple/
 
   >>>
 
@@ -484,20 +486,84 @@ task runPURPLE {
   }
 
   output {
-    File purple_qc = "purple_output/~{tumour_name}.purple.qc"
-    File purple_purity = "purple_output/~{tumour_name}.purple.purity.tsv"
-    File purple_purity_range = "purple_output/~{tumour_name}.purple.purity.range.tsv"
-    File purple_segments = "purple_output/~{tumour_name}.purple.segment.tsv"
-    File purple_cnv = "purple_output/~{tumour_name}.purple.cnv.somatic.tsv"
-    File? purple_SV_index = "purple_output/~{tumour_name}.purple.sv.vcf.gz.tbi"
-    File? purple_SV = "purple_output/~{tumour_name}.purple.sv.vcf.gz"
-    File? purple_SMALL_index = "purple_output/~{tumour_name}.purple.somatic.vcf.gz.tbi"
-    File? purple_SMALL = "purple_output/~{tumour_name}.purple.somatic.vcf.gz"
+    File purple_directory = "~{tumour_name}.purple.zip"
+    File purple_qc = "~{tumour_name}.purple/~{tumour_name}.purple.qc"
+    File purple_purity = "~{tumour_name}.purple/~{tumour_name}.purple.purity.tsv"
+    File purple_purity_range = "~{tumour_name}.purple/~{tumour_name}.purple.purity.range.tsv"
+    File purple_segments = "~{tumour_name}.purple/~{tumour_name}.purple.segment.tsv"
+    File purple_cnv = "~{tumour_name}.purple/~{tumour_name}.purple.cnv.somatic.tsv"
+    File? purple_SV_index = "~{tumour_name}.purple/~{tumour_name}.purple.sv.vcf.gz.tbi"
+    File? purple_SV = "~{tumour_name}.purple/~{tumour_name}.purple.sv.vcf.gz"
+    File? purple_SMALL_index = "~{tumour_name}.purple/~{tumour_name}.purple.somatic.vcf.gz.tbi"
+    File? purple_SMALL = "~{tumour_name}.purple/~{tumour_name}.purple.somatic.vcf.gz"
   }
 
   meta {
 		output_meta: {
 			purple_directory: "Zipped Output PURPLE directory"
+		}
+	}
+}
+
+
+task LINX {
+  input {
+    File? purple_sv
+    File purple_dir
+    String tumour_name
+    String ensemblDir
+    String genomeVersion
+    String fusions_file
+    String linxScript = "java -Xmx8G -jar linx.jar"
+    String modules
+    Int threads = 8
+    Int memory = 32
+    Int timeout = 100
+  }
+
+  parameter_meta {
+    tumour_name: "Name for Tumour sample"
+    ensemblDir: "Directory of Ensembl data for PURPLE"
+    genomeVersion: "genome version for AMBER, default set to V38"
+    linxScript: "location of LINX script"
+    modules: "Required environment modules"
+		memory: "Memory allocated for this job (GB)"
+		threads: "Requested CPU threads"
+		timeout: "Hours before task timeout"
+	}
+
+  command <<<
+    set -euo pipefail
+
+    unzip ~{purple_dir} 
+    mkdir ~{tumour_name}.linx 
+     
+    ~{linxScript} \
+      -sample ~{tumour_name} \
+      -ref_genome_version ~{genomeVersion} \
+      -ensembl_data_dir ~{ensemblDir}  \
+      -check_fusions \
+      -known_fusion_file ~{fusions_file} \
+      -sv_vcf ~{purple_sv} \ 
+      -purple_dir ~{tumour_name}.purple \ 
+      -output_dir ~{tumour_name}.linx/ 
+
+  >>>
+
+  runtime {
+    cpu: "~{threads}"
+    memory:  "~{memory} GB"
+    modules: "~{modules}"
+    timeout: "~{timeout}"
+  }
+
+  output {
+    File linx_fusions = "~{tumour_name}.linx/~{tumour_name}.fusions.tsv"
+  }
+
+  meta {
+		output_meta: {
+			linx_fusions: "linx fusions"
 		}
 	}
 }
