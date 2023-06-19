@@ -40,9 +40,9 @@ workflow purple {
 
 Map[String,GenomeResources] resources = {
   "38": {
-    "modules": "hmftools/1.1 hg38/p12 hmftools-data/53138 ",
+    "modules": "hmftools/1.1 hg38/p12 hmftools-data/53138",
     "refFasta": "$HG38_ROOT/hg38_random.fa",
-    "PON" : "/.mounts/labs/CGI/scratch/fbeaudry/purple_test/GermlineHetPon.38.vcf.gz",
+    "PON" : "$HMFTOOLS_DATA_ROOT/copy_number/GermlineHetPon.38.vcf.gz",
     "ensemblDir": "$HMFTOOLS_DATA_ROOT/ensembl_data",
     "gcProfile": "$HMFTOOLS_DATA_ROOT/copy_number/GC_profile.1000bp.38.cnp",
     "pon_sgl_file": "$HMFTOOLS_DATA_ROOT/sv/sgl_pon.38.bed.gz",
@@ -81,10 +81,10 @@ Map[String,GenomeResources] resources = {
   if(doSV) {
     call filterSV {
       input: 
-        tumour_name = tumour_name,
-        refFasta = resources [ genomeVersion ].refFasta,
-        genomeVersion = genomeVersion,
         normal_name = normal_name,
+        tumour_name = tumour_name,
+        genomeVersion = genomeVersion,
+        refFasta = resources [ genomeVersion ].refFasta,
         pon_sgl_file = resources [ genomeVersion ].pon_sgl_file,
         pon_sv_file = resources [ genomeVersion ].pon_sv_file,
         known_hotspot_file = resources [ genomeVersion ].known_hotspot_file,
@@ -123,7 +123,6 @@ Map[String,GenomeResources] resources = {
           ensemblDir = resources [ genomeVersion ].ensemblDir,
           genomeVersion = genomeVersion, 
           fusions_file = resources [ genomeVersion ].knownfusion,
-          purple_sv = runPURPLE.purple_SV,
           purple_dir = runPURPLE.purple_directory,
           modules = resources [ genomeVersion ].modules
     }
@@ -150,11 +149,11 @@ Map[String,GenomeResources] resources = {
     File purple_purity_range = runPURPLE.purple_purity_range
     File purple_segments = runPURPLE.purple_segments
     File purple_cnv = runPURPLE.purple_cnv
+    File purple_cnv_gene = runPURPLE.purple_cnv_gene
     File? purple_SV_index = runPURPLE.purple_SV_index
     File? purple_SV = runPURPLE.purple_SV
     File? purple_SMALL_index = runPURPLE.purple_SMALL_index
     File? purple_SMALL = runPURPLE.purple_SMALL
-
   }
 }
 
@@ -311,6 +310,8 @@ task filterSV {
     String pon_sv_file
     String known_hotspot_file
     String repeat_mask_file
+    Int hard_min_tumor_qual = 500
+    String filter_sgls = "-filter_sgls"
   }
 
   parameter_meta {
@@ -336,7 +337,9 @@ task filterSV {
         -pon_sv_file ~{pon_sv_file} \
         -known_hotspot_file ~{known_hotspot_file} \
         -repeat_mask_file ~{repeat_mask_file} \
-        -output_dir gripss/ 
+        -output_dir gripss/ \
+        -hard_min_tumor_qual ~{hard_min_tumor_qual} \
+        ~{filter_sgls}
 
   >>>
 
@@ -369,21 +372,24 @@ task filterSMALL {
     File? vcf_index
     String regions = "chr1,chr10,chr11,chr12,chr13,chr14,chr15,chr16,chr17,chr18,chr19,chr2,chr20,chr21,chr22,chr3,chr4,chr5,chr6,chr7,chr8,chr9,chrX,chrY"
     String bcftoolsScript = "$BCFTOOLS_ROOT/bin/bcftools"
-    String modules = "bcftools"
+    String modules = "bcftools/1.9 hg38/p12 hg38-dac-exclusion/1.0"
     Int threads = 8
     Int memory = 32
     Int timeout = 100
+    String difficultRegions = "--targets-file $HG38_DAC_EXCLUSION_ROOT/hg38-dac-exclusion.v2.bed"
+    String genome = "$HG38_ROOT/hg38_random.fa"
+    String tumorVAF = "0.001"
   }
 
   parameter_meta {
     tumour_name: "Name for Tumour sample"
     vcf: "VCF file for filtering"
     bcftoolsScript: "location of BCFTOOLS script, including view command"
-		modules: "Required environment modules"
-		memory: "Memory allocated for this job (GB)"
-		threads: "Requested CPU threads"
-		timeout: "Hours before task timeout"
-	}
+    modules: "Required environment modules"
+    memory: "Memory allocated for this job (GB)"
+    threads: "Requested CPU threads"
+    timeout: "Hours before task timeout"
+  }
 
   command <<<
     set -euo pipefail
@@ -391,11 +397,9 @@ task filterSMALL {
     echo ~{normal_name} >samples.txt
     echo ~{tumour_name} >>samples.txt
 
-    ~{bcftoolsScript} view \
-      -f 'PASS' \
-      -S samples.txt  \
-      -r ~{regions} \
-      ~{vcf} >~{tumour_name}.PASS.vcf
+     ~{bcftoolsScript} view -f "PASS" -S samples.txt -r ~{regions} ~{difficultRegions} ~{vcf} |\
+     ~{bcftoolsScript} norm --multiallelics - --fasta-ref ~{genome} |\
+     ~{bcftoolsScript} filter -i "(FORMAT/AD[0:1])/(FORMAT/AD[0:0]+FORMAT/AD[0:1]) >= ~{tumorVAF}"  > ~{tumour_name}.PASS.vcf
 
   >>>
 
@@ -411,10 +415,10 @@ task filterSMALL {
   }
 
   meta {
-		output_meta: {
-			filtered_vcf: "Filtered VCF"
-		}
-	}
+    output_meta: {
+      filtered_vcf: "Filtered VCF"
+    }
+  }
 
 }
 
@@ -469,8 +473,8 @@ task runPURPLE {
       -ensembl_data_dir ~{ensemblDir}  \
       -reference ~{normal_name} -tumor ~{tumour_name}  \
       -amber ~{tumour_name}.amber -cobalt ~{tumour_name}.cobalt \
-      ~{"-somatic_sv_vcf" + SV_vcf} \
-      ~{"-somatic_vcf" + smalls_vcf} \
+      ~{"-somatic_sv_vcf " + SV_vcf} \
+      ~{"-somatic_vcf " + smalls_vcf} \
       -output_dir ~{tumour_name}.purple \
       -no_charts
 
@@ -492,6 +496,7 @@ task runPURPLE {
     File purple_purity_range = "~{tumour_name}.purple/~{tumour_name}.purple.purity.range.tsv"
     File purple_segments = "~{tumour_name}.purple/~{tumour_name}.purple.segment.tsv"
     File purple_cnv = "~{tumour_name}.purple/~{tumour_name}.purple.cnv.somatic.tsv"
+    File purple_cnv_gene = "~{tumour_name}.purple/~{tumour_name}.purple.cnv.gene.tsv"
     File? purple_SV_index = "~{tumour_name}.purple/~{tumour_name}.purple.sv.vcf.gz.tbi"
     File? purple_SV = "~{tumour_name}.purple/~{tumour_name}.purple.sv.vcf.gz"
     File? purple_SMALL_index = "~{tumour_name}.purple/~{tumour_name}.purple.somatic.vcf.gz.tbi"
@@ -508,13 +513,12 @@ task runPURPLE {
 
 task LINX {
   input {
-    File? purple_sv
     File purple_dir
     String tumour_name
     String ensemblDir
     String genomeVersion
     String fusions_file
-    String linxScript = "java -Xmx8G -jar linx.jar"
+    String linxScript = "java -Xmx32G -cp $HMFTOOLS_ROOT/linx.jar com.hartwig.hmftools.linx.LinxApplication"
     String modules
     Int threads = 8
     Int memory = 32
@@ -544,9 +548,8 @@ task LINX {
       -ensembl_data_dir ~{ensemblDir}  \
       -check_fusions \
       -known_fusion_file ~{fusions_file} \
-      -sv_vcf ~{purple_sv} \ 
-      -purple_dir ~{tumour_name}.purple \ 
-      -output_dir ~{tumour_name}.linx/ 
+      -purple_dir ~{tumour_name}.purple \
+      -output_dir ~{tumour_name}.linx 
 
   >>>
 
@@ -558,7 +561,9 @@ task LINX {
   }
 
   output {
-    File linx_fusions = "~{tumour_name}.linx/~{tumour_name}.fusions.tsv"
+    File linx_fusions = "~{tumour_name}.linx/~{tumour_name}.linx.fusion.tsv"
+    File linx_svs = "~{tumour_name}.linx/~{tumour_name}.linx.svs.tsv"
+    File drivers_svs = "~{tumour_name}.linx/~{tumour_name}.linx.drivers.tsv"
   }
 
   meta {
