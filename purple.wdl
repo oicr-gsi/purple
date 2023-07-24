@@ -2,13 +2,16 @@ version 1.0
 
 struct GenomeResources {
     String PON
-    String amberModules
+    String modules
     String gcProfile
-    String cobaltModules
     String ensemblDir
     String refFasta
     String gcProfile
-    String runPURPLEModules
+    String pon_sgl_file
+    String pon_sv_file
+    String known_hotspot_file
+    String repeat_mask_file
+    String knownfusion
 }
 
 workflow purple {
@@ -17,11 +20,11 @@ workflow purple {
     File tumour_bai
     File normal_bam
     File normal_bai
-    File SV_vcf
-    File smalls_vcf
     String normal_name
     String tumour_name
-    String genomeVersion
+    String genomeVersion = "38"
+    Boolean doSV = true
+    Boolean doSMALL = true
   }
 
   parameter_meta {
@@ -36,15 +39,17 @@ workflow purple {
   }
 
 Map[String,GenomeResources] resources = {
-  "V38": {
-    "PON" : "$HMFTOOLS_DATA_ROOT/GermlineHetPon.38.vcf.gz",
-    "amberModules": "argparser stringdist structuravariantannotation rtracklayer gridss/2.13.2 hg38/p12 hmftools/1.0 kraken2 bcftools hmftools-data/hg38",
-    "gcProfile": "$HMFTOOLS_DATA_ROOT/GC_profile.1000bp.38.cnp",
-    "cobaltModules": "argparser stringdist structuravariantannotation rtracklayer gridss/2.13.2 hg38/p12 hmftools/1.0 kraken2 bcftools hmftools-data/hg38",
-    "ensemblDir": "$HMFTOOLS_DATA_ROOT/ensembl",
-    "refFasta": "$HMFTOOLS_DATA_ROOT/hg38_random.fa",
-    "gcProfile": "$HMFTOOLS_DATA_ROOT/GC_profile.1000bp.38.cnp",
-    "runPURPLEModules": "argparser stringdist structuravariantannotation rtracklayer gridss/2.13.2 hg38/p12 hmftools/1.0 kraken2 bcftools hmftools-data/hg38"
+  "38": {
+    "modules": "hmftools/1.1 hg38/p12 hmftools-data/53138",
+    "refFasta": "$HG38_ROOT/hg38_random.fa",
+    "PON" : "$HMFTOOLS_DATA_ROOT/copy_number/GermlineHetPon.38.vcf.gz",
+    "ensemblDir": "$HMFTOOLS_DATA_ROOT/ensembl_data",
+    "gcProfile": "$HMFTOOLS_DATA_ROOT/copy_number/GC_profile.1000bp.38.cnp",
+    "pon_sgl_file": "$HMFTOOLS_DATA_ROOT/sv/sgl_pon.38.bed.gz",
+    "pon_sv_file": "$HMFTOOLS_DATA_ROOT/sv/sv_pon.38.bedpe.gz",
+    "known_hotspot_file": "$HMFTOOLS_DATA_ROOT/sv/known_fusions.38.bedpe",
+    "repeat_mask_file": "$HMFTOOLS_DATA_ROOT/sv/repeat_mask_data.38.fa.gz",
+    "knownfusion": "$HMFTOOLS_DATA_ROOT/sv/known_fusions.38.bedpe"
   }
 }
 
@@ -57,7 +62,7 @@ Map[String,GenomeResources] resources = {
       normal_name = normal_name,
       tumour_name = tumour_name,
       genomeVersion = genomeVersion,
-      modules = resources [ genomeVersion ].amberModules,
+      modules = resources [ genomeVersion ].modules,
       PON = resources [ genomeVersion ].PON
   }
 
@@ -69,20 +74,31 @@ Map[String,GenomeResources] resources = {
       normal_bai = normal_bai,
       normal_name = normal_name,
       tumour_name = tumour_name,
-      modules = resources [ genomeVersion ].cobaltModules,
+      modules = resources [ genomeVersion ].modules,
       gcProfile = resources [ genomeVersion ].gcProfile
   }
 
-  call filterVCF as filterSV {
-    input: 
-      vcf = SV_vcf,
-      tumour_name = tumour_name
+  if(doSV) {
+    call filterSV {
+      input: 
+        normal_name = normal_name,
+        tumour_name = tumour_name,
+        genomeVersion = genomeVersion,
+        refFasta = resources [ genomeVersion ].refFasta,
+        pon_sgl_file = resources [ genomeVersion ].pon_sgl_file,
+        pon_sv_file = resources [ genomeVersion ].pon_sv_file,
+        known_hotspot_file = resources [ genomeVersion ].known_hotspot_file,
+        repeat_mask_file = resources [ genomeVersion ].repeat_mask_file,
+        modules = resources [ genomeVersion ].modules
+    }
   }
 
-  call filterVCF as filterSMALL {
-    input: 
-      vcf = smalls_vcf,
-      tumour_name = tumour_name
+  if(doSMALL) {
+    call filterSMALL {
+      input: 
+        normal_name = normal_name,
+        tumour_name = tumour_name
+    }
   }
 
   call runPURPLE {
@@ -94,10 +110,22 @@ Map[String,GenomeResources] resources = {
       SV_vcf = filterSV.filtered_vcf,
       smalls_vcf = filterSMALL.filtered_vcf,
       genomeVersion = genomeVersion,
-      modules = resources [ genomeVersion ].runPURPLEModules,
+      modules = resources [ genomeVersion ].modules,
       gcProfile = resources [ genomeVersion ].gcProfile,
       ensemblDir = resources [ genomeVersion ].ensemblDir,
-      refFasta = resources [ genomeVersion ].refFasta,
+      refFasta = resources [ genomeVersion ].refFasta
+  }
+
+  if(doSV) {
+    call LINX{
+      input:
+          tumour_name = tumour_name, 
+          ensemblDir = resources [ genomeVersion ].ensemblDir,
+          genomeVersion = genomeVersion, 
+          fusions_file = resources [ genomeVersion ].knownfusion,
+          purple_dir = runPURPLE.purple_directory,
+          modules = resources [ genomeVersion ].modules
+    }
   }
 
   meta {
@@ -116,7 +144,16 @@ Map[String,GenomeResources] resources = {
   }
 
   output {
-    File purple_directory = runPURPLE.purple_directory
+    File purple_qc = runPURPLE.purple_qc
+    File purple_purity = runPURPLE.purple_purity
+    File purple_purity_range = runPURPLE.purple_purity_range
+    File purple_segments = runPURPLE.purple_segments
+    File purple_cnv = runPURPLE.purple_cnv
+    File purple_cnv_gene = runPURPLE.purple_cnv_gene
+    File? purple_SV_index = runPURPLE.purple_SV_index
+    File? purple_SV = runPURPLE.purple_SV
+    File? purple_SMALL_index = runPURPLE.purple_SMALL_index
+    File? purple_SMALL = runPURPLE.purple_SMALL
   }
 }
 
@@ -146,7 +183,7 @@ task amber {
     normal_bai: "Matching bai for Normal bam"
     amberScript: "location of AMBER script"
     PON: "Panel of Normal (PON) file, generated for AMBER"
-    genomeVersion: "genome version for AMBER, default set to V38"
+    genomeVersion: "genome version (37 or 38)"
 		modules: "Required environment modules"
 		memory: "Memory allocated for this job (GB)"
 		threads: "Requested CPU threads"
@@ -256,33 +293,113 @@ task cobalt {
 
 }
 
-task filterVCF {
+task filterSV {
+  
+  input {
+    String normal_name
+    String tumour_name
+    File? vcf
+    Int threads = 1
+    Int memory = 80
+    Int timeout = 100
+    String modules
+    String gripssScript = "java -Xmx80G -jar $HMFTOOLS_ROOT/gripss.jar"
+    String refFasta
+    String genomeVersion
+    String pon_sgl_file
+    String pon_sv_file
+    String known_hotspot_file
+    String repeat_mask_file
+    Int hard_min_tumor_qual = 500
+    String filter_sgls = "-filter_sgls"
+  }
+
+  parameter_meta {
+    tumour_name: "Name for Tumour sample"
+    vcf: "VCF file for filtering"
+		modules: "Required environment modules"
+		memory: "Memory allocated for this job (GB)"
+		threads: "Requested CPU threads"
+		timeout: "Hours before task timeout"
+	}
+  
+  command <<<
+    set -euo pipefail
+
+    mkdir gripss
+
+    ~{gripssScript} \
+        -vcf ~{vcf}  \
+        -sample ~{tumour_name} -reference ~{normal_name} \
+        -ref_genome_version ~{genomeVersion} \
+        -ref_genome ~{refFasta} \
+        -pon_sgl_file ~{pon_sgl_file} \
+        -pon_sv_file ~{pon_sv_file} \
+        -known_hotspot_file ~{known_hotspot_file} \
+        -repeat_mask_file ~{repeat_mask_file} \
+        -output_dir gripss/ \
+        -hard_min_tumor_qual ~{hard_min_tumor_qual} \
+        ~{filter_sgls}
+
+  >>>
+
+  runtime {
+    cpu: "~{threads}"
+    memory:  "~{memory} GB"
+    modules: "~{modules}"
+    timeout: "~{timeout}"
+  }
+
+  output {
+    File soft_filtered_vcf = "gripss/~{tumour_name}.gripss.vcf.gz"
+    File filtered_vcf = "gripss/~{tumour_name}.gripss.filtered.vcf.gz"
+  }
+
+  meta {
+		output_meta: {
+			filtered_vcf: "Filtered VCF"
+		}
+	}
+
+}
+
+task filterSMALL {
   
   input {
     String tumour_name
-    File vcf
-    String bcftoolsScript = "$BCFTOOLS_ROOT/bin/bcftools view"
-    String modules = "bcftools"
+    String normal_name
+    File? vcf
+    File? vcf_index
+    String regions = "chr1,chr10,chr11,chr12,chr13,chr14,chr15,chr16,chr17,chr18,chr19,chr2,chr20,chr21,chr22,chr3,chr4,chr5,chr6,chr7,chr8,chr9,chrX,chrY"
+    String bcftoolsScript = "$BCFTOOLS_ROOT/bin/bcftools"
+    String modules = "bcftools/1.9 hg38/p12 hg38-dac-exclusion/1.0"
     Int threads = 8
     Int memory = 32
     Int timeout = 100
+    String difficultRegions = "--targets-file $HG38_DAC_EXCLUSION_ROOT/hg38-dac-exclusion.v2.bed"
+    String genome = "$HG38_ROOT/hg38_random.fa"
+    String tumorVAF = "0.001"
   }
 
   parameter_meta {
     tumour_name: "Name for Tumour sample"
     vcf: "VCF file for filtering"
     bcftoolsScript: "location of BCFTOOLS script, including view command"
-		modules: "Required environment modules"
-		memory: "Memory allocated for this job (GB)"
-		threads: "Requested CPU threads"
-		timeout: "Hours before task timeout"
-	}
+    modules: "Required environment modules"
+    memory: "Memory allocated for this job (GB)"
+    threads: "Requested CPU threads"
+    timeout: "Hours before task timeout"
+  }
 
-  
   command <<<
     set -euo pipefail
 
-    ~{bcftoolsScript} -f 'PASS' ~{vcf}  >~{tumour_name}.PASS.vcf
+    echo ~{normal_name} >samples.txt
+    echo ~{tumour_name} >>samples.txt
+
+     ~{bcftoolsScript} view -f "PASS" -S samples.txt -r ~{regions} ~{difficultRegions} ~{vcf} |\
+     ~{bcftoolsScript} norm --multiallelics - --fasta-ref ~{genome} |\
+     ~{bcftoolsScript} filter -i "(FORMAT/AD[0:1])/(FORMAT/AD[0:0]+FORMAT/AD[0:1]) >= ~{tumorVAF}"  > ~{tumour_name}.PASS.vcf
 
   >>>
 
@@ -298,10 +415,10 @@ task filterVCF {
   }
 
   meta {
-		output_meta: {
-			filtered_vcf: "Filtered VCF"
-		}
-	}
+    output_meta: {
+      filtered_vcf: "Filtered VCF"
+    }
+  }
 
 }
 
@@ -311,8 +428,8 @@ task runPURPLE {
     String tumour_name
     File amber_directory
     File cobalt_directory
-    File SV_vcf
-    File smalls_vcf
+    File? SV_vcf
+    File? smalls_vcf
     String ensemblDir
     String refFasta
     String genomeVersion
@@ -350,18 +467,19 @@ task runPURPLE {
     mkdir ~{tumour_name}.purple 
 
     ~{purpleScript} \
-      -no_charts \
       -ref_genome_version ~{genomeVersion} \
       -ref_genome ~{refFasta}  \
       -gc_profile ~{gcProfile} \
       -ensembl_data_dir ~{ensemblDir}  \
       -reference ~{normal_name} -tumor ~{tumour_name}  \
       -amber ~{tumour_name}.amber -cobalt ~{tumour_name}.cobalt \
-      -somatic_vcf ~{smalls_vcf} \
-      -structural_vcf ~{SV_vcf} \
-      -output_dir ~{tumour_name}.purple/
+      ~{"-somatic_sv_vcf " + SV_vcf} \
+      ~{"-somatic_vcf " + smalls_vcf} \
+      -output_dir ~{tumour_name}.purple \
+      -no_charts
 
-      zip -r ~{tumour_name}.purple.zip ~{tumour_name}.purple/
+    zip -r ~{tumour_name}.purple.zip ~{tumour_name}.purple/
+
   >>>
 
   runtime {
@@ -373,11 +491,84 @@ task runPURPLE {
 
   output {
     File purple_directory = "~{tumour_name}.purple.zip"
+    File purple_qc = "~{tumour_name}.purple/~{tumour_name}.purple.qc"
+    File purple_purity = "~{tumour_name}.purple/~{tumour_name}.purple.purity.tsv"
+    File purple_purity_range = "~{tumour_name}.purple/~{tumour_name}.purple.purity.range.tsv"
+    File purple_segments = "~{tumour_name}.purple/~{tumour_name}.purple.segment.tsv"
+    File purple_cnv = "~{tumour_name}.purple/~{tumour_name}.purple.cnv.somatic.tsv"
+    File purple_cnv_gene = "~{tumour_name}.purple/~{tumour_name}.purple.cnv.gene.tsv"
+    File? purple_SV_index = "~{tumour_name}.purple/~{tumour_name}.purple.sv.vcf.gz.tbi"
+    File? purple_SV = "~{tumour_name}.purple/~{tumour_name}.purple.sv.vcf.gz"
+    File? purple_SMALL_index = "~{tumour_name}.purple/~{tumour_name}.purple.somatic.vcf.gz.tbi"
+    File? purple_SMALL = "~{tumour_name}.purple/~{tumour_name}.purple.somatic.vcf.gz"
   }
 
   meta {
 		output_meta: {
 			purple_directory: "Zipped Output PURPLE directory"
+		}
+	}
+}
+
+
+task LINX {
+  input {
+    File purple_dir
+    String tumour_name
+    String ensemblDir
+    String genomeVersion
+    String fusions_file
+    String linxScript = "java -Xmx32G -cp $HMFTOOLS_ROOT/linx.jar com.hartwig.hmftools.linx.LinxApplication"
+    String modules
+    Int threads = 8
+    Int memory = 32
+    Int timeout = 100
+  }
+
+  parameter_meta {
+    tumour_name: "Name for Tumour sample"
+    ensemblDir: "Directory of Ensembl data for PURPLE"
+    genomeVersion: "genome version for AMBER, default set to V38"
+    linxScript: "location of LINX script"
+    modules: "Required environment modules"
+		memory: "Memory allocated for this job (GB)"
+		threads: "Requested CPU threads"
+		timeout: "Hours before task timeout"
+	}
+
+  command <<<
+    set -euo pipefail
+
+    unzip ~{purple_dir} 
+    mkdir ~{tumour_name}.linx 
+     
+    ~{linxScript} \
+      -sample ~{tumour_name} \
+      -ref_genome_version ~{genomeVersion} \
+      -ensembl_data_dir ~{ensemblDir}  \
+      -check_fusions \
+      -known_fusion_file ~{fusions_file} \
+      -purple_dir ~{tumour_name}.purple \
+      -output_dir ~{tumour_name}.linx 
+
+  >>>
+
+  runtime {
+    cpu: "~{threads}"
+    memory:  "~{memory} GB"
+    modules: "~{modules}"
+    timeout: "~{timeout}"
+  }
+
+  output {
+    File linx_fusions = "~{tumour_name}.linx/~{tumour_name}.linx.fusion.tsv"
+    File linx_svs = "~{tumour_name}.linx/~{tumour_name}.linx.svs.tsv"
+    File drivers_svs = "~{tumour_name}.linx/~{tumour_name}.linx.drivers.tsv"
+  }
+
+  meta {
+		output_meta: {
+			linx_fusions: "linx fusions"
 		}
 	}
 }
