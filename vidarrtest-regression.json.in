@@ -51,7 +51,7 @@
             },
             "purple.tumour_name": "OCT_012211_Ap_M",
             "purple.normal_name": "OCT_012211_Ly_R",
-            "purple.doSV": true,
+            "purple.doSV": false,
             "purple.doSMALL": true,
             "purple.genomeVersion": "38",
             "purple.amber.amberScript": "java -Xmx32G -cp $HMFTOOLS_ROOT/amber.jar com.hartwig.hmftools.amber.AmberApplication",
