@@ -21,12 +21,10 @@ java -jar cromwell.jar run purple.wdl --inputs inputs.json
 #### Required workflow parameters:
 Parameter|Value|Description
 ---|---|---
-`tumour_bam`|File|Input tumor file (bam).
-`tumour_bai`|File|Input tumor file index (bai).
-`normal_bam`|File|Input normal file (bam).
-`normal_bai`|File|Input normal file index (bai).
-`SV_vcf`|File|somatic Structural Variant File (.vcf) from gridss.
-`smalls_vcf`|File|somatic small (SNV+indel) Variant File (.vcf) [tested with mutect2].
+`tumour_bam`|File|Input tumor file (bam)
+`tumour_bai`|File|Input tumor file index (bai)
+`normal_bam`|File|Input normal file (bam)
+`normal_bai`|File|Input normal file index (bai)
 `normal_name`|String|Name of normal sample
 `tumour_name`|String|Name of tumour sample
 
@@ -34,51 +32,65 @@ Parameter|Value|Description
 #### Optional workflow parameters:
 Parameter|Value|Default|Description
 ---|---|---|---
+`genomeVersion`|String|"38"|Genome Version, only 38 supported
+`doSV`|Boolean|true|include somatic structural variant calls, true/false
+`doSMALL`|Boolean|true|include somatic small (SNV+indel) calls, true/false
 
 
 #### Optional task parameters:
 Parameter|Value|Default|Description
 ---|---|---|---
 `amber.amberScript`|String|"java -Xmx32G -cp $HMFTOOLS_ROOT/amber.jar com.hartwig.hmftools.amber.AmberApplication"|location of AMBER script
-`amber.PON`|String|"$HMFTOOLS_DATA_ROOT/GermlineHetPon.38.vcf.gz"|Panel of Normal (PON) file, generated for AMBER
-`amber.genomeVersion`|String|"V38"|genome version for AMBER, default set to V38
-`amber.modules`|String|"argparser stringdist structuravariantannotation rtracklayer gridss/2.13.2 hg38/p12 hmftools/1.0 kraken2 bcftools hmftools-data/hg38"|Required environment modules
 `amber.threads`|Int|8|Requested CPU threads
 `amber.memory`|Int|32|Memory allocated for this job (GB)
 `amber.timeout`|Int|100|Hours before task timeout
 `cobalt.colbaltScript`|String|"java -Xmx8G -cp $HMFTOOLS_ROOT/cobalt.jar com.hartwig.hmftools.cobalt.CobaltApplication"|location of COBALT script
-`cobalt.gcProfile`|String|"$HMFTOOLS_DATA_ROOT/GC_profile.1000bp.38.cnp"|GC profile, generated for COBALT
 `cobalt.gamma`|String|100|gamma (penalty) value for segmenting
-`cobalt.modules`|String|"argparser stringdist structuravariantannotation rtracklayer gridss/2.13.2 hg38/p12 hmftools/1.0 kraken2 bcftools hmftools-data/hg38"|Required environment modules
 `cobalt.threads`|Int|8|Requested CPU threads
 `cobalt.memory`|Int|32|Memory allocated for this job (GB)
 `cobalt.timeout`|Int|100|Hours before task timeout
-`filterSV.bcftoolsScript`|String|"$BCFTOOLS_ROOT/bin/bcftools view"|location of BCFTOOLS script, including view command
-`filterSV.modules`|String|"bcftools"|Required environment modules
-`filterSV.threads`|Int|8|Requested CPU threads
-`filterSV.memory`|Int|32|Memory allocated for this job (GB)
+`filterSV.vcf`|File?|None|VCF file for filtering
+`filterSV.gripssScript`|String|"java -Xmx80G -jar $HMFTOOLS_ROOT/gripss.jar"|location and java call for gripss jar
+`filterSV.hard_min_tumor_qual`|Int|500|Any variant with QUAL less than x is filtered 
+`filterSV.filter_sgls`|String|"-filter_sgls"|include filtering of single breakends
+`filterSV.memory`|Int|80|Memory allocated for this job (GB)
+`filterSV.threads`|Int|1|Requested CPU threads
 `filterSV.timeout`|Int|100|Hours before task timeout
-`filterSMALL.bcftoolsScript`|String|"$BCFTOOLS_ROOT/bin/bcftools view"|location of BCFTOOLS script, including view command
-`filterSMALL.modules`|String|"bcftools"|Required environment modules
+`filterSMALL.vcf`|File?|None|VCF file for filtering
+`filterSMALL.vcf_index`|File?|None|index of VCF file for filtering
+`filterSMALL.bcftoolsScript`|String|"$BCFTOOLS_ROOT/bin/bcftools"|location for bcftools
+`filterSMALL.genome`|String|"$HG38_ROOT/hg38_random.fa"|reference fasta
+`filterSMALL.regions`|String|"chr1,chr10,chr11,chr12,chr13,chr14,chr15,chr16,chr17,chr18,chr19,chr2,chr20,chr21,chr22,chr3,chr4,chr5,chr6,chr7,chr8,chr9,chrX,chrY"|regions/chromosomes to include
+`filterSMALL.difficultRegions`|String|"--targets-file $HG38_DAC_EXCLUSION_ROOT/hg38-dac-exclusion.v2.bed"|regions to exclude because they are difficult
+`filterSMALL.tumorVAF`|String|"0.001"|minimum variant allele frequency for tumour calls to pass filter
+`filterSMALL.modules`|String|"bcftools/1.9 hg38/p12 hg38-dac-exclusion/1.0"|Required environment modules
 `filterSMALL.threads`|Int|8|Requested CPU threads
 `filterSMALL.memory`|Int|32|Memory allocated for this job (GB)
 `filterSMALL.timeout`|Int|100|Hours before task timeout
-`runPURPLE.ensemblDir`|String|"$HMFTOOLS_DATA_ROOT/ensembl"|Directory of Ensembl data for PURPLE
-`runPURPLE.refFasta`|String|"$HMFTOOLS_DATA_ROOT/hg38_random.fa"|fasta of reference genome
-`runPURPLE.genomeVersion`|String|"V38"|genome version for AMBER, default set to V38
-`runPURPLE.gcProfile`|String|"$HMFTOOLS_DATA_ROOT/GC_profile.1000bp.38.cnp"|GC profile, generated for COBALT
 `runPURPLE.purpleScript`|String|"java -Xmx8G -jar $HMFTOOLS_ROOT/purple.jar"|location of PURPLE script
-`runPURPLE.modules`|String|"argparser stringdist structuravariantannotation rtracklayer gridss/2.13.2 hg38/p12 hmftools/1.0 kraken2 bcftools hmftools-data/hg38"|Required environment modules
 `runPURPLE.threads`|Int|8|Requested CPU threads
 `runPURPLE.memory`|Int|32|Memory allocated for this job (GB)
 `runPURPLE.timeout`|Int|100|Hours before task timeout
+`LINX.linxScript`|String|"java -Xmx32G -cp $HMFTOOLS_ROOT/linx.jar com.hartwig.hmftools.linx.LinxApplication"|location of LINX script
+`LINX.threads`|Int|8|Requested CPU threads
+`LINX.memory`|Int|32|Memory allocated for this job (GB)
+`LINX.timeout`|Int|100|Hours before task timeout
 
 
 ### Outputs
 
 Output | Type | Description
 ---|---|---
-`purple_directory`|File|zipped directory containing all PURPLE output
+`purple_qc`|File|QC results from PURPLE
+`purple_purity`|File|tab seperated Purity estimate from PURPLE
+`purple_purity_range`|File|tab seperated range of Purity estimate from PURPLE
+`purple_segments`|File|tab seperated segments estimated by PURPLE
+`purple_cnv`|File|tab seperated somatic copy number variants from PURPLE
+`purple_cnv_gene`|File|tab seperated somatic gene-level copy number variants from PURPLE
+`purple_SV_index`|File?|Structural Variant .vcf index edited by PURPLE
+`purple_SV`|File?|Structural Variant .vcf edited by PURPLE
+`purple_SMALL_index`|File?|SNV+IN/DEL .vcf index edited by PURPLE
+`purple_SMALL`|File?|SNV+IN/DEL .vcf edited by PURPLE
 
 
 ## Commands
@@ -102,24 +114,51 @@ Output | Type | Description
        -gc_profile ~{gcProfile} \
        -pcf_gamma ~{gamma}
  
- ### Filter VCFs (both for SVs and for SNV+InDel) 
+ ### Filter structural variant VCFs using GRIPSS, this is optional but recommended
  
-     ~{bcftoolsScript} -f 'PASS' ~{vcf}  >~{tumour_name}.PASS.vcf
+     ~{gripssScript} \
+         -vcf ~{vcf}  \
+         -sample ~{tumour_name} -reference ~{normal_name} \
+         -ref_genome_version ~{genomeVersion} \
+         -ref_genome ~{refFasta} \
+         -pon_sgl_file ~{pon_sgl_file} \
+         -pon_sv_file ~{pon_sv_file} \
+         -known_hotspot_file ~{known_hotspot_file} \
+         -repeat_mask_file ~{repeat_mask_file} \
+         -output_dir gripss/ \
+         -hard_min_tumor_qual ~{hard_min_tumor_qual} \
+         ~{filter_sgls}
+ 
+ ### Filter small variant (SNV + in/del) VCFs using bcftools, this is optional but recommended
+ 
+      ~{bcftoolsScript} view -f "PASS" -S samples.txt -r ~{regions} ~{difficultRegions} ~{vcf} |\
+      ~{bcftoolsScript} norm --multiallelics - --fasta-ref ~{genome} |\
+      ~{bcftoolsScript} filter -i "(FORMAT/AD[0:1])/(FORMAT/AD[0:0]+FORMAT/AD[0:1]) >= ~{tumorVAF}"  > ~{tumour_name}.PASS.vcf
  
  ### Run PURPLE 
  
      ~{purpleScript} \
-       -no_charts \
        -ref_genome_version ~{genomeVersion} \
        -ref_genome ~{refFasta}  \
        -gc_profile ~{gcProfile} \
        -ensembl_data_dir ~{ensemblDir}  \
        -reference ~{normal_name} -tumor ~{tumour_name}  \
        -amber ~{tumour_name}.amber -cobalt ~{tumour_name}.cobalt \
-       -somatic_vcf ~{smalls_vcf} \
-       -structural_vcf ~{SV_vcf} \
-       -output_dir ~{tumour_name}.purple/
+       ~{"-somatic_sv_vcf " + SV_vcf} \
+       ~{"-somatic_vcf " + smalls_vcf} \
+       -output_dir ~{tumour_name}.purple \
+       -no_charts
  
+ ### Run LINX, if structural variant calls from GRIDSS are included
+ 
+     ~{linxScript} \
+       -sample ~{tumour_name} \
+       -ref_genome_version ~{genomeVersion} \
+       -ensembl_data_dir ~{ensemblDir}  \
+       -check_fusions \
+       -known_fusion_file ~{fusions_file} \
+       -purple_dir ~{tumour_name}.purple \
+       -output_dir ~{tumour_name}.linx 
  ## Support
 
 For support, please file an issue on the [Github project](https://github.com/oicr-gsi) or send an email to gsi@oicr.on.ca .
