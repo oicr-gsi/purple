@@ -127,7 +127,7 @@
                 ],
                 "type": "ALL"
             },
-            "purple.purple.purity": {
+            "purple.purple_purity": {
                 "contents": [
                     {
                         "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_OCT_012211_Test_@JENKINSID@"
@@ -135,7 +135,7 @@
                 ],
                 "type": "ALL"
             },
-            "purple.purple.purity_range": {
+            "purple.purple_purity_range": {
                 "contents": [
                     {
                         "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_OCT_012211_Test_@JENKINSID@"
@@ -143,7 +143,7 @@
                 ],
                 "type": "ALL"
             },
-            "purple.purple.segments": {
+            "purple.purple_segments": {
                 "contents": [
                     {
                         "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_OCT_012211_Test_@JENKINSID@"
@@ -151,7 +151,7 @@
                 ],
                 "type": "ALL"
             },
-            "purple.purple.cnv": {
+            "purple.purple_cnv": {
                 "contents": [
                     {
                         "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_OCT_012211_Test_@JENKINSID@"
@@ -159,7 +159,7 @@
                 ],
                 "type": "ALL"
             },
-            "purple.purple.cnv_gene": {
+            "purple.purple_cnv_gene": {
                 "contents": [
                     {
                         "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_OCT_012211_Test_@JENKINSID@"
@@ -167,7 +167,7 @@
                 ],
                 "type": "ALL"
             },
-            "purple.purple.SV": {
+            "purple.purple_SV": {
                 "contents": [
                     {
                         "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_OCT_012211_Test_@JENKINSID@"
@@ -175,7 +175,7 @@
                 ],
                 "type": "ALL"
             },
-            "purple.purple.SV_index": {
+            "purple.purple_SV_index": {
                 "contents": [
                     {
                         "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_OCT_012211_Test_@JENKINSID@"
@@ -183,7 +183,7 @@
                 ],
                 "type": "ALL"
             },
-            "purple.purple.SMALL": {
+            "purple.purple_SMALL": {
                 "contents": [
                     {
                         "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_OCT_012211_Test_@JENKINSID@"
@@ -191,7 +191,7 @@
                 ],
                 "type": "ALL"
             },
-            "purple.purple.SMALL_index": {
+            "purple.purple_SMALL_index": {
                 "contents": [
                     {
                         "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_OCT_012211_Test_@JENKINSID@"
