@@ -5,4 +5,6 @@ set -o pipefail
 
 cd $1
 
-find -name * | grep -v _dis | xargs md5sum 
+ls | sed 's/.*\.//' | sort | uniq -c
+find . -name '*.tsv'  | xargs md5sum | sort
+find . -name '*.vcf.gz' | xargs zcat | grep -v ^# | md5sum | sort

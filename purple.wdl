@@ -27,14 +27,15 @@ workflow purple {
   }
 
   parameter_meta {
-    tumour_bam: "Input tumor file (bam)."
-    tumour_bai: "Input tumor file index (bai)."
-    tumour_name: "Name of tumour sample"
-    normal_bam: "Input normal file (bam)."
-    normal_bai: "Input normal file index (bai)."
+    tumour_bam: "Input tumor file (bam)"
+    tumour_bai: "Input tumor file index (bai)"
+    normal_bam: "Input normal file (bam)"
+    normal_bai: "Input normal file index (bai)"
     normal_name: "Name of normal sample"
-    SV_vcf: "somatic Structural Variant File (.vcf) from gridss."
-    smalls_vcf: "somatic small (SNV+indel) Variant File (.vcf) [tested with mutect2]."
+    tumour_name: "Name of tumour sample"
+    genomeVersion: "Genome Version, only 38 supported"
+    doSV: "include somatic structural variant calls, true/false"
+    doSMALL: "include somatic small (SNV+indel) calls, true/false"
   }
 
 Map[String,GenomeResources] resources = {
@@ -138,8 +139,17 @@ Map[String,GenomeResources] resources = {
     }
     ]
     output_meta: {
-			purple_directory: "zipped directory containing all PURPLE output"
-		}
+      purple_qc: "QC results from PURPLE",
+      purple_purity: "tab seperated Purity estimate from PURPLE",
+      purple_purity_range: "tab seperated range of Purity estimate from PURPLE",
+      purple_segments: "tab seperated segments estimated by PURPLE",
+      purple_cnv: "tab seperated somatic copy number variants from PURPLE",
+      purple_cnv_gene: "tab seperated somatic gene-level copy number variants from PURPLE",
+      purple_SV_index: "Structural Variant .vcf index edited by PURPLE",
+      purple_SV: "Structural Variant .vcf edited by PURPLE",
+      purple_SMALL_index: "SNV+IN/DEL .vcf index edited by PURPLE",
+      purple_SMALL: "SNV+IN/DEL .vcf edited by PURPLE"		
+    }
   }
 
   output {
@@ -298,10 +308,6 @@ task filterSV {
     String normal_name
     String tumour_name
     File? vcf
-    Int threads = 1
-    Int memory = 80
-    Int timeout = 100
-    String modules
     String gripssScript = "java -Xmx80G -jar $HMFTOOLS_ROOT/gripss.jar"
     String refFasta
     String genomeVersion
@@ -311,11 +317,25 @@ task filterSV {
     String repeat_mask_file
     Int hard_min_tumor_qual = 500
     String filter_sgls = "-filter_sgls"
+    String modules
+    Int memory = 80
+    Int threads = 1
+    Int timeout = 100
   }
 
   parameter_meta {
+    normal_name:  "Name for normal sample"
     tumour_name: "Name for Tumour sample"
     vcf: "VCF file for filtering"
+    gripssScript: "location and java call for gripss jar"
+    refFasta: "reference fasta"
+    genomeVersion: "version of the genome"
+    pon_sgl_file: "panel of normals, single breakends"
+    pon_sv_file: "panel of normals, germline structural variants"
+    known_hotspot_file: "known/common hotspots for structural variants"
+    repeat_mask_file: "repeating masking information"
+    hard_min_tumor_qual: "Any variant with QUAL less than x is filtered "
+    filter_sgls: "include filtering of single breakends"
 		modules: "Required environment modules"
 		memory: "Memory allocated for this job (GB)"
 		threads: "Requested CPU threads"
@@ -356,7 +376,8 @@ task filterSV {
 
   meta {
 		output_meta: {
-			filtered_vcf: "Filtered VCF"
+			filtered_vcf: "high confidence structural variant VCF",
+      soft_filtered_vcf: "structural variant VCF after first filtering"
 		}
 	}
 
@@ -369,25 +390,31 @@ task filterSMALL {
     String normal_name
     File? vcf
     File? vcf_index
-    String regions = "chr1,chr10,chr11,chr12,chr13,chr14,chr15,chr16,chr17,chr18,chr19,chr2,chr20,chr21,chr22,chr3,chr4,chr5,chr6,chr7,chr8,chr9,chrX,chrY"
     String bcftoolsScript = "$BCFTOOLS_ROOT/bin/bcftools"
+    String genome = "$HG38_ROOT/hg38_random.fa"
+    String regions = "chr1,chr10,chr11,chr12,chr13,chr14,chr15,chr16,chr17,chr18,chr19,chr2,chr20,chr21,chr22,chr3,chr4,chr5,chr6,chr7,chr8,chr9,chrX,chrY"
+    String difficultRegions = "--targets-file $HG38_DAC_EXCLUSION_ROOT/hg38-dac-exclusion.v2.bed"
+    String tumorVAF = "0.001"
     String modules = "bcftools/1.9 hg38/p12 hg38-dac-exclusion/1.0"
     Int threads = 8
     Int memory = 32
     Int timeout = 100
-    String difficultRegions = "--targets-file $HG38_DAC_EXCLUSION_ROOT/hg38-dac-exclusion.v2.bed"
-    String genome = "$HG38_ROOT/hg38_random.fa"
-    String tumorVAF = "0.001"
   }
 
   parameter_meta {
+    normal_name:  "Name for normal sample"
     tumour_name: "Name for Tumour sample"
     vcf: "VCF file for filtering"
-    bcftoolsScript: "location of BCFTOOLS script, including view command"
-    modules: "Required environment modules"
-    memory: "Memory allocated for this job (GB)"
-    threads: "Requested CPU threads"
-    timeout: "Hours before task timeout"
+    vcf_index: "index of VCF file for filtering"
+    bcftoolsScript: "location for bcftools"
+    genome: "reference fasta"
+    regions: "regions/chromosomes to include"
+    difficultRegions: "regions to exclude because they are difficult"
+    tumorVAF: "minimum variant allele frequency for tumour calls to pass filter"
+		modules: "Required environment modules"
+		memory: "Memory allocated for this job (GB)"
+		threads: "Requested CPU threads"
+		timeout: "Hours before task timeout"
   }
 
   command <<<
@@ -415,7 +442,7 @@ task filterSMALL {
 
   meta {
     output_meta: {
-      filtered_vcf: "Filtered VCF"
+      filtered_vcf: "Filtered SNV+in/del VCF"
     }
   }
 
@@ -504,7 +531,17 @@ task runPURPLE {
 
   meta {
 		output_meta: {
-			purple_directory: "Zipped Output PURPLE directory"
+			purple_directory: "Zipped Output PURPLE directory",
+      purple_qc: "QC results from PURPLE",
+      purple_purity: "tab seperated Purity estimate from PURPLE",
+      purple_purity_range: "tab seperated range of Purity estimate from PURPLE",
+      purple_segments: "tab seperated segments estimated by PURPLE",
+      purple_cnv: "tab seperated somatic copy number variants from PURPLE",
+      purple_cnv_gene: "tab seperated somatic gene-level copy number variants from PURPLE",
+      purple_SV_index: "Structural Variant .vcf index edited by PURPLE",
+      purple_SV: "Structural Variant .vcf edited by PURPLE",
+      purple_SMALL_index: "SNV+IN/DEL .vcf index edited by PURPLE",
+      purple_SMALL: "SNV+IN/DEL .vcf edited by PURPLE"
 		}
 	}
 }
@@ -567,7 +604,9 @@ task LINX {
 
   meta {
 		output_meta: {
-			linx_fusions: "linx fusions"
+			linx_fusions: "tab seperated LINX fusions",
+      linx_svs: "tab seperated LINX Structural Variants",
+      drivers_svs: "tab seperated LINX Driver Structural Variants"
 		}
 	}
 }
