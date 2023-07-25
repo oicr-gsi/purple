@@ -326,7 +326,7 @@ task filterSV {
   parameter_meta {
     normal_name:  "Name for normal sample"
     tumour_name: "Name for Tumour sample"
-    vcf: "VCF file for filtering"
+    vcf: "VCF file for filtering, must be supplied when doSV set to true"
     gripssScript: "location and java call for gripss jar"
     refFasta: "reference fasta"
     genomeVersion: "version of the genome"
