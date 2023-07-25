@@ -6,7 +6,6 @@ struct GenomeResources {
     String gcProfile
     String ensemblDir
     String refFasta
-    String gcProfile
     String pon_sgl_file
     String pon_sv_file
     String known_hotspot_file
