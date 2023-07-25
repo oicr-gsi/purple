@@ -49,10 +49,44 @@
                 },
                 "type": "EXTERNAL"
             },
+            "purple.tumour_name": "OCT_012211_Ap_M",
             "purple.normal_name": "OCT_012211_Ly_R",
             "purple.doSV": true,
             "purple.doSMALL": true,
             "purple.genomeVersion": "38",
+            "purple.amber.amberScript": "java -Xmx32G -cp $HMFTOOLS_ROOT/amber.jar com.hartwig.hmftools.amber.AmberApplication",
+            "purple.amber.threads": 8,
+            "purple.amber.memory": 32,
+            "purple.amber.timeout": 100,
+            "purple.cobalt.colbaltScript": "java -Xmx8G -cp $HMFTOOLS_ROOT/cobalt.jar com.hartwig.hmftools.cobalt.CobaltApplication",
+            "purple.cobalt.gamma": 100,
+            "purple.cobalt.threads": 8,
+            "purple.cobalt.memory": 32,
+            "purple.cobalt.timeout": 100,
+            "purple.filterSV.vcf": null,
+            "purple.filterSV.gripssScript": null,
+            "purple.filterSV.hard_min_tumor_qual": null,
+            "purple.filterSV.filter_sgls": null,
+            "purple.filterSV.memory": null,
+            "purple.filterSV.threads": null,
+            "purple.filterSV.timeout": null,
+            "purple.filterSMALL.bcftoolsScript": null,
+            "purple.filterSMALL.genome": null,
+            "purple.filterSMALL.regions": null,
+            "purple.filterSMALL.difficultRegions": null,
+            "purple.filterSMALL.tumorVAF": null,
+            "purple.filterSMALL.modules": null,
+            "purple.filterSMALL.threads": null,
+            "purple.filterSMALL.memory": null,
+            "purple.filterSMALL.timeout": null,
+            "purple.runPURPLE.purpleScript": null,
+            "purple.runPURPLE.threads": null,
+            "purple.runPURPLE.memory": null,
+            "purple.runPURPLE.timeout": null,
+            "purple.LINX.linxScript": null,
+            "purple.LINX.threads": null,
+            "purple.LINX.memory": null,
+            "purple.LINX.timeout": null,
             "purple.filterSMALL.vcf": {
                 "contents": {
                     "configuration": "/.mounts/labs/prod/vidarr/output-clinical/621b/720b/c3ce/621b720bc3ce1f1c21aaadc13d4fdb5e990626aa4e095019f0582d8ad6dcfc39/OCT_012211_Ap_M_WG.filter.deduped.realigned.recalibrated.mutect2.filtered.vcf.gz",
@@ -93,7 +127,7 @@
                 ],
                 "type": "ALL"
             },
-            "purple.purity": {
+            "purple.purple.purity": {
                 "contents": [
                     {
                         "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_OCT_012211_Test_@JENKINSID@"
@@ -101,7 +135,7 @@
                 ],
                 "type": "ALL"
             },
-            "purple.purity_range": {
+            "purple.purple.purity_range": {
                 "contents": [
                     {
                         "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_OCT_012211_Test_@JENKINSID@"
@@ -109,7 +143,7 @@
                 ],
                 "type": "ALL"
             },
-            "purple.segments": {
+            "purple.purple.segments": {
                 "contents": [
                     {
                         "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_OCT_012211_Test_@JENKINSID@"
@@ -117,7 +151,7 @@
                 ],
                 "type": "ALL"
             },
-            "purple.cnv": {
+            "purple.purple.cnv": {
                 "contents": [
                     {
                         "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_OCT_012211_Test_@JENKINSID@"
@@ -125,7 +159,7 @@
                 ],
                 "type": "ALL"
             },
-            "purple.cnv_gene": {
+            "purple.purple.cnv_gene": {
                 "contents": [
                     {
                         "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_OCT_012211_Test_@JENKINSID@"
@@ -133,7 +167,7 @@
                 ],
                 "type": "ALL"
             },
-            "purple.SV": {
+            "purple.purple.SV": {
                 "contents": [
                     {
                         "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_OCT_012211_Test_@JENKINSID@"
@@ -141,7 +175,7 @@
                 ],
                 "type": "ALL"
             },
-            "purple.SV_index": {
+            "purple.purple.SV_index": {
                 "contents": [
                     {
                         "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_OCT_012211_Test_@JENKINSID@"
@@ -149,7 +183,7 @@
                 ],
                 "type": "ALL"
             },
-            "purple.SMALL": {
+            "purple.purple.SMALL": {
                 "contents": [
                     {
                         "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_OCT_012211_Test_@JENKINSID@"
@@ -157,7 +191,7 @@
                 ],
                 "type": "ALL"
             },
-            "purple.SMALL_index": {
+            "purple.purple.SMALL_index": {
                 "contents": [
                     {
                         "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_OCT_012211_Test_@JENKINSID@"
