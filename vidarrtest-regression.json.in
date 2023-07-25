@@ -59,7 +59,7 @@
             "purple.amber.memory": 32,
             "purple.amber.timeout": 100,
             "purple.cobalt.colbaltScript": "java -Xmx8G -cp $HMFTOOLS_ROOT/cobalt.jar com.hartwig.hmftools.cobalt.CobaltApplication",
-            "purple.cobalt.gamma": 100,
+            "purple.cobalt.gamma": null,
             "purple.cobalt.threads": 8,
             "purple.cobalt.memory": 32,
             "purple.cobalt.timeout": 100,
