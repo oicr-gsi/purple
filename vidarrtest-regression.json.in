@@ -3,7 +3,7 @@
         "arguments": {
             "purple.normal_bam": {
                 "contents": {
-                    "configuration": "/.mounts/labs/prod/vidarr/output-clinical/9856/cff6/b7b5/9856cff6b7b59a5d2b11b3c9a8dfe5e1329b5f81b35189a2cd00b99d4e9d754c/OCT_012211_Ly_R_WG.filter.deduped.realigned.recalibrated.bam",
+                    "configuration": "/.mounts/labs/gsi/testdata/purple_test/1.0/input_data/COLO829_0001_Ly_R_WG.fdrr.chr21.bam",
                     "externalIds": [
                         {
                             "id": "TEST",
@@ -15,7 +15,7 @@
             },
             "purple.normal_bai": {
                 "contents": {
-                    "configuration": "/.mounts/labs/prod/vidarr/output-clinical/9856/cff6/b7b5/9856cff6b7b59a5d2b11b3c9a8dfe5e1329b5f81b35189a2cd00b99d4e9d754c/OCT_012211_Ly_R_WG.filter.deduped.realigned.recalibrated.bai",
+                    "configuration": "/.mounts/labs/gsi/testdata/purple_test/1.0/input_data/COLO829_0001_Ly_R_WG.fdrr.chr21.bam.bai",
                     "externalIds": [
                         {
                             "id": "TEST",
@@ -27,7 +27,7 @@
             },
             "purple.tumour_bam": {
                 "contents": {
-                    "configuration": "/.mounts/labs/prod/vidarr/output-clinical/9856/cff6/b7b5/9856cff6b7b59a5d2b11b3c9a8dfe5e1329b5f81b35189a2cd00b99d4e9d754c/OCT_012211_Ap_M_WG.filter.deduped.realigned.recalibrated.bam",
+                    "configuration": "/.mounts/labs/gsi/testdata/purple_test/1.0/input_data/COLO829_0001_Lu_P_WG.fdrr.chr21.bam",
                     "externalIds": [
                         {
                             "id": "TEST",
@@ -39,7 +39,7 @@
             },
             "purple.tumour_bai": {
                 "contents": {
-                    "configuration": "/.mounts/labs/prod/vidarr/output-clinical/9856/cff6/b7b5/9856cff6b7b59a5d2b11b3c9a8dfe5e1329b5f81b35189a2cd00b99d4e9d754c/OCT_012211_Ap_M_WG.filter.deduped.realigned.recalibrated.bai",
+                    "configuration": "/.mounts/labs/gsi/testdata/purple_test/1.0/input_data/COLO829_0001_Lu_P_WG.fdrr.chr21.bam.bai",
                     "externalIds": [
                         {
                             "id": "TEST",
@@ -49,8 +49,8 @@
                 },
                 "type": "EXTERNAL"
             },
-            "purple.tumour_name": "OCT_012211_Ap_M",
-            "purple.normal_name": "OCT_012211_Ly_R",
+            "purple.tumour_name": "COLO829_0001_Lu_P",
+            "purple.normal_name": "COLO829_0001_Ly_R",
             "purple.doSV": false,
             "purple.doSMALL": true,
             "purple.genomeVersion": "38",
@@ -89,7 +89,7 @@
             "purple.LINX.timeout": null,
             "purple.filterSMALL.vcf": {
                 "contents": {
-                    "configuration": "/.mounts/labs/prod/vidarr/output-clinical/621b/720b/c3ce/621b720bc3ce1f1c21aaadc13d4fdb5e990626aa4e095019f0582d8ad6dcfc39/OCT_012211_Ap_M_WG.filter.deduped.realigned.recalibrated.mutect2.filtered.vcf.gz",
+                    "configuration": "/.mounts/labs/gsi/testdata/purple_test/1.0/input_data/COLO829_0001_Lu_P_WG.chr21.vcf.gz",
                     "externalIds": [
                         {
                             "id": "TEST",
@@ -101,7 +101,7 @@
             },
             "purple.filterSMALL.vcf_index": {
                 "contents": {
-                    "configuration": "/.mounts/labs/prod/vidarr/output-clinical/621b/720b/c3ce/621b720bc3ce1f1c21aaadc13d4fdb5e990626aa4e095019f0582d8ad6dcfc39/OCT_012211_Ap_M_WG.filter.deduped.realigned.recalibrated.mutect2.filtered.vcf.gz.tbi",
+                    "configuration": "/.mounts/labs/gsi/testdata/purple_test/1.0/input_data/COLO829_0001_Lu_P_WG.chr21.vcf.gz.tbi",
                     "externalIds": [
                         {
                             "id": "TEST",
@@ -117,12 +117,12 @@
           "write_to_cache": false,
           "read_from_cache": false
         },
-        "id": "OCT_012211_Test_no_SV",
+        "id": "COLO829_0001_Test_no_SV",
         "metadata": {
             "purple.purple_qc": {
                 "contents": [
                     {
-                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_OCT_012211_Test_@JENKINSID@"
+                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_COLO829_0001_Test_@JENKINSID@"
                     }
                 ],
                 "type": "ALL"
@@ -130,7 +130,7 @@
             "purple.purple_purity": {
                 "contents": [
                     {
-                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_OCT_012211_Test_@JENKINSID@"
+                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_COLO829_0001_Test_@JENKINSID@"
                     }
                 ],
                 "type": "ALL"
@@ -138,7 +138,7 @@
             "purple.purple_purity_range": {
                 "contents": [
                     {
-                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_OCT_012211_Test_@JENKINSID@"
+                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_COLO829_0001_Test_@JENKINSID@"
                     }
                 ],
                 "type": "ALL"
@@ -146,7 +146,7 @@
             "purple.purple_segments": {
                 "contents": [
                     {
-                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_OCT_012211_Test_@JENKINSID@"
+                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_COLO829_0001_Test_@JENKINSID@"
                     }
                 ],
                 "type": "ALL"
@@ -154,7 +154,7 @@
             "purple.purple_cnv": {
                 "contents": [
                     {
-                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_OCT_012211_Test_@JENKINSID@"
+                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_COLO829_0001_Test_@JENKINSID@"
                     }
                 ],
                 "type": "ALL"
@@ -162,7 +162,7 @@
             "purple.purple_cnv_gene": {
                 "contents": [
                     {
-                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_OCT_012211_Test_@JENKINSID@"
+                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_COLO829_0001_Test_@JENKINSID@"
                     }
                 ],
                 "type": "ALL"
@@ -170,7 +170,7 @@
             "purple.purple_SV": {
                 "contents": [
                     {
-                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_OCT_012211_Test_@JENKINSID@"
+                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_COLO829_0001_Test_@JENKINSID@"
                     }
                 ],
                 "type": "ALL"
@@ -178,7 +178,7 @@
             "purple.purple_SV_index": {
                 "contents": [
                     {
-                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_OCT_012211_Test_@JENKINSID@"
+                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_COLO829_0001_Test_@JENKINSID@"
                     }
                 ],
                 "type": "ALL"
@@ -186,7 +186,7 @@
             "purple.purple_SMALL": {
                 "contents": [
                     {
-                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_OCT_012211_Test_@JENKINSID@"
+                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_COLO829_0001_Test_@JENKINSID@"
                     }
                 ],
                 "type": "ALL"
@@ -194,7 +194,7 @@
             "purple.purple_SMALL_index": {
                 "contents": [
                     {
-                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_OCT_012211_Test_@JENKINSID@"
+                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_COLO829_0001_Test_@JENKINSID@"
                     }
                 ],
                 "type": "ALL"
@@ -204,230 +204,10 @@
             {
                 "metrics_calculate": "@CHECKOUT@/tests/calculate.sh",
                 "metrics_compare": "@CHECKOUT@/tests/compare.sh",
-                "output_metrics": "/.mounts/labs/gsi/testdata/purple_test/1.0/output_metrics/OCT_012211_test.metrics",
+                "output_metrics": "/.mounts/labs/gsi/testdata/purple_test/1.0/output_metrics/COLO829_0001_test.metrics",
                 "type": "script"
             }  
         ]
-    },
-    {
-        "arguments": {
-            "purple.normal_bam": {
-                "contents": {
-                    "configuration": "/.mounts/labs/prod/vidarr/output-clinical/e6bf/f700/06dc/e6bff70006dc1c932dcc7819d6d6de13cd781ab3bad4907d96177d4e7b8dd7e8/CLINVAL_0001_Pb_R_WG_COLO_839BL_CRL-1980.filter.deduped.realigned.recalibrated.bam",
-                    "externalIds": [
-                        {
-                            "id": "TEST",
-                            "provider": "TEST"
-                        }
-                    ]
-                },
-                "type": "EXTERNAL"
-            },
-            "purple.normal_bai": {
-                "contents": {
-                    "configuration": "/.mounts/labs/prod/vidarr/output-clinical/e6bf/f700/06dc/e6bff70006dc1c932dcc7819d6d6de13cd781ab3bad4907d96177d4e7b8dd7e8/CLINVAL_0001_Pb_R_WG_COLO_839BL_CRL-1980.filter.deduped.realigned.recalibrated.bai",
-                    "externalIds": [
-                        {
-                            "id": "TEST",
-                            "provider": "TEST"
-                        }
-                    ]
-                },
-                "type": "EXTERNAL"
-            },
-            "purple.tumour_bam": {
-                "contents": {
-                    "configuration": "/scratch2/groups/tgl/fbeaudry/CLINVAL_0001_Sk_F.V0.7.rep0.80X.filter.deduped.realigned.recalibrated.merged.bam",
-                    "externalIds": [
-                        {
-                            "id": "TEST",
-                            "provider": "TEST"
-                        }
-                    ]
-                },
-                "type": "EXTERNAL"
-            },
-            "purple.tumour_bai": {
-                "contents": {
-                    "configuration": "/scratch2/groups/tgl/fbeaudry/CLINVAL_0001_Sk_F.V0.7.rep0.80X.filter.deduped.realigned.recalibrated.merged.bam.bai",
-                    "externalIds": [
-                        {
-                            "id": "TEST",
-                            "provider": "TEST"
-                        }
-                    ]
-                },
-                "type": "EXTERNAL"
-            },
-            "purple.tumour_name": "CLINVAL_0001_Sk_F_COLO_829_CRL-1974",
-            "purple.normal_name": "CLINVAL_0001_Pb_R_COLO_839BL_CRL-1980",
-            "purple.doSV": true,
-            "purple.doSMALL": true,
-            "purple.genomeVersion": "38",
-            "purple.amber.amberScript": "java -Xmx32G -cp $HMFTOOLS_ROOT/amber.jar com.hartwig.hmftools.amber.AmberApplication",
-            "purple.amber.threads": 8,
-            "purple.amber.memory": 32,
-            "purple.amber.timeout": 100,
-            "purple.cobalt.colbaltScript": "java -Xmx8G -cp $HMFTOOLS_ROOT/cobalt.jar com.hartwig.hmftools.cobalt.CobaltApplication",
-            "purple.cobalt.gamma": null,
-            "purple.cobalt.threads": 8,
-            "purple.cobalt.memory": 32,
-            "purple.cobalt.timeout": 100,
-            "purple.filterSV.vcf": {
-                "contents": {
-                    "configuration": "/.mounts/labs/CGI/scratch/fbeaudry/validation/purple_test/gridss/CLINVAL_0001_Sk_F.V0.7.rep0.80X.allocated.vcf",
-                    "externalIds": [
-                        {
-                            "id": "TEST",
-                            "provider": "TEST"
-                        }
-                    ]
-                },
-                "type": "EXTERNAL"
-            },
-            "purple.filterSV.gripssScript": null,
-            "purple.filterSV.hard_min_tumor_qual": null,
-            "purple.filterSV.filter_sgls": null,
-            "purple.filterSV.memory": null,
-            "purple.filterSV.threads": null,
-            "purple.filterSV.timeout": null,
-            "purple.filterSMALL.bcftoolsScript": null,
-            "purple.filterSMALL.genome": null,
-            "purple.filterSMALL.regions": null,
-            "purple.filterSMALL.difficultRegions": null,
-            "purple.filterSMALL.tumorVAF": null,
-            "purple.filterSMALL.modules": null,
-            "purple.filterSMALL.threads": null,
-            "purple.filterSMALL.memory": null,
-            "purple.filterSMALL.timeout": null,
-            "purple.runPURPLE.purpleScript": null,
-            "purple.runPURPLE.threads": null,
-            "purple.runPURPLE.memory": null,
-            "purple.runPURPLE.timeout": null,
-            "purple.LINX.linxScript": null,
-            "purple.LINX.threads": null,
-            "purple.LINX.memory": null,
-            "purple.LINX.timeout": null,
-            "purple.filterSMALL.vcf": {
-                "contents": {
-                    "configuration": "/.mounts/labs/prod/vidarr/output-clinical/4e53/df03/625e/4e53df03625ea6f3224e5da9e228e6a55032dfe29d55380ff4b1d92196e96167/CLINVAL_0001_Sk_F_WG_COLO_829_CRL-1974.filter.deduped.realigned.recalibrated.mutect2.filtered.vcf.gz",
-                    "externalIds": [
-                        {
-                            "id": "TEST",
-                            "provider": "TEST"
-                        }
-                    ]
-                },
-                "type": "EXTERNAL"
-            },
-            "purple.filterSMALL.vcf_index": {
-                "contents": {
-                    "configuration": "/.mounts/labs/prod/vidarr/output-clinical/4e53/df03/625e/4e53df03625ea6f3224e5da9e228e6a55032dfe29d55380ff4b1d92196e96167/CLINVAL_0001_Sk_F_WG_COLO_829_CRL-1974.filter.deduped.realigned.recalibrated.mutect2.filtered.vcf.gz.tbi",
-                    "externalIds": [
-                        {
-                            "id": "TEST",
-                            "provider": "TEST"
-                        }
-                    ]
-                },
-                "type": "EXTERNAL"
-            }
-     },
-        "description": "purple_workflow test",
-        "engineArguments": {
-          "write_to_cache": false,
-          "read_from_cache": false
-        },
-        "id": "OCT_012211_Test_with_SV",
-        "metadata": {
-            "purple.purple_qc": {
-                "contents": [
-                    {
-                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_OCT_012211_Test_@JENKINSID@"
-                    }
-                ],
-                "type": "ALL"
-            },
-            "purple.purple_purity": {
-                "contents": [
-                    {
-                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_OCT_012211_Test_@JENKINSID@"
-                    }
-                ],
-                "type": "ALL"
-            },
-            "purple.purple_purity_range": {
-                "contents": [
-                    {
-                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_OCT_012211_Test_@JENKINSID@"
-                    }
-                ],
-                "type": "ALL"
-            },
-            "purple.purple_segments": {
-                "contents": [
-                    {
-                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_OCT_012211_Test_@JENKINSID@"
-                    }
-                ],
-                "type": "ALL"
-            },
-            "purple.purple_cnv": {
-                "contents": [
-                    {
-                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_OCT_012211_Test_@JENKINSID@"
-                    }
-                ],
-                "type": "ALL"
-            },
-            "purple.purple_cnv_gene": {
-                "contents": [
-                    {
-                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_OCT_012211_Test_@JENKINSID@"
-                    }
-                ],
-                "type": "ALL"
-            },
-            "purple.purple_SV": {
-                "contents": [
-                    {
-                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_OCT_012211_Test_@JENKINSID@"
-                    }
-                ],
-                "type": "ALL"
-            },
-            "purple.purple_SV_index": {
-                "contents": [
-                    {
-                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_OCT_012211_Test_@JENKINSID@"
-                    }
-                ],
-                "type": "ALL"
-            },
-            "purple.purple_SMALL": {
-                "contents": [
-                    {
-                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_OCT_012211_Test_@JENKINSID@"
-                    }
-                ],
-                "type": "ALL"
-            },
-            "purple.purple_SMALL_index": {
-                "contents": [
-                    {
-                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_OCT_012211_Test_@JENKINSID@"
-                    }
-                ],
-                "type": "ALL"
-            }
-        },
-        "validators": [
-            {
-                "metrics_calculate": "@CHECKOUT@/tests/calculate.sh",
-                "metrics_compare": "@CHECKOUT@/tests/compare.sh",
-                "output_metrics": "/.mounts/labs/gsi/testdata/purple_test/1.0/output_metrics/OCT_012211_test_with_SV.metrics",
-                "type": "script"
-            }  
-        ]
-    } 
+    }
+    
 ]
