@@ -139,6 +139,7 @@ Map[String,GenomeResources] resources = {
     }
     ]
     output_meta: {
+      purple_directory: "Zipped results from PURPLE",
       purple_qc: "QC results from PURPLE",
       purple_purity: "tab seperated Purity estimate from PURPLE",
       purple_purity_range: "tab seperated range of Purity estimate from PURPLE",
@@ -153,6 +154,7 @@ Map[String,GenomeResources] resources = {
   }
 
   output {
+    File purple_directory = runPURPLE.purple_directory
     File purple_qc = runPURPLE.purple_qc
     File purple_purity = runPURPLE.purple_purity
     File purple_purity_range = runPURPLE.purple_purity_range
@@ -326,7 +328,7 @@ task filterSV {
   parameter_meta {
     normal_name:  "Name for normal sample"
     tumour_name: "Name for Tumour sample"
-    vcf: "VCF file for filtering, must be supplied when doSV set to true"
+    vcf: "VCF file for filtering"
     gripssScript: "location and java call for gripss jar"
     refFasta: "reference fasta"
     genomeVersion: "version of the genome"
