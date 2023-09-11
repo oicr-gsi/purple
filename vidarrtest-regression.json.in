@@ -119,6 +119,14 @@
         },
         "id": "COLO829_0001_Test_no_SV",
         "metadata": {
+            "purple.purple_directory": {
+                "contents": [
+                    {
+                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_COLO829_0001_Test_@JENKINSID@"
+                    }
+                ],
+                "type": "ALL"
+            },
             "purple.purple_qc": {
                 "contents": [
                     {
