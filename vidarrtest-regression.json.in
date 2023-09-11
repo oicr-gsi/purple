@@ -340,10 +340,18 @@
         },
         "id": "COLO829_0001_Test_with_SV",
         "metadata": {
+            "purple.purple_directory": {
+                "contents": [
+                    {
+                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_COLO829_0001_Test_with_SV_@JENKINSID@"
+                    }
+                ],
+                "type": "ALL"
+            },
             "purple.purple_qc": {
                 "contents": [
                     {
-                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_COLO829_0001_Test_@JENKINSID@"
+                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_COLO829_0001_Test_with_SV_@JENKINSID@"
                     }
                 ],
                 "type": "ALL"
@@ -351,7 +359,7 @@
             "purple.purple_purity": {
                 "contents": [
                     {
-                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_COLO829_0001_Test_@JENKINSID@"
+                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_COLO829_0001_Test_with_SV_@JENKINSID@"
                     }
                 ],
                 "type": "ALL"
@@ -359,7 +367,7 @@
             "purple.purple_purity_range": {
                 "contents": [
                     {
-                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_COLO829_0001_Test_@JENKINSID@"
+                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_COLO829_0001_Test_with_SV_@JENKINSID@"
                     }
                 ],
                 "type": "ALL"
@@ -367,7 +375,7 @@
             "purple.purple_segments": {
                 "contents": [
                     {
-                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_COLO829_0001_Test_@JENKINSID@"
+                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_COLO829_0001_Test_with_SV_@JENKINSID@"
                     }
                 ],
                 "type": "ALL"
@@ -375,7 +383,7 @@
             "purple.purple_cnv": {
                 "contents": [
                     {
-                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_COLO829_0001_Test_@JENKINSID@"
+                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_COLO829_0001_Test_with_SV_@JENKINSID@"
                     }
                 ],
                 "type": "ALL"
@@ -383,7 +391,7 @@
             "purple.purple_cnv_gene": {
                 "contents": [
                     {
-                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_COLO829_0001_Test_@JENKINSID@"
+                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_COLO829_0001_Test_with_SV_@JENKINSID@"
                     }
                 ],
                 "type": "ALL"
@@ -391,7 +399,7 @@
             "purple.purple_SV": {
                 "contents": [
                     {
-                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_COLO829_0001_Test_@JENKINSID@"
+                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_COLO829_0001_Test_with_SV_@JENKINSID@"
                     }
                 ],
                 "type": "ALL"
@@ -399,7 +407,7 @@
             "purple.purple_SV_index": {
                 "contents": [
                     {
-                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_COLO829_0001_Test_@JENKINSID@"
+                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_COLO829_0001_Test_with_SV_@JENKINSID@"
                     }
                 ],
                 "type": "ALL"
@@ -407,7 +415,7 @@
             "purple.purple_SMALL": {
                 "contents": [
                     {
-                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_COLO829_0001_Test_@JENKINSID@"
+                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_COLO829_0001_Test_with_SV_@JENKINSID@"
                     }
                 ],
                 "type": "ALL"
@@ -415,7 +423,7 @@
             "purple.purple_SMALL_index": {
                 "contents": [
                     {
-                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_COLO829_0001_Test_@JENKINSID@"
+                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_COLO829_0001_Test_with_SV_@JENKINSID@"
                     }
                 ],
                 "type": "ALL"
