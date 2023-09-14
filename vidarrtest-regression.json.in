@@ -306,7 +306,7 @@
             "purple.LINX.timeout": null,
             "purple.filterSMALL.vcf": {
                 "contents": {
-                    "configuration": "/.mounts/labs/gsi/testdata/purple_test/1.0/input_data/PANX_1288/PANX_1288_Pm_M_100_JHU_004_LCM3_6.allocated.vcf.gz",
+                    "configuration": "/.mounts/labs/gsi/testdata/purple_test/1.0/input_data/PANX_1288/PANX_1288_Pm_M_WG_100_JHU_004_LCM3_6.filter.deduped.realigned.recalibrated.mutect2.filtered.vep.vcf.gz",
                     "externalIds": [
                         {
                             "id": "TEST",
@@ -318,7 +318,7 @@
             },
             "purple.filterSMALL.vcf_index": {
                 "contents": {
-                    "configuration": "/.mounts/labs/gsi/testdata/purple_test/1.0/input_data/PANX_1288/PANX_1288_Pm_M_100_JHU_004_LCM3_6.allocated.vcf.gz.tbi",
+                    "configuration": "/.mounts/labs/gsi/testdata/purple_test/1.0/input_data/PANX_1288/PANX_1288_Pm_M_WG_100_JHU_004_LCM3_6.filter.deduped.realigned.recalibrated.mutect2.filtered.vep.vcf.gz.tbi",
                     "externalIds": [
                         {
                             "id": "TEST",
