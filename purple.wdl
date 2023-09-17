@@ -3,9 +3,11 @@ version 1.0
 struct GenomeResources {
     String PON
     String modules
+    String gatkModules
     String gcProfile
     String ensemblDir
     String refFasta
+    String refFai
     String pon_sgl_file
     String pon_sv_file
     String known_hotspot_file
@@ -19,8 +21,6 @@ workflow purple {
     File tumour_bai
     File normal_bam
     File normal_bai
-    String normal_name
-    String tumour_name
     String genomeVersion = "38"
     Boolean doSV = true
     Boolean doSMALL = true
@@ -31,8 +31,6 @@ workflow purple {
     tumour_bai: "Input tumor file index (bai)"
     normal_bam: "Input normal file (bam)"
     normal_bai: "Input normal file index (bai)"
-    normal_name: "Name of normal sample"
-    tumour_name: "Name of tumour sample"
     genomeVersion: "Genome Version, only 38 supported"
     doSV: "include somatic structural variant calls, true/false"
     doSMALL: "include somatic small (SNV+indel) calls, true/false"
@@ -41,7 +39,9 @@ workflow purple {
 Map[String,GenomeResources] resources = {
   "38": {
     "modules": "hmftools/1.1 hg38/p12 hmftools-data/53138",
+    "gatkModules": "hg38-gridss-index/1.0 gatk/4.1.6.0",
     "refFasta": "$HG38_ROOT/hg38_random.fa",
+    "refFai": "$HG38_GRIDSS_INDEX_ROOT/hg38_random.fa.fai",
     "PON" : "$HMFTOOLS_DATA_ROOT/copy_number/GermlineHetPon.38.vcf.gz",
     "ensemblDir": "$HMFTOOLS_DATA_ROOT/ensembl_data",
     "gcProfile": "$HMFTOOLS_DATA_ROOT/copy_number/GC_profile.1000bp.38.cnp",
@@ -53,14 +53,32 @@ Map[String,GenomeResources] resources = {
   }
 }
 
+  call extractName as extractTumorName {
+    input:
+    refFasta = resources [ genomeVersion ].refFasta,
+    refFai = resources [ genomeVersion ].refFai,
+    modules = resources [ genomeVersion ].gatkModules,
+    inputBam = tumour_bam,
+    inputBai = tumour_bai
+  }
+
+  call extractName as extractNormalName {
+    input:
+    refFasta = resources [ genomeVersion ].refFasta,
+    refFai = resources [ genomeVersion ].refFai,
+    modules = resources [ genomeVersion ].gatkModules,
+    inputBam = normal_bam,
+    inputBai = normal_bai
+  }
+
   call amber {
     input:
       tumour_bam = tumour_bam,
       tumour_bai = tumour_bai,
       normal_bam = normal_bam,
       normal_bai = normal_bai,
-      normal_name = normal_name,
-      tumour_name = tumour_name,
+      normal_name = extractNormalName.input_name,
+      tumour_name = extractTumorName.input_name,
       genomeVersion = genomeVersion,
       modules = resources [ genomeVersion ].modules,
       PON = resources [ genomeVersion ].PON
@@ -72,8 +90,8 @@ Map[String,GenomeResources] resources = {
       tumour_bai = tumour_bai,
       normal_bam = normal_bam,
       normal_bai = normal_bai,
-      normal_name = normal_name,
-      tumour_name = tumour_name,
+      normal_name = extractNormalName.input_name,
+      tumour_name = extractTumorName.input_name,
       modules = resources [ genomeVersion ].modules,
       gcProfile = resources [ genomeVersion ].gcProfile
   }
@@ -81,8 +99,8 @@ Map[String,GenomeResources] resources = {
   if(doSV) {
     call filterSV {
       input: 
-        normal_name = normal_name,
-        tumour_name = tumour_name,
+        normal_name = extractNormalName.input_name,
+        tumour_name = extractTumorName.input_name,
         genomeVersion = genomeVersion,
         refFasta = resources [ genomeVersion ].refFasta,
         pon_sgl_file = resources [ genomeVersion ].pon_sgl_file,
@@ -96,15 +114,15 @@ Map[String,GenomeResources] resources = {
   if(doSMALL) {
     call filterSMALL {
       input: 
-        normal_name = normal_name,
-        tumour_name = tumour_name
+        normal_name = extractNormalName.input_name,
+        tumour_name = extractTumorName.input_name
     }
   }
 
   call runPURPLE {
     input:
-      normal_name = normal_name,
-      tumour_name = tumour_name,
+      normal_name = extractNormalName.input_name,
+      tumour_name = extractTumorName.input_name,
       amber_directory = amber.output_directory,
       cobalt_directory = cobalt.output_directory,
       SV_vcf = filterSV.filtered_vcf,
@@ -119,7 +137,7 @@ Map[String,GenomeResources] resources = {
   if(doSV) {
     call LINX{
       input:
-          tumour_name = tumour_name, 
+          tumour_name = extractTumorName.input_name,
           ensemblDir = resources [ genomeVersion ].ensemblDir,
           genomeVersion = genomeVersion, 
           fusions_file = resources [ genomeVersion ].knownfusion,
@@ -165,6 +183,58 @@ Map[String,GenomeResources] resources = {
     File? purple_SV = runPURPLE.purple_SV
     File? purple_SMALL_index = runPURPLE.purple_SMALL_index
     File? purple_SMALL = runPURPLE.purple_SMALL
+  }
+}
+
+
+# =========================================
+# Job to extract names from input bam files
+# =========================================
+task extractName {
+  input {
+    String modules
+    String refFasta 
+    String refFai 
+    File inputBam
+    File inputBai
+    Int memory = 4
+    Int timeout = 4
+  }
+
+  parameter_meta {
+    inputBam: "input .bam file"
+    inputBai: "input .bai file"
+    refFasta: "Reference FASTA file"
+    refFai: "Reference fai index"
+    modules: "Required environment modules"
+    memory: "Memory allocated for this job (GB)"
+    timeout: "Hours before task timeout"
+  }
+
+  command <<<
+    set -euo pipefail
+
+    if [ -f "~{inputBam}" ]; then
+      gatk --java-options "-Xmx1g" GetSampleName -R ~{refFasta} -I ~{inputBam} -O input_name.txt -encode
+    fi
+
+    cat input_name.txt
+  >>>
+
+  runtime {
+    memory:  "~{memory} GB"
+    modules: "~{modules}"
+    timeout: "~{timeout}"
+  }
+
+  meta {
+    output_meta: {
+      input_name: "name of the input"
+    }
+  }
+
+  output {
+    String input_name = read_string(stdout()) 
   }
 }
 
