@@ -25,8 +25,6 @@ Parameter|Value|Description
 `tumour_bai`|File|Input tumor file index (bai)
 `normal_bam`|File|Input normal file (bam)
 `normal_bai`|File|Input normal file index (bai)
-`normal_name`|String|Name of normal sample
-`tumour_name`|String|Name of tumour sample
 
 
 #### Optional workflow parameters:
@@ -40,6 +38,10 @@ Parameter|Value|Default|Description
 #### Optional task parameters:
 Parameter|Value|Default|Description
 ---|---|---|---
+`extractTumorName.memory`|Int|4|Memory allocated for this job (GB)
+`extractTumorName.timeout`|Int|4|Hours before task timeout
+`extractNormalName.memory`|Int|4|Memory allocated for this job (GB)
+`extractNormalName.timeout`|Int|4|Hours before task timeout
 `amber.amberScript`|String|"java -Xmx32G -cp $HMFTOOLS_ROOT/amber.jar com.hartwig.hmftools.amber.AmberApplication"|location of AMBER script
 `amber.threads`|Int|8|Requested CPU threads
 `amber.memory`|Int|32|Memory allocated for this job (GB)
@@ -81,6 +83,7 @@ Parameter|Value|Default|Description
 
 Output | Type | Description
 ---|---|---
+`purple_directory`|File|Zipped results from PURPLE
 `purple_qc`|File|QC results from PURPLE
 `purple_purity`|File|tab seperated Purity estimate from PURPLE
 `purple_purity_range`|File|tab seperated range of Purity estimate from PURPLE

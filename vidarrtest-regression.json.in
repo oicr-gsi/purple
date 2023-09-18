@@ -1,9 +1,9 @@
 [
     {
         "arguments": {
-            "mrdetect.tumorvcf": {
+            "purple.normal_bam": {
                 "contents": {
-                    "configuration": "/.mounts/labs/gsi/testdata/mrdetect/1.0/input_data/TGL49_0143_Br_P_WG.chr21.vcf.gz",
+                    "configuration": "/.mounts/labs/gsi/testdata/purple_test/1.0/input_data/COLO829_0001_Ly_R_WG.fdrr.chr21.bam",
                     "externalIds": [
                         {
                             "id": "TEST",
@@ -13,9 +13,9 @@
                 },
                 "type": "EXTERNAL"
             },
-            "mrdetect.tumorvcfindex": {
+            "purple.normal_bai": {
                 "contents": {
-                    "configuration": "/.mounts/labs/gsi/testdata/mrdetect/1.0/input_data/TGL49_0143_Br_P_WG.chr21.vcf.gz.tbi",
+                    "configuration": "/.mounts/labs/gsi/testdata/purple_test/1.0/input_data/COLO829_0001_Ly_R_WG.fdrr.chr21.bam.bai",
                     "externalIds": [
                         {
                             "id": "TEST",
@@ -25,9 +25,9 @@
                 },
                 "type": "EXTERNAL"
             },
-            "mrdetect.plasmabam": {
+            "purple.tumour_bam": {
                 "contents": {
-                    "configuration": "/.mounts/labs/gsi/testdata/mrdetect/1.0/input_data/TGL49_0143_Ct_T_WG.chr21.bam",
+                    "configuration": "/.mounts/labs/gsi/testdata/purple_test/1.0/input_data/COLO829_0001_Lu_P_WG.fdrr.chr21.bam",
                     "externalIds": [
                         {
                             "id": "TEST",
@@ -37,9 +37,9 @@
                 },
                 "type": "EXTERNAL"
             },
-            "mrdetect.plasmabai": {
+            "purple.tumour_bai": {
                 "contents": {
-                    "configuration": "/.mounts/labs/gsi/testdata/mrdetect/1.0/input_data/TGL49_0143_Ct_T_WG.chr21.bam.bai",
+                    "configuration": "/.mounts/labs/gsi/testdata/purple_test/1.0/input_data/COLO829_0001_Lu_P_WG.fdrr.chr21.bam.bai",
                     "externalIds": [
                         {
                             "id": "TEST",
@@ -49,91 +49,164 @@
                 },
                 "type": "EXTERNAL"
             },
-            "mrdetect.detectSample.blocklist": "/.mounts/labs/gsi/testdata/mrdetect/1.0/input_data/HBCs.blacklist.chr21.vcf.gz",
-            "mrdetect.detectControl.blocklist": "/.mounts/labs/gsi/testdata/mrdetect/1.0/input_data/HBCs.blacklist.chr21.vcf.gz",
-            "mrdetect.controlFileList": "/.mounts/labs/gsi/testdata/mrdetect/1.0/input_data/HBC.chr21.bam.list",
-            "mrdetect.outputFileNamePrefix": "TGL49_0143_Ct_T_WG",
-            "mrdetect.tumorSampleName": "TGL49_0143_Br_P_T-92",
-            "mrdetect.filterVCF.tumorVCFfilter": null,
-            "mrdetect.filterVCF.tumorVAF": null,
-            "mrdetect.filterVCF.genome": null,
-            "mrdetect.filterVCF.difficultRegions": null,
-            "mrdetect.filterVCF.modules": null,
-            "mrdetect.filterVCF.jobMemory": null,
-            "mrdetect.filterVCF.threads": null,
-            "mrdetect.filterVCF.timeout": null,
-            "mrdetect.parseControls.jobMemory": null,
-            "mrdetect.parseControls.timeout": null,
-            "mrdetect.detectControl.plasmaSampleName": null,
-            "mrdetect.detectControl.tumorSampleName": null,
-            "mrdetect.detectControl.modules": null,
-            "mrdetect.detectControl.jobMemory": null,
-            "mrdetect.detectControl.threads": null,
-            "mrdetect.detectControl.timeout": null,
-            "mrdetect.detectControl.pickle": null,
-            "mrdetect.detectControl.pullreadsScript": null,
-            "mrdetect.detectControl.qualityscoreScript": null,
-            "mrdetect.detectControl.filterAndDetectScript": null,
-            "mrdetect.detectSample.plasmaSampleName": null,
-            "mrdetect.detectSample.tumorSampleName": null,
-            "mrdetect.detectSample.modules": null,
-            "mrdetect.detectSample.jobMemory": null,
-            "mrdetect.detectSample.threads": null,
-            "mrdetect.detectSample.timeout": null,
-            "mrdetect.detectSample.pickle": null,
-            "mrdetect.detectSample.pullreadsScript": null,
-            "mrdetect.detectSample.qualityscoreScript": null,
-            "mrdetect.detectSample.filterAndDetectScript": null,
-            "mrdetect.snvDetectionSummary.pvalue": "0.01",
-            "mrdetect.snvDetectionSummary.jobMemory": null,
-            "mrdetect.snvDetectionSummary.threads": null,
-            "mrdetect.snvDetectionSummary.timeout": null,
-            "mrdetect.snvDetectionSummary.modules": null,
-            "mrdetect.snvDetectionSummary.pwgtestscript": null
+            "purple.tumour_name": "COLO829_0001_Lu_P",
+            "purple.normal_name": "COLO829_0001_Ly_R",
+            "purple.doSV": false,
+            "purple.doSMALL": true,
+            "purple.genomeVersion": "38",
+            "purple.amber.amberScript": "java -Xmx32G -cp $HMFTOOLS_ROOT/amber.jar com.hartwig.hmftools.amber.AmberApplication",
+            "purple.amber.threads": 8,
+            "purple.amber.memory": 32,
+            "purple.amber.timeout": 100,
+            "purple.cobalt.colbaltScript": "java -Xmx8G -cp $HMFTOOLS_ROOT/cobalt.jar com.hartwig.hmftools.cobalt.CobaltApplication",
+            "purple.cobalt.gamma": null,
+            "purple.cobalt.threads": 8,
+            "purple.cobalt.memory": 32,
+            "purple.cobalt.timeout": 100,
+            "purple.extractNormalName.memory": null,
+            "purple.extractNormalName.timeout": null,
+            "purple.extractTumorName.memory": null,
+            "purple.extractTumorName.timeout": null,
+            "purple.filterSV.vcf": null,
+            "purple.filterSV.gripssScript": null,
+            "purple.filterSV.hard_min_tumor_qual": null,
+            "purple.filterSV.filter_sgls": null,
+            "purple.filterSV.memory": null,
+            "purple.filterSV.threads": null,
+            "purple.filterSV.timeout": null,
+            "purple.filterSMALL.bcftoolsScript": null,
+            "purple.filterSMALL.genome": null,
+            "purple.filterSMALL.regions": null,
+            "purple.filterSMALL.difficultRegions": null,
+            "purple.filterSMALL.tumorVAF": null,
+            "purple.filterSMALL.modules": null,
+            "purple.filterSMALL.threads": null,
+            "purple.filterSMALL.memory": null,
+            "purple.filterSMALL.timeout": null,
+            "purple.runPURPLE.purpleScript": null,
+            "purple.runPURPLE.threads": null,
+            "purple.runPURPLE.memory": null,
+            "purple.runPURPLE.timeout": null,
+            "purple.LINX.linxScript": null,
+            "purple.LINX.threads": null,
+            "purple.LINX.memory": null,
+            "purple.LINX.timeout": null,
+            "purple.filterSMALL.vcf": {
+                "contents": {
+                    "configuration": "/.mounts/labs/gsi/testdata/purple_test/1.0/input_data/COLO829_0001_Lu_P_WG.chr21.vcf.gz",
+                    "externalIds": [
+                        {
+                            "id": "TEST",
+                            "provider": "TEST"
+                        }
+                    ]
+                },
+                "type": "EXTERNAL"
+            },
+            "purple.filterSMALL.vcf_index": {
+                "contents": {
+                    "configuration": "/.mounts/labs/gsi/testdata/purple_test/1.0/input_data/COLO829_0001_Lu_P_WG.chr21.vcf.gz.tbi",
+                    "externalIds": [
+                        {
+                            "id": "TEST",
+                            "provider": "TEST"
+                        }
+                    ]
+                },
+                "type": "EXTERNAL"
+            }
      },
-        "description": "mrdetect workflow test",
+        "description": "purple_workflow test",
         "engineArguments": {
           "write_to_cache": false,
           "read_from_cache": false
         },
-        "id": "TGL49_0143Test",
+        "id": "COLO829_0001_Test_no_SV",
         "metadata": {
-            "mrdetect.final_call": {
+            "purple.purple_directory": {
                 "contents": [
                     {
-                        "outputDirectory": "@SCRATCH@/@DATE@_Workflow_mrdetect_TGL49_0143Test_@JENKINSID@"
+                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_COLO829_0001_Test_@JENKINSID@"
                     }
                 ],
                 "type": "ALL"
             },
-            "mrdetect.snvDetectionVAF": {
+            "purple.purple_qc": {
                 "contents": [
                     {
-                        "outputDirectory": "@SCRATCH@/@DATE@_Workflow_mrdetect_TGL49_0143Test_@JENKINSID@"
+                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_COLO829_0001_Test_@JENKINSID@"
                     }
                 ],
                 "type": "ALL"
             },
-            "mrdetect.snpcount": {
+            "purple.purple_purity": {
                 "contents": [
                     {
-                        "outputDirectory": "@SCRATCH@/@DATE@_Workflow_mrdetect_TGL49_0143Test_@JENKINSID@"
+                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_COLO829_0001_Test_@JENKINSID@"
                     }
                 ],
                 "type": "ALL"
             },
-            "mrdetect.snvDetectionResult": {
+            "purple.purple_purity_range": {
                 "contents": [
                     {
-                        "outputDirectory": "@SCRATCH@/@DATE@_Workflow_mrdetect_TGL49_0143Test_@JENKINSID@"
+                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_COLO829_0001_Test_@JENKINSID@"
                     }
                 ],
                 "type": "ALL"
             },
-            "mrdetect.pWGS_svg": {
+            "purple.purple_segments": {
                 "contents": [
                     {
-                        "outputDirectory": "@SCRATCH@/@DATE@_Workflow_mrdetect_TGL49_0143Test_@JENKINSID@"
+                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_COLO829_0001_Test_@JENKINSID@"
+                    }
+                ],
+                "type": "ALL"
+            },
+            "purple.purple_cnv": {
+                "contents": [
+                    {
+                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_COLO829_0001_Test_@JENKINSID@"
+                    }
+                ],
+                "type": "ALL"
+            },
+            "purple.purple_cnv_gene": {
+                "contents": [
+                    {
+                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_COLO829_0001_Test_@JENKINSID@"
+                    }
+                ],
+                "type": "ALL"
+            },
+            "purple.purple_SV": {
+                "contents": [
+                    {
+                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_COLO829_0001_Test_@JENKINSID@"
+                    }
+                ],
+                "type": "ALL"
+            },
+            "purple.purple_SV_index": {
+                "contents": [
+                    {
+                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_COLO829_0001_Test_@JENKINSID@"
+                    }
+                ],
+                "type": "ALL"
+            },
+            "purple.purple_SMALL": {
+                "contents": [
+                    {
+                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_COLO829_0001_Test_@JENKINSID@"
+                    }
+                ],
+                "type": "ALL"
+            },
+            "purple.purple_SMALL_index": {
+                "contents": [
+                    {
+                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_COLO829_0001_Test_@JENKINSID@"
                     }
                 ],
                 "type": "ALL"
@@ -143,9 +216,243 @@
             {
                 "metrics_calculate": "@CHECKOUT@/tests/calculate.sh",
                 "metrics_compare": "@CHECKOUT@/tests/compare.sh",
-                "output_metrics": "/.mounts/labs/gsi/testdata/mrdetect/1.1/output_metrics/TGL49_0143Test.metrics",
+                "output_metrics": "/.mounts/labs/gsi/testdata/purple_test/1.0/output_metrics/COLO829_0001_test.metrics",
                 "type": "script"
             }  
         ]
-    } 
+    },
+    {
+        "arguments": {
+            "purple.normal_bam": {
+                "contents": {
+                    "configuration": "/.mounts/labs/prod/vidarr/output-clinical/3016/a988/acf6/3016a988acf6f40f0faf36471a582b42266ec3ded8c6ab8695ace166bc790ee8/PANX_1288_Ly_R_WG_100-JHU-004_BC.filter.deduped.realigned.recalibrated.bam",
+                    "externalIds": [
+                        {
+                            "id": "TEST",
+                            "provider": "TEST"
+                        }
+                    ]
+                },
+                "type": "EXTERNAL"
+            },
+            "purple.normal_bai": {
+                "contents": {
+                    "configuration": "/.mounts/labs/prod/vidarr/output-clinical/3016/a988/acf6/3016a988acf6f40f0faf36471a582b42266ec3ded8c6ab8695ace166bc790ee8/PANX_1288_Ly_R_WG_100-JHU-004_BC.filter.deduped.realigned.recalibrated.bai",
+                    "externalIds": [
+                        {
+                            "id": "TEST",
+                            "provider": "TEST"
+                        }
+                    ]
+                },
+                "type": "EXTERNAL"
+            },
+            "purple.tumour_bam": {
+                "contents": {
+                    "configuration": "/.mounts/labs/prod/vidarr/output-clinical/3016/a988/acf6/3016a988acf6f40f0faf36471a582b42266ec3ded8c6ab8695ace166bc790ee8/PANX_1288_Pm_M_WG_100_JHU_004_LCM3_6.filter.deduped.realigned.recalibrated.bam",
+                    "externalIds": [
+                        {
+                            "id": "TEST",
+                            "provider": "TEST"
+                        }
+                    ]
+                },
+                "type": "EXTERNAL"
+            },
+            "purple.tumour_bai": {
+                "contents": {
+                    "configuration": "/.mounts/labs/prod/vidarr/output-clinical/3016/a988/acf6/3016a988acf6f40f0faf36471a582b42266ec3ded8c6ab8695ace166bc790ee8/PANX_1288_Pm_M_WG_100_JHU_004_LCM3_6.filter.deduped.realigned.recalibrated.bai",
+                    "externalIds": [
+                        {
+                            "id": "TEST",
+                            "provider": "TEST"
+                        }
+                    ]
+                },
+                "type": "EXTERNAL"
+            },
+            "purple.tumour_name": "PANX_1288_Pm_M_100_JHU_004_LCM3_6",
+            "purple.normal_name": "PANX_1288_Ly_R_100-JHU-004_BC",
+            "purple.doSV": true,
+            "purple.doSMALL": true,
+            "purple.genomeVersion": "38",
+            "purple.amber.amberScript": "java -Xmx32G -cp $HMFTOOLS_ROOT/amber.jar com.hartwig.hmftools.amber.AmberApplication",
+            "purple.amber.threads": 8,
+            "purple.amber.memory": 32,
+            "purple.amber.timeout": 100,
+            "purple.cobalt.colbaltScript": "java -Xmx8G -cp $HMFTOOLS_ROOT/cobalt.jar com.hartwig.hmftools.cobalt.CobaltApplication",
+            "purple.cobalt.gamma": null,
+            "purple.cobalt.threads": 8,
+            "purple.cobalt.memory": 32,
+            "purple.cobalt.timeout": 100,
+            "purple.extractNormalName.memory": null,
+            "purple.extractNormalName.timeout": null,
+            "purple.extractTumorName.memory": null,
+            "purple.extractTumorName.timeout": null,
+            "purple.filterSV.gripssScript": null,
+            "purple.filterSV.hard_min_tumor_qual": null,
+            "purple.filterSV.filter_sgls": null,
+            "purple.filterSV.memory": null,
+            "purple.filterSV.threads": null,
+            "purple.filterSV.timeout": null,
+            "purple.filterSMALL.bcftoolsScript": null,
+            "purple.filterSMALL.genome": null,
+            "purple.filterSMALL.regions": null,
+            "purple.filterSMALL.difficultRegions": null,
+            "purple.filterSMALL.tumorVAF": null,
+            "purple.filterSMALL.modules": null,
+            "purple.filterSMALL.threads": null,
+            "purple.filterSMALL.memory": null,
+            "purple.filterSMALL.timeout": null,
+            "purple.runPURPLE.purpleScript": null,
+            "purple.runPURPLE.threads": null,
+            "purple.runPURPLE.memory": null,
+            "purple.runPURPLE.timeout": null,
+            "purple.LINX.linxScript": null,
+            "purple.LINX.threads": null,
+            "purple.LINX.memory": null,
+            "purple.LINX.timeout": null,
+            "purple.filterSMALL.vcf": {
+                "contents": {
+                    "configuration": "/.mounts/labs/gsi/testdata/purple_test/1.0/input_data/PANX_1288/PANX_1288_Pm_M_WG_100_JHU_004_LCM3_6.filter.deduped.realigned.recalibrated.mutect2.filtered.vep.vcf.gz",
+                    "externalIds": [
+                        {
+                            "id": "TEST",
+                            "provider": "TEST"
+                        }
+                    ]
+                },
+                "type": "EXTERNAL"
+            },
+            "purple.filterSMALL.vcf_index": {
+                "contents": {
+                    "configuration": "/.mounts/labs/gsi/testdata/purple_test/1.0/input_data/PANX_1288/PANX_1288_Pm_M_WG_100_JHU_004_LCM3_6.filter.deduped.realigned.recalibrated.mutect2.filtered.vep.vcf.gz.tbi",
+                    "externalIds": [
+                        {
+                            "id": "TEST",
+                            "provider": "TEST"
+                        }
+                    ]
+                },
+                "type": "EXTERNAL"
+            },
+            "purple.filterSV.vcf": {
+                "contents": {
+                    "configuration": "/.mounts/labs/gsi/testdata/purple_test/1.0/input_data/PANX_1288/PANX_1288_Pm_M_100_JHU_004_LCM3_6.allocated.vcf.gz",
+                    "externalIds": [
+                        {
+                            "id": "TEST",
+                            "provider": "TEST"
+                        }
+                    ]
+                },
+                "type": "EXTERNAL"
+            }
+     },
+        "description": "purple_workflow test",
+        "engineArguments": {
+          "write_to_cache": false,
+          "read_from_cache": false
+        },
+        "id": "PANX_1288_Test_with_SV",
+        "metadata": {
+            "purple.purple_directory": {
+                "contents": [
+                    {
+                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_PANX_1288_Test_with_SV_@JENKINSID@"
+                    }
+                ],
+                "type": "ALL"
+            },
+            "purple.purple_qc": {
+                "contents": [
+                    {
+                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_PANX_1288_Test_with_SV_@JENKINSID@"
+                    }
+                ],
+                "type": "ALL"
+            },
+            "purple.purple_purity": {
+                "contents": [
+                    {
+                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_PANX_1288_Test_with_SV_@JENKINSID@"
+                    }
+                ],
+                "type": "ALL"
+            },
+            "purple.purple_purity_range": {
+                "contents": [
+                    {
+                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_PANX_1288_Test_with_SV_@JENKINSID@"
+                    }
+                ],
+                "type": "ALL"
+            },
+            "purple.purple_segments": {
+                "contents": [
+                    {
+                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_PANX_1288_Test_with_SV_@JENKINSID@"
+                    }
+                ],
+                "type": "ALL"
+            },
+            "purple.purple_cnv": {
+                "contents": [
+                    {
+                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_PANX_1288_Test_with_SV_@JENKINSID@"
+                    }
+                ],
+                "type": "ALL"
+            },
+            "purple.purple_cnv_gene": {
+                "contents": [
+                    {
+                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_PANX_1288_Test_with_SV_@JENKINSID@"
+                    }
+                ],
+                "type": "ALL"
+            },
+            "purple.purple_SV": {
+                "contents": [
+                    {
+                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_PANX_1288_Test_with_SV_@JENKINSID@"
+                    }
+                ],
+                "type": "ALL"
+            },
+            "purple.purple_SV_index": {
+                "contents": [
+                    {
+                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_PANX_1288_Test_with_SV_@JENKINSID@"
+                    }
+                ],
+                "type": "ALL"
+            },
+            "purple.purple_SMALL": {
+                "contents": [
+                    {
+                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_PANX_1288_Test_with_SV_@JENKINSID@"
+                    }
+                ],
+                "type": "ALL"
+            },
+            "purple.purple_SMALL_index": {
+                "contents": [
+                    {
+                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_PANX_1288_Test_with_SV_@JENKINSID@"
+                    }
+                ],
+                "type": "ALL"
+            }
+        },
+        "validators": [
+            {
+                "metrics_calculate": "@CHECKOUT@/tests/calculate.sh",
+                "metrics_compare": "@CHECKOUT@/tests/compare.sh",
+                "output_metrics": "/.mounts/labs/gsi/testdata/purple_test/1.0/output_metrics/PANX_1288_withSV_test.metrics",
+                "type": "script"
+            }  
+        ]
+    }
+    
 ]
