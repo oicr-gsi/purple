@@ -249,6 +249,8 @@ task amber {
     String amberScript = "java -Xmx32G -cp $HMFTOOLS_ROOT/amber.jar com.hartwig.hmftools.amber.AmberApplication"
     String PON
     String genomeVersion
+    Int min_mapping_quality = 30
+    Int min_base_quality = 30
     String modules
     Int threads = 8
     Int memory = 32
@@ -265,6 +267,8 @@ task amber {
     amberScript: "location of AMBER script"
     PON: "Panel of Normal (PON) file, generated for AMBER"
     genomeVersion: "genome version (37 or 38)"
+    min_mapping_quality: "Minimum mapping quality for an alignment to be used"
+    min_base_quality: "Minimum quality for a base to be considered"
 		modules: "Required environment modules"
 		memory: "Memory allocated for this job (GB)"
 		threads: "Requested CPU threads"
@@ -281,7 +285,9 @@ task amber {
       -tumor ~{tumour_name} -tumor_bam ~{tumour_bam} \
       -output_dir ~{tumour_name}.amber/ \
       -loci ~{PON} \
-      -ref_genome_version ~{genomeVersion}
+      -ref_genome_version ~{genomeVersion} \
+      -min_mapping_quality ~{min_mapping_quality} \
+      -min_base_quality ~{min_base_quality} 
 
     zip -r ~{tumour_name}.amber.zip ~{tumour_name}.amber/
 
@@ -317,6 +323,7 @@ task cobalt {
     String colbaltScript = "java -Xmx8G -cp $HMFTOOLS_ROOT/cobalt.jar com.hartwig.hmftools.cobalt.CobaltApplication"
     String gcProfile
     String gamma = 100
+    Int min_mapping_quality = 30
     String modules
     Int threads = 8
     Int memory = 32
@@ -333,6 +340,7 @@ task cobalt {
     colbaltScript: "location of COBALT script"
     gcProfile: "GC profile, generated for COBALT"
     gamma: "gamma (penalty) value for segmenting"
+    min_mapping_quality: "Minimum mapping quality for an alignment to be used"
 		modules: "Required environment modules"
 		memory: "Memory allocated for this job (GB)"
 		threads: "Requested CPU threads"
@@ -349,7 +357,8 @@ task cobalt {
       -tumor ~{tumour_name} -tumor_bam ~{tumour_bam} \
       -output_dir ~{tumour_name}.cobalt/ \
       -gc_profile ~{gcProfile} \
-      -pcf_gamma ~{gamma}
+      -pcf_gamma ~{gamma} \
+      -min_quality ~{min_mapping_quality}
 
     zip -r ~{tumour_name}.cobalt.zip ~{tumour_name}.cobalt/
 
@@ -464,9 +473,9 @@ task filterSMALL {
     File? vcf_index
     String bcftoolsScript = "$BCFTOOLS_ROOT/bin/bcftools"
     String genome = "$HG38_ROOT/hg38_random.fa"
-    String regions = "chr1,chr10,chr11,chr12,chr13,chr14,chr15,chr16,chr17,chr18,chr19,chr2,chr20,chr21,chr22,chr3,chr4,chr5,chr6,chr7,chr8,chr9,chrX,chrY"
+    String regions = "chr1,chr10,chr11,chr12,chr13,chr14,chr15,chr16,chr17,chr18,chr19,chr2,chr20,chr21,chr22,chr3,chr4,chr5,chr6,chr7,chr8,chr9,chrX"
     String difficultRegions = "--targets-file $HG38_DAC_EXCLUSION_ROOT/hg38-dac-exclusion.v2.bed"
-    String tumorVAF = "0.001"
+    String tumorVAF = "0.01"
     String modules = "bcftools/1.9 hg38/p12 hg38-dac-exclusion/1.0"
     Int threads = 8
     Int memory = 32
@@ -532,6 +541,7 @@ task runPURPLE {
     String refFasta
     String genomeVersion
     String gcProfile 
+    Int min_diploid_tumor_ratio_count = 60
     String purpleScript = "java -Xmx8G -jar $HMFTOOLS_ROOT/purple.jar"
     String modules
     Int threads = 8
@@ -549,6 +559,7 @@ task runPURPLE {
     ensemblDir: "Directory of Ensembl data for PURPLE"
     refFasta: "fasta of reference genome"
     gcProfile: "GC profile, generated for COBALT"
+    min_diploid_tumor_ratio_count: "smooth over contiguous segments which are fewer than this number of depth windows long and which have no SV support on either side and which are bounded on both sides by copy number regions which could be smoothed together using our normal smoothing rules."
     genomeVersion: "genome version for AMBER, default set to V38"
     purpleScript: "location of PURPLE script"
     modules: "Required environment modules"
@@ -574,7 +585,8 @@ task runPURPLE {
       ~{"-somatic_sv_vcf " + SV_vcf} \
       ~{"-somatic_vcf " + smalls_vcf} \
       -output_dir ~{tumour_name}.purple \
-      -no_charts
+      -no_charts \
+      -min_diploid_tumor_ratio_count ~{min_diploid_tumor_ratio_count}
 
     zip -r ~{tumour_name}.purple.zip ~{tumour_name}.purple/
 
