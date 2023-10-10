@@ -220,7 +220,7 @@
             {
                 "metrics_calculate": "@CHECKOUT@/tests/calculate.sh",
                 "metrics_compare": "@CHECKOUT@/tests/compare.sh",
-                "output_metrics": "/.mounts/labs/gsi/testdata/purple_test/1.0/output_metrics/COLO829_0001_test.metrics",
+                "output_metrics": "/.mounts/labs/gsi/testdata/purple_test/1.1/output_metrics/COLO829_0001_test.metrics",
                 "type": "script"
             }  
         ]
@@ -457,7 +457,7 @@
             {
                 "metrics_calculate": "@CHECKOUT@/tests/calculate.sh",
                 "metrics_compare": "@CHECKOUT@/tests/compare.sh",
-                "output_metrics": "/.mounts/labs/gsi/testdata/purple_test/1.0/output_metrics/PANX_1288_withSV_test.metrics",
+                "output_metrics": "/.mounts/labs/gsi/testdata/purple_test/1.1/output_metrics/PANX_1288_withSV_test.metrics",
                 "type": "script"
             }  
         ]
