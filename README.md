@@ -43,11 +43,14 @@ Parameter|Value|Default|Description
 `extractNormalName.memory`|Int|4|Memory allocated for this job (GB)
 `extractNormalName.timeout`|Int|4|Hours before task timeout
 `amber.amberScript`|String|"java -Xmx32G -cp $HMFTOOLS_ROOT/amber.jar com.hartwig.hmftools.amber.AmberApplication"|location of AMBER script
+`amber.min_mapping_quality`|Int|30|Minimum mapping quality for an alignment to be used
+`amber.min_base_quality`|Int|30|Minimum quality for a base to be considered
 `amber.threads`|Int|8|Requested CPU threads
 `amber.memory`|Int|32|Memory allocated for this job (GB)
 `amber.timeout`|Int|100|Hours before task timeout
 `cobalt.colbaltScript`|String|"java -Xmx8G -cp $HMFTOOLS_ROOT/cobalt.jar com.hartwig.hmftools.cobalt.CobaltApplication"|location of COBALT script
 `cobalt.gamma`|String|100|gamma (penalty) value for segmenting
+`cobalt.min_mapping_quality`|Int|30|Minimum mapping quality for an alignment to be used
 `cobalt.threads`|Int|8|Requested CPU threads
 `cobalt.memory`|Int|32|Memory allocated for this job (GB)
 `cobalt.timeout`|Int|100|Hours before task timeout
@@ -62,13 +65,14 @@ Parameter|Value|Default|Description
 `filterSMALL.vcf_index`|File?|None|index of VCF file for filtering
 `filterSMALL.bcftoolsScript`|String|"$BCFTOOLS_ROOT/bin/bcftools"|location for bcftools
 `filterSMALL.genome`|String|"$HG38_ROOT/hg38_random.fa"|reference fasta
-`filterSMALL.regions`|String|"chr1,chr10,chr11,chr12,chr13,chr14,chr15,chr16,chr17,chr18,chr19,chr2,chr20,chr21,chr22,chr3,chr4,chr5,chr6,chr7,chr8,chr9,chrX,chrY"|regions/chromosomes to include
+`filterSMALL.regions`|String|"chr1,chr10,chr11,chr12,chr13,chr14,chr15,chr16,chr17,chr18,chr19,chr2,chr20,chr21,chr22,chr3,chr4,chr5,chr6,chr7,chr8,chr9,chrX"|regions/chromosomes to include
 `filterSMALL.difficultRegions`|String|"--targets-file $HG38_DAC_EXCLUSION_ROOT/hg38-dac-exclusion.v2.bed"|regions to exclude because they are difficult
-`filterSMALL.tumorVAF`|String|"0.001"|minimum variant allele frequency for tumour calls to pass filter
+`filterSMALL.tumorVAF`|String|"0.01"|minimum variant allele frequency for tumour calls to pass filter
 `filterSMALL.modules`|String|"bcftools/1.9 hg38/p12 hg38-dac-exclusion/1.0"|Required environment modules
 `filterSMALL.threads`|Int|8|Requested CPU threads
 `filterSMALL.memory`|Int|32|Memory allocated for this job (GB)
 `filterSMALL.timeout`|Int|100|Hours before task timeout
+`runPURPLE.min_diploid_tumor_ratio_count`|Int|60|smooth over contiguous segments which are fewer than this number of depth windows long and which have no SV support on either side and which are bounded on both sides by copy number regions which could be smoothed together using our normal smoothing rules.
 `runPURPLE.purpleScript`|String|"java -Xmx8G -jar $HMFTOOLS_ROOT/purple.jar"|location of PURPLE script
 `runPURPLE.threads`|Int|8|Requested CPU threads
 `runPURPLE.memory`|Int|32|Memory allocated for this job (GB)
