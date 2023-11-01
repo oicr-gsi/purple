@@ -58,7 +58,10 @@
             "purple.amber.threads": 8,
             "purple.amber.memory": 32,
             "purple.amber.timeout": 100,
+            "purple.amber.min_mapping_quality": 30,
+            "purple.amber.min_base_quality": 30,
             "purple.cobalt.colbaltScript": "java -Xmx8G -cp $HMFTOOLS_ROOT/cobalt.jar com.hartwig.hmftools.cobalt.CobaltApplication",
+            "purple.cobalt.min_mapping_quality": 30,
             "purple.cobalt.gamma": null,
             "purple.cobalt.threads": 8,
             "purple.cobalt.memory": 32,
@@ -84,6 +87,7 @@
             "purple.filterSMALL.memory": null,
             "purple.filterSMALL.timeout": null,
             "purple.runPURPLE.purpleScript": null,
+            "purple.runPURPLE.min_diploid_tumor_ratio_count": 60,
             "purple.runPURPLE.threads": null,
             "purple.runPURPLE.memory": null,
             "purple.runPURPLE.timeout": null,
@@ -216,7 +220,7 @@
             {
                 "metrics_calculate": "@CHECKOUT@/tests/calculate.sh",
                 "metrics_compare": "@CHECKOUT@/tests/compare.sh",
-                "output_metrics": "/.mounts/labs/gsi/testdata/purple_test/1.0/output_metrics/COLO829_0001_test.metrics",
+                "output_metrics": "/.mounts/labs/gsi/testdata/purple_test/1.1/output_metrics/COLO829_0001_test.metrics",
                 "type": "script"
             }  
         ]
@@ -280,7 +284,10 @@
             "purple.amber.threads": 8,
             "purple.amber.memory": 32,
             "purple.amber.timeout": 100,
+            "purple.amber.min_mapping_quality": 30,
+            "purple.amber.min_base_quality": 30,
             "purple.cobalt.colbaltScript": "java -Xmx8G -cp $HMFTOOLS_ROOT/cobalt.jar com.hartwig.hmftools.cobalt.CobaltApplication",
+            "purple.cobalt.min_mapping_quality": 30,
             "purple.cobalt.gamma": null,
             "purple.cobalt.threads": 8,
             "purple.cobalt.memory": 32,
@@ -305,6 +312,7 @@
             "purple.filterSMALL.memory": null,
             "purple.filterSMALL.timeout": null,
             "purple.runPURPLE.purpleScript": null,
+            "purple.runPURPLE.min_diploid_tumor_ratio_count": 60,
             "purple.runPURPLE.threads": null,
             "purple.runPURPLE.memory": null,
             "purple.runPURPLE.timeout": null,
@@ -449,7 +457,7 @@
             {
                 "metrics_calculate": "@CHECKOUT@/tests/calculate.sh",
                 "metrics_compare": "@CHECKOUT@/tests/compare.sh",
-                "output_metrics": "/.mounts/labs/gsi/testdata/purple_test/1.0/output_metrics/PANX_1288_withSV_test.metrics",
+                "output_metrics": "/.mounts/labs/gsi/testdata/purple_test/1.1/output_metrics/PANX_1288_withSV_test.metrics",
                 "type": "script"
             }  
         ]
