@@ -250,7 +250,7 @@ task amber {
     String PON
     String genomeVersion
     Int min_mapping_quality = 30
-    Int min_base_quality = 30
+    Int min_base_quality = 25
     String modules
     Int threads = 8
     Int memory = 32
@@ -322,7 +322,7 @@ task cobalt {
     File normal_bai
     String colbaltScript = "java -Xmx8G -cp $HMFTOOLS_ROOT/cobalt.jar com.hartwig.hmftools.cobalt.CobaltApplication"
     String gcProfile
-    String gamma = 100
+    String gamma = 300
     Int min_mapping_quality = 30
     String modules
     Int threads = 8
@@ -543,6 +543,10 @@ task runPURPLE {
     String gcProfile 
     Int min_diploid_tumor_ratio_count = 60
     String purpleScript = "java -Xmx8G -jar $HMFTOOLS_ROOT/purple.jar"
+    String? min_ploidy
+    String? max_ploidy
+    String? min_purity
+    String? max_purity
     String modules
     Int threads = 8
     Int memory = 32
@@ -562,6 +566,10 @@ task runPURPLE {
     min_diploid_tumor_ratio_count: "smooth over contiguous segments which are fewer than this number of depth windows long and which have no SV support on either side and which are bounded on both sides by copy number regions which could be smoothed together using our normal smoothing rules."
     genomeVersion: "genome version for AMBER, default set to V38"
     purpleScript: "location of PURPLE script"
+    min_ploidy: "minimum ploidy"
+    max_ploidy: "max ploidy"
+    min_purity: "mininimum purity"
+    max_purity: "max purity"
     modules: "Required environment modules"
 		memory: "Memory allocated for this job (GB)"
 		threads: "Requested CPU threads"
@@ -584,9 +592,13 @@ task runPURPLE {
       -amber ~{tumour_name}.amber -cobalt ~{tumour_name}.cobalt \
       ~{"-somatic_sv_vcf " + SV_vcf} \
       ~{"-somatic_vcf " + smalls_vcf} \
-      -output_dir ~{tumour_name}.purple \
+      ~{"-min_ploidy " + min_ploidy} \
+      ~{"-max_ploidy " + max_ploidy} \
+      ~{"-min_purity " + min_purity} \
+      ~{"-max_purity " + max_purity} \
       -no_charts \
-      -min_diploid_tumor_ratio_count ~{min_diploid_tumor_ratio_count}
+      -min_diploid_tumor_ratio_count ~{min_diploid_tumor_ratio_count} \
+      -output_dir ~{tumour_name}.purple 
 
     zip -r ~{tumour_name}.purple.zip ~{tumour_name}.purple/
 
