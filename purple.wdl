@@ -323,7 +323,7 @@ task cobalt {
     String colbaltScript = "java -Xmx8G -cp $HMFTOOLS_ROOT/cobalt.jar com.hartwig.hmftools.cobalt.CobaltApplication"
     String gcProfile
     String gamma = 300
-    Int min_mapping_quality = 50
+    Int min_mapping_quality = 30
     String modules
     Int threads = 8
     Int memory = 32
