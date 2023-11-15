@@ -12,6 +12,8 @@ If performed the optional task filterSV, then the results of PURPLE will go thro
 
 The mandatory arguments for this workflow are paired tumor-normal bam files for AMBER and COBALT. The optional arguments are a vcf input from mutect2 (for optional task filterSMALL), and a vcf input from GRIDSS (for optional task filterSV). All vcf file tumor and normal sample names in the header should match the sample names in the tumor bam and normal bam header respectively.
 
+![flowchart](./flowchart.jpg)
+
 ## Dependencies
 
 * [PURPLE](https://github.com/hartwigmedical/hmftools/blob/master/purple/README.md)
