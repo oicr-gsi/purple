@@ -1,8 +1,18 @@
 # purple
 
-performs purity and ploidy estimation
+PURPLE is a purity ploidy estimator for whole genome sequenced (WGS) data.
 
 ## Overview
+
+This workflow integrated some tools from hmftools (https://github.com/hartwigmedical/hmftools), including AMBER, COBALT, GRIPSS, PURPLE and LINX. It combines B-allele frequency (BAF) from AMBER, read depth ratios from COBALT, somatic variants and structural variants to estimate the purity and copy number profile of a tumor sample. 
+
+The optional tasks are filterSMALL, which uses bcftools to filter a vcf, provides an optional argument for PURPLE; and task FilterSV, which uses GRIPSS (GRIDSS Post Somatic Software) to apply a set of filtering and post processing steps on GRIDSS (https://github.com/PapenfussLab/gridss) paired tumor-normal output to produce a high confidence set of somatic SV for a tumor sample, provides a somatic vcf to serve as another optional argument for PURPLE. 
+
+If performed the optional task filterSV, then the results of PURPLE will go through a step to run on LINX, which is an annotation, interpretation and visualisation tool for structural variants. The primary function of LINX is grouping together individual SV calls into distinct events and properly classify and annotating the event to understand both its mechanism and genomic impact.
+
+The mandatory arguments for this workflow are paired tumor-normal bam files for AMBER and COBALT. The optional arguments are a vcf input from mutect2 (for optional task filterSMALL), and a vcf input from GRIDSS (for optional task filterSV). All vcf file tumor and normal sample names in the header should match the sample names in the tumor bam and normal bam header respectively.
+
+![flowchart](./flowchart.jpg)
 
 ## Dependencies
 
