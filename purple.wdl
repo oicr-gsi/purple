@@ -651,6 +651,7 @@ task LINX {
     String genomeVersion
     String fusions_file
     String linxScript = "java -Xmx32G -cp $HMFTOOLS_ROOT/linx.jar com.hartwig.hmftools.linx.LinxApplication"
+    String driverPanel = "/.mounts/labs/CGI/scratch/aalam/purple/hartwig_driver_panel.tsv"
     String modules
     Int threads = 8
     Int memory = 32
@@ -679,6 +680,7 @@ task LINX {
       -ref_genome_version ~{genomeVersion} \
       -ensembl_data_dir ~{ensemblDir}  \
       -check_fusions \
+      -driver_gene_panel ~{driverPanel} \
       -known_fusion_file ~{fusions_file} \
       -purple_dir ~{tumour_name}.purple \
       -output_dir ~{tumour_name}.linx 
