@@ -134,6 +134,35 @@ Map[String,GenomeResources] resources = {
       refFasta = resources [ genomeVersion ].refFasta
   }
 
+  call expandAlternates {
+  }
+
+  scatter (alternate in expandAlternates.alternates_ploidies) {
+      call runPURPLE as runPURPLEAlternates {
+        input:
+          solution_name = alternate[0],
+          min_ploidy = alternate[0],
+          max_ploidy = alternate[1],
+          normal_name = extractNormalName.input_name,
+          tumour_name = extractTumorName.input_name,
+          amber_directory = amber.output_directory,
+          cobalt_directory = cobalt.output_directory,
+          SV_vcf = filterSV.filtered_vcf,
+          smalls_vcf = filterSMALL.filtered_vcf,
+          genomeVersion = genomeVersion,
+          modules = resources [ genomeVersion ].modules,
+          gcProfile = resources [ genomeVersion ].gcProfile,
+          ensemblDir = resources [ genomeVersion ].ensemblDir,
+          refFasta = resources [ genomeVersion ].refFasta
+      }
+  }
+
+  call group_alternates {
+    input:
+      tumour_name = extractTumorName.input_name,
+      alternate_solutions = select_all(runPURPLEAlternates.purple_directory)
+  }
+
   if(doSV) {
     call LINX{
       input:
@@ -533,6 +562,8 @@ task runPURPLE {
   input {
     String normal_name
     String tumour_name
+    String solution_name = "Primary"
+    String outfilePrefix = tumour_name + ".sol" + solution_name
     File amber_directory
     File cobalt_directory
     File? SV_vcf
@@ -547,6 +578,8 @@ task runPURPLE {
     String? max_ploidy
     String? min_purity
     String? max_purity
+    String? ploidy_penalty_factor
+    String? ploidy_penalty_standard_deviation
     String modules
     Int threads = 8
     Int memory = 32
@@ -570,6 +603,8 @@ task runPURPLE {
     max_ploidy: "max ploidy"
     min_purity: "mininimum purity"
     max_purity: "max purity"
+    ploidy_penalty_factor: "multiplies aggregate event penalty by this factor"
+    ploidy_penalty_standard_deviation: "not entirely sure what this does"
     modules: "Required environment modules"
 		memory: "Memory allocated for this job (GB)"
 		threads: "Requested CPU threads"
@@ -581,7 +616,7 @@ task runPURPLE {
 
     unzip ~{amber_directory} 
     unzip ~{cobalt_directory} 
-    mkdir ~{tumour_name}.purple 
+    mkdir ~{outfilePrefix}.purple 
 
     ~{purpleScript} \
       -ref_genome_version ~{genomeVersion} \
@@ -590,6 +625,8 @@ task runPURPLE {
       -ensembl_data_dir ~{ensemblDir}  \
       -reference ~{normal_name} -tumor ~{tumour_name}  \
       -amber ~{tumour_name}.amber -cobalt ~{tumour_name}.cobalt \
+      ~{"-ploidy_penalty_factor" + ploidy_penalty_factor} \
+      ~{"-ploidy_penalty_standard_deviation" + ploidy_penalty_standard_deviation} \
       ~{"-somatic_sv_vcf " + SV_vcf} \
       ~{"-somatic_vcf " + smalls_vcf} \
       ~{"-min_ploidy " + min_ploidy} \
@@ -598,9 +635,9 @@ task runPURPLE {
       ~{"-max_purity " + max_purity} \
       -no_charts \
       -min_diploid_tumor_ratio_count ~{min_diploid_tumor_ratio_count} \
-      -output_dir ~{tumour_name}.purple 
+      -output_dir ~{outfilePrefix}.purple 
 
-    zip -r ~{tumour_name}.purple.zip ~{tumour_name}.purple/
+    zip -r ~{outfilePrefix}.purple.zip ~{outfilePrefix}.purple/
 
   >>>
 
@@ -612,17 +649,17 @@ task runPURPLE {
   }
 
   output {
-    File purple_directory = "~{tumour_name}.purple.zip"
-    File purple_qc = "~{tumour_name}.purple/~{tumour_name}.purple.qc"
-    File purple_purity = "~{tumour_name}.purple/~{tumour_name}.purple.purity.tsv"
-    File purple_purity_range = "~{tumour_name}.purple/~{tumour_name}.purple.purity.range.tsv"
-    File purple_segments = "~{tumour_name}.purple/~{tumour_name}.purple.segment.tsv"
-    File purple_cnv = "~{tumour_name}.purple/~{tumour_name}.purple.cnv.somatic.tsv"
-    File purple_cnv_gene = "~{tumour_name}.purple/~{tumour_name}.purple.cnv.gene.tsv"
-    File? purple_SV_index = "~{tumour_name}.purple/~{tumour_name}.purple.sv.vcf.gz.tbi"
-    File? purple_SV = "~{tumour_name}.purple/~{tumour_name}.purple.sv.vcf.gz"
-    File? purple_SMALL_index = "~{tumour_name}.purple/~{tumour_name}.purple.somatic.vcf.gz.tbi"
-    File? purple_SMALL = "~{tumour_name}.purple/~{tumour_name}.purple.somatic.vcf.gz"
+    File purple_directory = "~{outfilePrefix}.purple.zip"
+    File purple_qc = "~{outfilePrefix}.purple/~{tumour_name}.purple.qc"
+    File purple_purity = "~{outfilePrefix}.purple/~{tumour_name}.purple.purity.tsv"
+    File purple_purity_range = "~{outfilePrefix}.purple/~{tumour_name}.purple.purity.range.tsv"
+    File purple_segments = "~{outfilePrefix}.purple/~{tumour_name}.purple.segment.tsv"
+    File purple_cnv = "~{outfilePrefix}.purple/~{tumour_name}.purple.cnv.somatic.tsv"
+    File purple_cnv_gene = "~{outfilePrefix}.purple/~{tumour_name}.purple.cnv.gene.tsv"
+    File? purple_SV_index = "~{outfilePrefix}.purple/~{tumour_name}.purple.sv.vcf.gz.tbi"
+    File? purple_SV = "~{outfilePrefix}.purple/~{tumour_name}.purple.sv.vcf.gz"
+    File? purple_SMALL_index = "~{outfilePrefix}.purple/~{tumour_name}.purple.somatic.vcf.gz.tbi"
+    File? purple_SMALL = "~{outfilePrefix}.purple/~{tumour_name}.purple.somatic.vcf.gz"
   }
 
   meta {
@@ -640,6 +677,70 @@ task runPURPLE {
       purple_SMALL: "SNV+IN/DEL .vcf edited by PURPLE"
 		}
 	}
+}
+
+task expandAlternates {
+  input {
+    Int min_alternate_ploidy = 1
+    Int max_alternate_ploidy = 8
+    Int alternate_ploidy_step = 1
+    Int jobMemory = 1
+		Int timeout = 1
+    String modules = "python/3.10.6"
+  }
+
+  command <<<
+    python<<CODE
+
+    for ploidy in range(~{min_alternate_ploidy},~{max_alternate_ploidy},~{alternate_ploidy_step}):
+      ploidy_plus_one = ploidy+~{alternate_ploidy_step}
+      print(str(ploidy)+"\t"+str(ploidy_plus_one)+"\n")
+
+    CODE
+	>>>
+
+  runtime {
+		memory:  "~{jobMemory} GB"
+		timeout: "~{timeout}"
+    modules: "~{modules}"
+	}
+
+	output {
+		Array[Array[String]] alternates_ploidies = read_tsv(stdout())
+	}
+}
+
+
+task group_alternates {
+  input {
+    Array[File] alternate_solutions 
+    String tumour_name
+    Int jobMemory = 1
+    Int threads = 1
+    Int timeout = 2
+  }
+
+  command <<<
+    set -euo pipefail
+
+    mkdir ~{tumour_name}.purple_alternates
+
+    cp ~{sep=' ' alternate_solutions} ~{tumour_name}.purple_alternates/
+
+    zip -r ~{tumour_name}.purple_alternates.zip ~{tumour_name}.purple_alternates/
+
+
+  >>>
+
+  runtime {
+    memory:  "~{jobMemory} GB"
+    cpu:     "~{threads}"
+    timeout: "~{timeout}"
+  }
+
+  output {
+    File purple_alternate_directory = "~{tumour_name}.purple_alternates.zip"
+  }
 }
 
 
