@@ -201,7 +201,8 @@ Map[String,GenomeResources] resources = {
   }
 
   output {
-    File purple_directory = runPURPLE.purple_directory
+    File? purple_directory = runPURPLE.purple_directory
+    File purple_alternate_directory = group_alternates.purple_alternate_directory
     File purple_qc = runPURPLE.purple_qc
     File purple_purity = runPURPLE.purple_purity
     File purple_purity_range = runPURPLE.purple_purity_range
@@ -649,7 +650,7 @@ task runPURPLE {
   }
 
   output {
-    File purple_directory = "~{outfilePrefix}.purple.zip"
+    File? purple_directory = "~{outfilePrefix}.purple.zip"
     File purple_qc = "~{outfilePrefix}.purple/~{tumour_name}.purple.qc"
     File purple_purity = "~{outfilePrefix}.purple/~{tumour_name}.purple.purity.tsv"
     File purple_purity_range = "~{outfilePrefix}.purple/~{tumour_name}.purple.purity.range.tsv"
@@ -746,7 +747,7 @@ task group_alternates {
 
 task LINX {
   input {
-    File purple_dir
+    File? purple_dir
     String tumour_name
     String ensemblDir
     String genomeVersion
@@ -781,7 +782,7 @@ task LINX {
       -ensembl_data_dir ~{ensemblDir}  \
       -check_fusions \
       -known_fusion_file ~{fusions_file} \
-      -purple_dir ~{tumour_name}.purple \
+      -purple_dir ~{tumour_name}.solPrimary.purple \
       -output_dir ~{tumour_name}.linx 
 
   >>>
