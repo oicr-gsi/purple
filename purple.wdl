@@ -196,7 +196,8 @@ Map[String,GenomeResources] resources = {
       purple_SV_index: "Structural Variant .vcf index edited by PURPLE",
       purple_SV: "Structural Variant .vcf edited by PURPLE",
       purple_SMALL_index: "SNV+IN/DEL .vcf index edited by PURPLE",
-      purple_SMALL: "SNV+IN/DEL .vcf edited by PURPLE"		
+      purple_SMALL: "SNV+IN/DEL .vcf edited by PURPLE",
+      purple_alternate_directory: "Directory for alternate solution files"		
     }
   }
 
@@ -590,6 +591,8 @@ task runPURPLE {
   parameter_meta {
     tumour_name: "Name for Tumour sample"
     normal_name: "Name for Normal sample"
+    solution_name: "Name of solution"
+    outfilePrefix: "Prefix of output file"
     amber_directory: "zipped output from AMBER"
     cobalt_directory: "zipped output from COBALT"
     SV_vcf: "filtered structural variant (SV) vcf"
@@ -689,6 +692,14 @@ task expandAlternates {
 		Int timeout = 1
     String modules = "python/3.10.6"
   }
+  parameter_meta {
+    min_alternate_ploidy : "Minimum of alternative ploidy"
+    max_alternate_ploidy : "Maximum of alternative ploidy"
+    alternate_ploidy_step: "NUmber of steps"
+    modules: "Required environment modules"
+		jobMemory: "Memory allocated for this job (GB)"
+		timeout: "Hours before task timeout"
+	}
 
   command <<<
     python<<CODE
@@ -721,6 +732,12 @@ task group_alternates {
     Int timeout = 2
   }
 
+  parameter_meta {
+    alternate_solutions: "Name for alternate_solutions"
+		jobMemory: "Memory allocated for this job (GB)"
+		threads: "Requested CPU threads"
+		timeout: "Hours before task timeout"
+	}
   command <<<
     set -euo pipefail
 

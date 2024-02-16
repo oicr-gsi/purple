@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## 1.1.3 -2024-02-16
+- Added alternate solution
+
 ## 1.1.2 -2023-11-03
 - Parameter changes, regression test and documents
 
