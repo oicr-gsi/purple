@@ -243,6 +243,14 @@
                     }
                 ],
                 "type": "ALL"
+            },
+            "purple.purple_alternate_directory": {
+                "contents": [
+                    {
+                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_COLO829_0001_Test_@JENKINSID@"
+                    }
+                ],
+                "type": "ALL"
             }
         },
         "validators": [
@@ -505,6 +513,14 @@
                 "contents": [
                     {
                         "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_PANX_1288_Test_with_SV_@JENKINSID@"
+                    }
+                ],
+                "type": "ALL"
+            },
+            "purple.purple_alternate_directory": {
+                "contents": [
+                    {
+                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_COLO829_0001_Test_@JENKINSID@"
                     }
                 ],
                 "type": "ALL"
