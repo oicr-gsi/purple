@@ -66,7 +66,14 @@
             "purple.cobalt.threads": 8,
             "purple.cobalt.memory": 32,
             "purple.cobalt.timeout": 100,
+            "purple.expandAlternates.min_alternate_ploidy": 1,
+            "purple.expandAlternates.max_alternate_ploidy": 8,
+            "purple.expandAlternates.alternate_ploidy_step": 1,
+            "purple.expandAlternates.jobMemory": 1,
+            "purple.expandAlternates.timeout": 1,
+            "purple.expandAlternates.modules": "python/3.10.6",
             "purple.extractNormalName.memory": null,
+            "purple.extractNormalName.mealternate_ploidy_stepmory": null,
             "purple.extractNormalName.timeout": null,
             "purple.extractTumorName.memory": null,
             "purple.extractTumorName.timeout": null,
@@ -86,12 +93,30 @@
             "purple.filterSMALL.threads": null,
             "purple.filterSMALL.memory": null,
             "purple.filterSMALL.timeout": null,
+            "purple.group_alternates.threads": null,
+            "purple.group_alternates.jobMemory": null,
+            "purple.group_alternates.timeout": null,
             "purple.runPURPLE.purpleScript": null,
             "purple.runPURPLE.min_diploid_tumor_ratio_count": 60,
             "purple.runPURPLE.max_ploidy": null,
             "purple.runPURPLE.min_ploidy": null,
             "purple.runPURPLE.max_purity": null,
             "purple.runPURPLE.min_purity": null,
+            "purple.runPURPLE.outfilePrefix": null,
+            "purple.runPURPLEAlternates.ploidy_penalty_factor": null,
+            "purple.runPURPLEAlternates.ploidy_penalty_standard_deviation": null,
+            "purple.runPURPLE.ploidy_penalty_factor": null,
+            "purple.runPURPLE.ploidy_penalty_standard_deviation": null,
+            "purple.runPURPLEAlternates.threads.": null,
+            "purple.runPURPLEAlternates.memory": null,
+            "purple.runPURPLEAlternates.timeout": null,
+            "purple.runPURPLEAlternates.threads": null,
+            "purple.runPURPLEAlternates.outfilePrefix": null,
+            "purple.runPURPLEAlternates.purpleScript": null,
+            "purple.runPURPLEAlternates.max_purity": null,
+            "purple.runPURPLEAlternates.min_purity": null,
+            "purple.runPURPLEAlternates.min_diploid_tumor_ratio_count": null,
+            "purple.runPURPLE.solution_name": null,
             "purple.runPURPLE.threads": null,
             "purple.runPURPLE.memory": null,
             "purple.runPURPLE.timeout": null,
@@ -218,6 +243,14 @@
                     }
                 ],
                 "type": "ALL"
+            },
+            "purple.purple_alternate_directory": {
+                "contents": [
+                    {
+                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_COLO829_0001_Test_@JENKINSID@"
+                    }
+                ],
+                "type": "ALL"
             }
         },
         "validators": [
@@ -296,6 +329,12 @@
             "purple.cobalt.threads": 8,
             "purple.cobalt.memory": 32,
             "purple.cobalt.timeout": 100,
+            "purple.expandAlternates.min_alternate_ploidy": 1,
+            "purple.expandAlternates.max_alternate_ploidy": 8,
+            "purple.expandAlternates.alternate_ploidy_step": 1,
+            "purple.expandAlternates.jobMemory": 1,
+            "purple.expandAlternates.timeout": 1,
+            "purple.expandAlternates.modules": "python/3.10.6",
             "purple.extractNormalName.memory": null,
             "purple.extractNormalName.timeout": null,
             "purple.extractTumorName.memory": null,
@@ -315,6 +354,9 @@
             "purple.filterSMALL.threads": null,
             "purple.filterSMALL.memory": null,
             "purple.filterSMALL.timeout": null,
+            "purple.group_alternates.threads": null,
+            "purple.group_alternates.jobMemory": null,
+            "purple.group_alternates.timeout": null,
             "purple.runPURPLE.purpleScript": null,
             "purple.runPURPLE.min_diploid_tumor_ratio_count": 60,
             "purple.runPURPLE.threads": null,
@@ -324,6 +366,21 @@
             "purple.runPURPLE.min_ploidy": null,
             "purple.runPURPLE.max_purity": null,
             "purple.runPURPLE.min_purity": null,
+            "purple.runPURPLE.outfilePrefix": null,
+            "purple.runPURPLE.ploidy_penalty_factor": null,
+            "purple.runPURPLEAlternates.ploidy_penalty_factor": null,
+            "purple.runPURPLEAlternates.ploidy_penalty_standard_deviation": null,
+            "purple.runPURPLE.ploidy_penalty_standard_deviation": null,
+            "purple.runPURPLEAlternates.threads.": null,
+            "purple.runPURPLEAlternates.memory": null,
+            "purple.runPURPLEAlternates.timeout": null,
+            "purple.runPURPLEAlternates.threads": null,
+            "purple.runPURPLEAlternates.outfilePrefix": null,
+            "purple.runPURPLEAlternates.purpleScript": null,
+            "purple.runPURPLEAlternates.max_purity": null,
+            "purple.runPURPLEAlternates.min_purity": null,
+            "purple.runPURPLEAlternates.min_diploid_tumor_ratio_count": null,
+            "purple.runPURPLE.solution_name": null,
             "purple.LINX.linxScript": null,
             "purple.LINX.threads": null,
             "purple.LINX.memory": null,
@@ -456,6 +513,14 @@
                 "contents": [
                     {
                         "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_PANX_1288_Test_with_SV_@JENKINSID@"
+                    }
+                ],
+                "type": "ALL"
+            },
+            "purple.purple_alternate_directory": {
+                "contents": [
+                    {
+                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_COLO829_0001_Test_@JENKINSID@"
                     }
                 ],
                 "type": "ALL"
