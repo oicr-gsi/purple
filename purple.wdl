@@ -186,19 +186,55 @@ Map[String,GenomeResources] resources = {
     }
     ]
     output_meta: {
-      purple_directory: "Zipped results from PURPLE",
-      purple_qc: "QC results from PURPLE",
-      purple_purity: "tab seperated Purity estimate from PURPLE",
-      purple_purity_range: "tab seperated range of Purity estimate from PURPLE",
-      purple_segments: "tab seperated segments estimated by PURPLE",
-      purple_cnv: "tab seperated somatic copy number variants from PURPLE",
-      purple_cnv_gene: "tab seperated somatic gene-level copy number variants from PURPLE",
-      purple_SV_index: "Structural Variant .vcf index edited by PURPLE",
-      purple_SV: "Structural Variant .vcf edited by PURPLE",
-      purple_SMALL_index: "SNV+IN/DEL .vcf index edited by PURPLE",
-      purple_SMALL: "SNV+IN/DEL .vcf edited by PURPLE",
-      purple_alternate_directory: "Directory for alternate solution files"		
+    purple_directory: {
+        description: "Zipped results from PURPLE",
+        vidarr_label: "purple_directory"
+    },
+    purple_qc: {
+        description: "QC results from PURPLE",
+        vidarr_label: "purple_qc"
+    },
+    purple_purity: {
+        description: "tab seperated Purity estimate from PURPLE",
+        vidarr_label: "purple_purity"
+    },
+    purple_purity_range: {
+        description: "tab seperated range of Purity estimate from PURPLE",
+        vidarr_label: "purple_purity_range"
+    },
+    purple_segments: {
+        description: "tab seperated segments estimated by PURPLE",
+        vidarr_label: "purple_segments"
+    },
+    purple_cnv: {
+        description: "tab seperated somatic copy number variants from PURPLE",
+        vidarr_label: "purple_cnv"
+    },
+    purple_cnv_gene: {
+        description: "tab seperated somatic gene-level copy number variants from PURPLE",
+        vidarr_label: "purple_cnv_gene"
+    },
+    purple_SV_index: {
+        description: "Structural Variant .vcf index edited by PURPLE",
+        vidarr_label: "purple_SV_index"
+    },
+    purple_SV: {
+        description: "Structural Variant .vcf edited by PURPLE",
+        vidarr_label: "purple_SV"
+    },
+    purple_SMALL_index: {
+        description: "SNV+IN/DEL .vcf index edited by PURPLE",
+        vidarr_label: "purple_SMALL_index"
+    },
+    purple_SMALL: {
+        description: "SNV+IN/DEL .vcf edited by PURPLE",
+        vidarr_label: "purple_SMALL"
+    },
+    purple_alternate_directory: {
+        description: "Directory for alternate solution files",
+        vidarr_label: "purple_alternate_directory"
     }
+}
   }
 
   output {
