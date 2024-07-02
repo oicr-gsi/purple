@@ -121,45 +121,50 @@ Parameter|Value|Default|Description
 
 ### Outputs
 
-Output | Type | Description
----|---|---
-`purple_directory`|File?|Zipped results from PURPLE
-`purple_alternate_directory`|File|Directory for alternate solution files
-`purple_qc`|File|QC results from PURPLE
-`purple_purity`|File|tab seperated Purity estimate from PURPLE
-`purple_purity_range`|File|tab seperated range of Purity estimate from PURPLE
-`purple_segments`|File|tab seperated segments estimated by PURPLE
-`purple_cnv`|File|tab seperated somatic copy number variants from PURPLE
-`purple_cnv_gene`|File|tab seperated somatic gene-level copy number variants from PURPLE
-`purple_SV_index`|File?|Structural Variant .vcf index edited by PURPLE
-`purple_SV`|File?|Structural Variant .vcf edited by PURPLE
-`purple_SMALL_index`|File?|SNV+IN/DEL .vcf index edited by PURPLE
-`purple_SMALL`|File?|SNV+IN/DEL .vcf edited by PURPLE
+Output | Type | Description | Labels
+---|---|---|---
+`purple_directory`|File?|Zipped results from PURPLE|vidarr_label: purple_directory
+`purple_alternate_directory`|File|Directory for alternate solution files|vidarr_label: purple_alternate_directory
+`purple_qc`|File|QC results from PURPLE|vidarr_label: purple_qc
+`purple_purity`|File|tab seperated Purity estimate from PURPLE|vidarr_label: purple_purity
+`purple_purity_range`|File|tab seperated range of Purity estimate from PURPLE|vidarr_label: purple_purity_range
+`purple_segments`|File|tab seperated segments estimated by PURPLE|vidarr_label: purple_segments
+`purple_cnv`|File|tab seperated somatic copy number variants from PURPLE|vidarr_label: purple_cnv
+`purple_cnv_gene`|File|tab seperated somatic gene-level copy number variants from PURPLE|vidarr_label: purple_cnv_gene
+`purple_SV_index`|File?|Structural Variant .vcf index edited by PURPLE|vidarr_label: purple_SV_index
+`purple_SV`|File?|Structural Variant .vcf edited by PURPLE|vidarr_label: purple_SV
+`purple_SMALL_index`|File?|SNV+IN/DEL .vcf index edited by PURPLE|vidarr_label: purple_SMALL_index
+`purple_SMALL`|File?|SNV+IN/DEL .vcf edited by PURPLE|vidarr_label: purple_SMALL
 
 
 ## Commands
-  This section lists commands run by the PURPLE workflow
+This section lists commands run by the PURPLE workflow
   
-  ### Run AMBER 
+### Run AMBER 
    
+```
        ~{amberScript} \
-         -reference ~{normal_name} -reference_bam ~{normal_bam} \
-         -tumor ~{tumour_name} -tumor_bam ~{tumour_bam} \
-         -output_dir ~{tumour_name}.amber/ \
-         -loci ~{PON} \
-         -ref_genome_version ~{genomeVersion}
+       -reference ~{normal_name} -reference_bam ~{normal_bam} \
+       -tumor ~{tumour_name} -tumor_bam ~{tumour_bam} \
+       -output_dir ~{tumour_name}.amber/ \
+       -loci ~{PON} \
+       -ref_genome_version ~{genomeVersion}
    
-   ### Run COBALT 
-   
+```
+
+### Run COBALT 
+
+```   
        ~{colbaltScript} \
          -reference ~{normal_name} -reference_bam ~{normal_bam} \
          -tumor ~{tumour_name} -tumor_bam ~{tumour_bam} \
          -output_dir ~{tumour_name}.cobalt/ \
          -gc_profile ~{gcProfile} \
          -pcf_gamma ~{gamma}
-   
-   ### Filter structural variant VCFs using GRIPSS, this is optional but recommended
-   
+```   
+
+### Filter structural variant VCFs using GRIPSS, this is optional but recommended
+```
        ~{gripssScript} \
            -vcf ~{vcf}  \
            -sample ~{tumour_name} -reference ~{normal_name} \
@@ -172,15 +177,17 @@ Output | Type | Description
            -output_dir gripss/ \
            -hard_min_tumor_qual ~{hard_min_tumor_qual} \
            ~{filter_sgls}
+```
    
-   ### Filter small variant (SNV + in/del) VCFs using bcftools, this is optional but recommended
-   
+### Filter small variant (SNV + in/del) VCFs using bcftools, this is optional but recommended
+```   
         ~{bcftoolsScript} view -f "PASS" -S samples.txt -r ~{regions} ~{difficultRegions} ~{vcf} |\
         ~{bcftoolsScript} norm --multiallelics - --fasta-ref ~{genome} |\
         ~{bcftoolsScript} filter -i "(FORMAT/AD[0:1])/(FORMAT/AD[0:0]+FORMAT/AD[0:1]) >= ~{tumorVAF}"  > ~{tumour_name}.PASS.vcf
-   
-   ### Run PURPLE 
-   
+```
+
+### Run PURPLE 
+```   
        ~{purpleScript} \
          -ref_genome_version ~{genomeVersion} \
          -ref_genome ~{refFasta}  \
@@ -192,9 +199,10 @@ Output | Type | Description
          ~{"-somatic_vcf " + smalls_vcf} \
          -output_dir ~{tumour_name}.purple \
          -no_charts
-   
-   ### Run LINX, if structural variant calls from GRIDSS are included
-   
+```
+
+### Run LINX, if structural variant calls from GRIDSS are included
+```   
        ~{linxScript} \
          -sample ~{tumour_name} \
          -ref_genome_version ~{genomeVersion} \
@@ -203,6 +211,7 @@ Output | Type | Description
          -known_fusion_file ~{fusions_file} \
          -purple_dir ~{tumour_name}.purple \
          -output_dir ~{tumour_name}.linx  ## Support
+```
 
 For support, please file an issue on the [Github project](https://github.com/oicr-gsi) or send an email to gsi@oicr.on.ca .
 
