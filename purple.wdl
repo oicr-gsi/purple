@@ -323,19 +323,34 @@ task cleanBAMHeader {
     File input_bam
     String samtools_path = "/.mounts/labs/gsi/modulator/sw/Ubuntu20.04/samtools-1.16.1/bin/samtools"
   }
+
   command <<<
     set -euo pipefail
 
     base_name=$(basename ~{input_bam} .bam)
 
-    # Extract the header and reheader the BAM file
+    # Extract the header
     ~{samtools_path} view -H ~{input_bam} > header.txt
-    ~{samtools_path} reheader header.txt ~{input_bam} > cleaned.bam
+
+    # Edit the header to make PG IDs unique
+    awk '
+      BEGIN { pg_id_suffix=1 }
+      /^@PG/ {
+          if ($2 ~ /^ID:/) {
+              sub(/^ID:/, "&" pg_id_suffix)
+              pg_id_suffix++
+          }
+      }
+      { print }
+    ' header.txt > new_header.txt
+
+    # Reheader the BAM file
+    ~{samtools_path} reheader new_header.txt ~{input_bam} > cleaned.bam
     ~{samtools_path} index cleaned.bam
 
     # Rename the cleaned BAM and its index file
     mv cleaned.bam ${base_name}.cleaned.bam
-    mv cleaned.bam.bai ${base_name}.cleaned.bam.bai
+    mv ${base_name}.cleaned.bam.bai ${base_name}.cleaned.bam.bai
   >>>
 
   runtime {
@@ -347,6 +362,7 @@ task cleanBAMHeader {
     File cleaned_bai = "~{basename(input_bam, '.bam')}.cleaned.bam.bai"
   }
 }
+
 
 
 task amber {
