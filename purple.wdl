@@ -350,7 +350,7 @@ task cleanBAMHeader {
 
     # Rename the cleaned BAM and its index file
     mv cleaned.bam ${base_name}.cleaned.bam
-    mv ${base_name}.cleaned.bam.bai ${base_name}.cleaned.bam.bai
+    mv cleaned.bam.bai ${base_name}.cleaned.bam.bai
   >>>
 
   runtime {
