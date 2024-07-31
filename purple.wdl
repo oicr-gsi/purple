@@ -71,12 +71,26 @@ Map[String,GenomeResources] resources = {
     inputBai = normal_bai
   }
 
+  call cleanBAMHeader as cleanTumourBAM {
+    input:
+      input_bam = tumour_bam,
+      samtools_path = "/.mounts/labs/gsi/modulator/sw/Ubuntu20.04/samtools-1.16.1/bin/samtools"
+  }
+
+  call cleanBAMHeader as cleanNormalBAM {
+    input:
+      input_bam = normal_bam,
+      samtools_path = "/.mounts/labs/gsi/modulator/sw/Ubuntu20.04/samtools-1.16.1/bin/samtools"
+  }
+
+
   call amber {
     input:
-      tumour_bam = tumour_bam,
-      tumour_bai = tumour_bai,
-      normal_bam = normal_bam,
-      normal_bai = normal_bai,
+      input:
+      tumour_bam = cleanTumourBAM.cleaned_bam,
+      tumour_bai = cleanTumourBAM.cleaned_bai,
+      normal_bam = cleanNormalBAM.cleaned_bam,
+      normal_bai = cleanNormalBAM.cleaned_bai,
       normal_name = extractNormalName.input_name,
       tumour_name = extractTumorName.input_name,
       genomeVersion = genomeVersion,
@@ -98,7 +112,7 @@ Map[String,GenomeResources] resources = {
 
   if(doSV) {
     call filterSV {
-      input: 
+      input:
         normal_name = extractNormalName.input_name,
         tumour_name = extractTumorName.input_name,
         genomeVersion = genomeVersion,
@@ -113,7 +127,7 @@ Map[String,GenomeResources] resources = {
 
   if(doSMALL) {
     call filterSMALL {
-      input: 
+      input:
         normal_name = extractNormalName.input_name,
         tumour_name = extractTumorName.input_name
     }
@@ -168,7 +182,7 @@ Map[String,GenomeResources] resources = {
       input:
           tumour_name = extractTumorName.input_name,
           ensemblDir = resources [ genomeVersion ].ensemblDir,
-          genomeVersion = genomeVersion, 
+          genomeVersion = genomeVersion,
           fusions_file = resources [ genomeVersion ].knownfusion,
           purple_dir = runPURPLE.purple_directory,
           modules = resources [ genomeVersion ].modules
@@ -260,8 +274,8 @@ Map[String,GenomeResources] resources = {
 task extractName {
   input {
     String modules
-    String refFasta 
-    String refFai 
+    String refFasta
+    String refFai
     File inputBam
     File inputBai
     Int memory = 4
@@ -301,9 +315,37 @@ task extractName {
   }
 
   output {
-    String input_name = read_string(stdout()) 
+    String input_name = read_string(stdout())
   }
 }
+
+task cleanBAMHeader {
+  input {
+    File input_bam
+    String samtools_path = "/.mounts/labs/gsi/modulator/sw/Ubuntu20.04/samtools-1.16.1/bin/samtools"
+  }
+  command <<<
+    set -euo pipefail
+
+    ~{samtools_path} view -H ~{input_bam} > header.txt
+    ~{samtools_path} reheader header.txt ~{input_bam} > cleaned.bam
+    ~{samtools_path} index cleaned.bam
+
+    base_name=$(basename ~{input_bam} .bam)
+    mv cleaned.bam ${base_name}.cleaned.bam
+    mv cleaned.bam.bai ${base_name}.cleaned.bam.bai
+  >>>
+
+  runtime {
+    memory: "4 GB"
+  }
+
+  output {
+    File cleaned_bam = "${base_name}.cleaned.bam"
+    File cleaned_bai = "${base_name}.cleaned.bam.bai"
+  }
+}
+
 
 task amber {
   input {
