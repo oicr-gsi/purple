@@ -326,11 +326,14 @@ task cleanBAMHeader {
   command <<<
     set -euo pipefail
 
+    base_name=$(basename ~{input_bam} .bam)
+
+    # Extract the header and reheader the BAM file
     ~{samtools_path} view -H ~{input_bam} > header.txt
     ~{samtools_path} reheader header.txt ~{input_bam} > cleaned.bam
     ~{samtools_path} index cleaned.bam
 
-    base_name=$(basename ~{input_bam} .bam)
+    # Rename the cleaned BAM and its index file
     mv cleaned.bam ${base_name}.cleaned.bam
     mv cleaned.bam.bai ${base_name}.cleaned.bam.bai
   >>>
@@ -340,8 +343,8 @@ task cleanBAMHeader {
   }
 
   output {
-    File cleaned_bam = "${base_name}.cleaned.bam"
-    File cleaned_bai = "${base_name}.cleaned.bam.bai"
+    File cleaned_bam = "~{basename(input_bam, '.bam')}.cleaned.bam"
+    File cleaned_bai = "~{basename(input_bam, '.bam')}.cleaned.bam.bai"
   }
 }
 
