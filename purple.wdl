@@ -99,10 +99,10 @@ Map[String,GenomeResources] resources = {
 
   call cobalt {
     input:
-      tumour_bam = tumour_bam,
-      tumour_bai = tumour_bai,
-      normal_bam = normal_bam,
-      normal_bai = normal_bai,
+      tumour_bam = cleanTumourBAM.cleaned_bam,
+      tumour_bai = cleanTumourBAM.cleaned_bai,
+      normal_bam = cleanNormalBAM.cleaned_bam,
+      normal_bai = cleanNormalBAM.cleaned_bai,
       normal_name = extractNormalName.input_name,
       tumour_name = extractTumorName.input_name,
       modules = resources [ genomeVersion ].modules,
