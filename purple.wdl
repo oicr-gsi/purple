@@ -528,12 +528,12 @@ task filterSV {
     repeat_mask_file: "repeating masking information"
     hard_min_tumor_qual: "Any variant with QUAL less than x is filtered "
     filter_sgls: "include filtering of single breakends"
-		modules: "Required environment modules"
-		memory: "Memory allocated for this job (GB)"
-		threads: "Requested CPU threads"
-		timeout: "Hours before task timeout"
-	}
-  
+    modules: "Required environment modules"
+    memory: "Memory allocated for this job (GB)"
+    threads: "Requested CPU threads"
+    timeout: "Hours before task timeout"
+  }
+
   command <<<
     set -euo pipefail
 
@@ -541,7 +541,7 @@ task filterSV {
 
     ~{gripssScript} \
         -vcf ~{vcf}  \
-        -sample ~{tumour_name} -reference ~{normal_name} \
+        -sample ~{normal_name} -reference ~{tumour_name} \
         -ref_genome_version ~{genomeVersion} \
         -ref_genome ~{refFasta} \
         -pon_sgl_file ~{pon_sgl_file} \
@@ -562,18 +562,19 @@ task filterSV {
   }
 
   output {
-    File soft_filtered_vcf = "gripss/~{tumour_name}.gripss.vcf.gz"
-    File filtered_vcf = "gripss/~{tumour_name}.gripss.filtered.vcf.gz"
+    File soft_filtered_vcf = "gripss/~{normal_name}.gripss.vcf.gz"
+    File filtered_vcf = "gripss/~{normal_name}.gripss.filtered.vcf.gz"
   }
 
   meta {
-		output_meta: {
-			filtered_vcf: "high confidence structural variant VCF",
+    output_meta: {
+      filtered_vcf: "high confidence structural variant VCF",
       soft_filtered_vcf: "structural variant VCF after first filtering"
-		}
-	}
+    }
+  }
 
 }
+
 
 task filterSMALL {
   
