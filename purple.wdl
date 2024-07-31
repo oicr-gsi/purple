@@ -86,7 +86,6 @@ Map[String,GenomeResources] resources = {
 
   call amber {
     input:
-      input:
       tumour_bam = cleanTumourBAM.cleaned_bam,
       tumour_bai = cleanTumourBAM.cleaned_bai,
       normal_bam = cleanNormalBAM.cleaned_bam,
