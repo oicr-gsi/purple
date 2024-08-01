@@ -329,6 +329,7 @@ task cleanBAMHeader {
 
     base_name=$(basename "~{input_bam}" .bam)
 
+
     ~{samtools_path} view -H ~{input_bam} > header.txt
 
     # Edit the header to move @RG lines from CL fields in @PG lines to new lines
@@ -369,6 +370,10 @@ task cleanBAMHeader {
 
     mv cleaned.bam ${base_name}.cleaned.bam
     mv cleaned.bam.bai ${base_name}.cleaned.bam.bai
+
+    echo "${base_name}.cleaned.bam" > bam_name.txt
+    echo "${base_name}.cleaned.bam.bai" > bai_name.txt
+
   >>>
 
   runtime {
@@ -376,8 +381,9 @@ task cleanBAMHeader {
   }
 
   output {
-    File cleaned_bam = "~{base_name}.cleaned.bam"
-    File cleaned_bai = "~{base_name}.cleaned.bam.bai"
+    File cleaned_bam = read_string("bam_name.txt")
+    File cleaned_bai = read_string("bai_name.txt")
+
   }
 }
 
