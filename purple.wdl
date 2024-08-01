@@ -327,7 +327,7 @@ task cleanBAMHeader {
   command <<<
     set -euo pipefail
 
-    base_name=$(basename ~{input_bam} .bam)
+    base_name=$(basename "~{input_bam}" .bam)
 
     ~{samtools_path} view -H ~{input_bam} > header.txt
 
@@ -380,6 +380,7 @@ task cleanBAMHeader {
     File cleaned_bai = "~{base_name}.cleaned.bam.bai"
   }
 }
+
 
 task amber {
   input {
