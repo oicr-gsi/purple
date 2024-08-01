@@ -329,36 +329,24 @@ task cleanBAMHeader {
 
     base_name=$(basename "~{input_bam}" .bam)
 
-
     ~{samtools_path} view -H ~{input_bam} > header.txt
 
-    # Edit the header to move @RG lines from CL fields in @PG lines to new lines
+    # Edit the header to move @RG lines to new lines
     awk '
       BEGIN { OFS="\t" }
       /^@PG/ {
           pg_line = $0
           new_rg = ""
           for (i = 1; i <= NF; i++) {
-              if ($i ~ /^CL:/) {
-                  split($i, cl_fields, " ")
-                  for (j in cl_fields) {
-                      if (cl_fields[j] ~ /^@RG/) {
-                          new_rg = new_rg (new_rg ? OFS : "") cl_fields[j]
-                          cl_fields[j] = ""
-                      }
-                  }
-                  $i = cl_fields[1]
-                  for (j = 2; j in cl_fields; j++) {
-                      if (cl_fields[j] != "") {
-                          $i = $i OFS cl_fields[j]
-                      }
-                  }
+              if ($i ~ /^@RG/) {
+                  new_rg = substr($0, index($0, $i))
+                  pg_line = substr($0, 1, index($0, $i) - 1)
+                  break
               }
           }
           print pg_line
           if (new_rg != "") {
-              sub(/^@RG/, "", new_rg)
-              print "@RG" new_rg
+              print new_rg
           }
           next
       }
@@ -373,7 +361,6 @@ task cleanBAMHeader {
 
     echo "${base_name}.cleaned.bam" > bam_name.txt
     echo "${base_name}.cleaned.bam.bai" > bai_name.txt
-
   >>>
 
   runtime {
@@ -383,7 +370,6 @@ task cleanBAMHeader {
   output {
     File cleaned_bam = read_string("bam_name.txt")
     File cleaned_bai = read_string("bai_name.txt")
-
   }
 }
 
