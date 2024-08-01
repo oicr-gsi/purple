@@ -329,26 +329,44 @@ task cleanBAMHeader {
 
     base_name=$(basename ~{input_bam} .bam)
 
-    # Extract the header
     ~{samtools_path} view -H ~{input_bam} > header.txt
 
-    # Edit the header to make PG IDs unique
+    # Edit the header to move @RG lines from CL fields in @PG lines to new lines
     awk '
-      BEGIN { pg_id_suffix=1 }
+      BEGIN { OFS="\t" }
       /^@PG/ {
-          if ($2 ~ /^ID:/) {
-              sub(/^ID:/, "&" pg_id_suffix)
-              pg_id_suffix++
+          pg_line = $0
+          new_rg = ""
+          for (i = 1; i <= NF; i++) {
+              if ($i ~ /^CL:/) {
+                  split($i, cl_fields, " ")
+                  for (j in cl_fields) {
+                      if (cl_fields[j] ~ /^@RG/) {
+                          new_rg = new_rg (new_rg ? OFS : "") cl_fields[j]
+                          cl_fields[j] = ""
+                      }
+                  }
+                  $i = cl_fields[1]
+                  for (j = 2; j in cl_fields; j++) {
+                      if (cl_fields[j] != "") {
+                          $i = $i OFS cl_fields[j]
+                      }
+                  }
+              }
           }
+          print pg_line
+          if (new_rg != "") {
+              sub(/^@RG/, "", new_rg)
+              print "@RG" new_rg
+          }
+          next
       }
       { print }
     ' header.txt > new_header.txt
 
-    # Reheader the BAM file
     ~{samtools_path} reheader new_header.txt ~{input_bam} > cleaned.bam
     ~{samtools_path} index cleaned.bam
 
-    # Rename the cleaned BAM and its index file
     mv cleaned.bam ${base_name}.cleaned.bam
     mv cleaned.bam.bai ${base_name}.cleaned.bam.bai
   >>>
@@ -358,12 +376,10 @@ task cleanBAMHeader {
   }
 
   output {
-    File cleaned_bam = "~{basename(input_bam, '.bam')}.cleaned.bam"
-    File cleaned_bai = "~{basename(input_bam, '.bam')}.cleaned.bam.bai"
+    File cleaned_bam = "~{base_name}.cleaned.bam"
+    File cleaned_bai = "~{base_name}.cleaned.bam.bai"
   }
 }
-
-
 
 task amber {
   input {
