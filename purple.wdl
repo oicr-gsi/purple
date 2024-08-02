@@ -566,7 +566,7 @@ task filterSV {
 
     ~{gripssScript} \
         -vcf ~{vcf}  \
-        -sample ~{normal_name} -reference ~{tumour_name} \
+        -sample ~{tumour_name} -reference ~{normal_name} \
         -ref_genome_version ~{genomeVersion} \
         -ref_genome ~{refFasta} \
         -pon_sgl_file ~{pon_sgl_file} \
@@ -587,8 +587,8 @@ task filterSV {
   }
 
   output {
-    File soft_filtered_vcf = "gripss/~{normal_name}.gripss.vcf.gz"
-    File filtered_vcf = "gripss/~{normal_name}.gripss.filtered.vcf.gz"
+    File soft_filtered_vcf = "gripss/~{tumour_name}.gripss.vcf.gz"
+    File filtered_vcf = "gripss/~{tumour_name}.gripss.filtered.vcf.gz"
   }
 
   meta {
