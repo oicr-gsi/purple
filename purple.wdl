@@ -331,7 +331,7 @@ task cleanBAMHeader {
 
     ~{samtools_path} view -H ~{input_bam} > header.txt
 
-    # Edit the header to move @RG lines to new lines
+    # Edit the header to move @RG lines to new lines and remove duplicates
     awk '
       BEGIN { OFS="\t" }
       /^@PG/ {
@@ -351,7 +351,7 @@ task cleanBAMHeader {
           next
       }
       { print }
-    ' header.txt > new_header.txt
+    ' header.txt | awk '!seen[$0]++' > new_header.txt
 
     ~{samtools_path} reheader new_header.txt ~{input_bam} > cleaned.bam
     ~{samtools_path} index cleaned.bam
