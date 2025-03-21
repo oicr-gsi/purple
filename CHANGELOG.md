@@ -8,13 +8,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - [GRD-797](https://jira.oicr.on.ca/browse/GRD-797) - Add vidarr labels to outputs (changes to medata only)
 
-## [1.1.3] -2024-02-16
+## [1.1.3] - 2024-02-16
 ### Added
 - Added alternate solution
 
-## [1.1.2] -2023-11-03
+## [1.1.2] - 2023-11-06
 ### Changed
 - Parameter changes, regression test and documents
+
+## [1.1.1] - 2023-11-03
+### Added
+- Min diploid tumor ratio count
 
 ## [1.0] - 2023-09-18
 ### Changed
