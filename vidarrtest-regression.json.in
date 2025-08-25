@@ -3,7 +3,7 @@
         "arguments": {
             "purple.normal_bam": {
                 "contents": {
-                    "configuration": "/.mounts/labs/gsi/testdata/purple_test/1.0/input_data/COLO829_0001_Ly_R_WG.fdrr.chr21.bam",
+                    "configuration": "/.mounts/labs/gsi/testdata/Purple/test_inputs/COLO_Test02.fdrr.chr21.bam",
                     "externalIds": [
                         {
                             "id": "TEST",
@@ -15,7 +15,7 @@
             },
             "purple.normal_bai": {
                 "contents": {
-                    "configuration": "/.mounts/labs/gsi/testdata/purple_test/1.0/input_data/COLO829_0001_Ly_R_WG.fdrr.chr21.bam.bai",
+                    "configuration": "/.mounts/labs/gsi/testdata/Purple/test_inputs/COLO_Test02.fdrr.chr21.bam.bai",
                     "externalIds": [
                         {
                             "id": "TEST",
@@ -27,7 +27,7 @@
             },
             "purple.tumour_bam": {
                 "contents": {
-                    "configuration": "/.mounts/labs/gsi/testdata/purple_test/1.0/input_data/COLO829_0001_Lu_P_WG.fdrr.chr21.bam",
+                    "configuration": "/.mounts/labs/gsi/testdata/Purple/test_inputs/COLO_Test01.fdrr.chr21.bam",
                     "externalIds": [
                         {
                             "id": "TEST",
@@ -39,7 +39,7 @@
             },
             "purple.tumour_bai": {
                 "contents": {
-                    "configuration": "/.mounts/labs/gsi/testdata/purple_test/1.0/input_data/COLO829_0001_Lu_P_WG.fdrr.chr21.bam.bai",
+                    "configuration": "/.mounts/labs/gsi/testdata/Purple/test_inputs/COLO_Test01.fdrr.chr21.bam.bai",
                     "externalIds": [
                         {
                             "id": "TEST",
@@ -49,8 +49,8 @@
                 },
                 "type": "EXTERNAL"
             },
-            "purple.tumour_name": "COLO829_0001_Lu_P",
-            "purple.normal_name": "COLO829_0001_Ly_R",
+            "purple.tumour_name": "COLO_P",
+            "purple.normal_name": "COLO_R",
             "purple.doSV": false,
             "purple.doSMALL": true,
             "purple.genomeVersion": "38",
@@ -126,7 +126,7 @@
             "purple.LINX.timeout": null,
             "purple.filterSMALL.vcf": {
                 "contents": {
-                    "configuration": "/.mounts/labs/gsi/testdata/purple_test/1.0/input_data/COLO829_0001_Lu_P_WG.chr21.vcf.gz",
+                    "configuration": "/.mounts/labs/gsi/testdata/Purple/test_inputs/COLO_Test.chr21.vcf.gz",
                     "externalIds": [
                         {
                             "id": "TEST",
@@ -138,7 +138,7 @@
             },
             "purple.filterSMALL.vcf_index": {
                 "contents": {
-                    "configuration": "/.mounts/labs/gsi/testdata/purple_test/1.0/input_data/COLO829_0001_Lu_P_WG.chr21.vcf.gz.tbi",
+                    "configuration": "/.mounts/labs/gsi/testdata/Purple/test_inputs/COLO_Test.chr21.vcf.gz.tbi",
                     "externalIds": [
                         {
                             "id": "TEST",
@@ -154,12 +154,12 @@
           "write_to_cache": false,
           "read_from_cache": false
         },
-        "id": "COLO829_0001_Test_no_SV",
+        "id": "COLO_Test_no_SV",
         "metadata": {
             "purple.purple_directory": {
                 "contents": [
                     {
-                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_COLO829_0001_Test_@JENKINSID@"
+                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_COLO_Test_@JENKINSID@"
                     }
                 ],
                 "type": "ALL"
@@ -167,7 +167,7 @@
             "purple.purple_qc": {
                 "contents": [
                     {
-                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_COLO829_0001_Test_@JENKINSID@"
+                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_COLO_Test_@JENKINSID@"
                     }
                 ],
                 "type": "ALL"
@@ -175,7 +175,7 @@
             "purple.purple_purity": {
                 "contents": [
                     {
-                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_COLO829_0001_Test_@JENKINSID@"
+                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_COLO_Test_@JENKINSID@"
                     }
                 ],
                 "type": "ALL"
@@ -183,7 +183,7 @@
             "purple.purple_purity_range": {
                 "contents": [
                     {
-                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_COLO829_0001_Test_@JENKINSID@"
+                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_COLO_Test_@JENKINSID@"
                     }
                 ],
                 "type": "ALL"
@@ -191,7 +191,7 @@
             "purple.purple_segments": {
                 "contents": [
                     {
-                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_COLO829_0001_Test_@JENKINSID@"
+                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_COLO_Test_@JENKINSID@"
                     }
                 ],
                 "type": "ALL"
@@ -199,7 +199,7 @@
             "purple.purple_cnv": {
                 "contents": [
                     {
-                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_COLO829_0001_Test_@JENKINSID@"
+                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_COLO_Test_@JENKINSID@"
                     }
                 ],
                 "type": "ALL"
@@ -207,7 +207,7 @@
             "purple.purple_cnv_gene": {
                 "contents": [
                     {
-                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_COLO829_0001_Test_@JENKINSID@"
+                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_COLO_Test_@JENKINSID@"
                     }
                 ],
                 "type": "ALL"
@@ -215,7 +215,7 @@
             "purple.purple_SV": {
                 "contents": [
                     {
-                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_COLO829_0001_Test_@JENKINSID@"
+                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_COLO_Test_@JENKINSID@"
                     }
                 ],
                 "type": "ALL"
@@ -223,7 +223,7 @@
             "purple.purple_SV_index": {
                 "contents": [
                     {
-                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_COLO829_0001_Test_@JENKINSID@"
+                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_COLO_Test_@JENKINSID@"
                     }
                 ],
                 "type": "ALL"
@@ -231,7 +231,7 @@
             "purple.purple_SMALL": {
                 "contents": [
                     {
-                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_COLO829_0001_Test_@JENKINSID@"
+                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_COLO_Test_@JENKINSID@"
                     }
                 ],
                 "type": "ALL"
@@ -239,7 +239,7 @@
             "purple.purple_SMALL_index": {
                 "contents": [
                     {
-                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_COLO829_0001_Test_@JENKINSID@"
+                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_COLO_Test_@JENKINSID@"
                     }
                 ],
                 "type": "ALL"
@@ -247,7 +247,7 @@
             "purple.purple_alternate_directory": {
                 "contents": [
                     {
-                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_COLO829_0001_Test_@JENKINSID@"
+                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_COLO_Test_@JENKINSID@"
                     }
                 ],
                 "type": "ALL"
@@ -257,7 +257,7 @@
             {
                 "metrics_calculate": "@CHECKOUT@/tests/calculate.sh",
                 "metrics_compare": "@CHECKOUT@/tests/compare.sh",
-                "output_metrics": "/.mounts/labs/gsi/testdata/purple_test/1.1/output_metrics/COLO829_0001_test.metrics",
+                "output_metrics": "/.mounts/labs/gsi/testdata/Purple/output_metrics/1.1/workflow_test_01.metrics",
                 "type": "script"
             }  
         ]
