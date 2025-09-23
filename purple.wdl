@@ -573,7 +573,7 @@ task filterSMALL {
 
      ~{bcftoolsScript} view -f "PASS" -S samples.txt -r ~{regions} ~{difficultRegions} ~{vcf} |\
      ~{bcftoolsScript} norm --multiallelics - --fasta-ref ~{genome} |\
-     ~{bcftoolsScript} filter -i "(FORMAT/AD[0:1])/(FORMAT/AD[0:0]+FORMAT/AD[0:1]) >= ~{tumorVAF}"  > ~{tumour_name}.PASS.vcf
+     ~{bcftoolsScript} filter -i "(FORMAT/AD[1:1])/(FORMAT/AD[1:0]+FORMAT/AD[1:1]) >= ~{tumorVAF}"  > ~{tumour_name}.PASS.vcf
 
   >>>
 
