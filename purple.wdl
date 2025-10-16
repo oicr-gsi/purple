@@ -176,13 +176,29 @@ Map[String,GenomeResources] resources = {
   }
 
   meta {
-    author: "Felix Beaudry"
-    email: "fbeaudry@oicr.on.ca"
+    author: "Felix Beaudry, Lawrence Heisler"
+    email: "fbeaudry@oicr.on.ca, lheisler@oicr.on.ca"
     description: "performs purity and ploidy estimation"
     dependencies: [
     {
       name: "PURPLE",
       url: "https://github.com/hartwigmedical/hmftools/blob/master/purple/README.md"
+    },
+    {
+      name: "AMBER",
+      url: "https://github.com/hartwigmedical/hmftools/blob/master/amber/README.md"
+    },
+    {
+      name: "COBALT",
+      url: "https://github.com/hartwigmedical/hmftools/blob/master/cobalt/README.md"
+    },
+    {
+      name: "Linx",
+      url: "https://github.com/hartwigmedical/hmftools/blob/master/linx/README.md"
+    },
+    {
+      name: "bcftools",
+      url: "https://www.htslib.org/doc/1.9/bcftools.html"
     }
     ]
     output_meta: {
@@ -573,7 +589,7 @@ task filterSMALL {
 
      ~{bcftoolsScript} view -f "PASS" -S samples.txt -r ~{regions} ~{difficultRegions} ~{vcf} |\
      ~{bcftoolsScript} norm --multiallelics - --fasta-ref ~{genome} |\
-     ~{bcftoolsScript} filter -i "(FORMAT/AD[0:1])/(FORMAT/AD[0:0]+FORMAT/AD[0:1]) >= ~{tumorVAF}"  > ~{tumour_name}.PASS.vcf
+     ~{bcftoolsScript} filter -i "(FORMAT/AD[1:1])/(FORMAT/AD[1:0]+FORMAT/AD[1:1]) >= ~{tumorVAF}"  > ~{tumour_name}.PASS.vcf
 
   >>>
 
@@ -854,10 +870,10 @@ task LINX {
   }
 
   meta {
-		output_meta: {
-			linx_fusions: "tab seperated LINX fusions",
+      output_meta: {
+      linx_fusions: "tab seperated LINX fusions",
       linx_svs: "tab seperated LINX Structural Variants",
       drivers_svs: "tab seperated LINX Driver Structural Variants"
-		}
-	}
+      }
+  }
 }

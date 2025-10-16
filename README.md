@@ -16,6 +16,10 @@ The mandatory arguments for this workflow are paired tumor-normal bam files for 
 ## Dependencies
 
 * [PURPLE](https://github.com/hartwigmedical/hmftools/blob/master/purple/README.md)
+* [AMBER](https://github.com/hartwigmedical/hmftools/blob/master/amber/README.md)
+* [COBALT](https://github.com/hartwigmedical/hmftools/blob/master/cobalt/README.md)
+* [Linx](https://github.com/hartwigmedical/hmftools/blob/master/linx/README.md)
+* [bcftools](https://www.htslib.org/doc/1.9/bcftools.html)
 
 
 ## Usage
@@ -138,33 +142,28 @@ Output | Type | Description | Labels
 
 
 ## Commands
-This section lists commands run by the PURPLE workflow
+  This section lists commands run by the PURPLE workflow
   
-### Run AMBER 
+  ### Run AMBER 
    
-```
        ~{amberScript} \
-       -reference ~{normal_name} -reference_bam ~{normal_bam} \
-       -tumor ~{tumour_name} -tumor_bam ~{tumour_bam} \
-       -output_dir ~{tumour_name}.amber/ \
-       -loci ~{PON} \
-       -ref_genome_version ~{genomeVersion}
+         -reference ~{normal_name} -reference_bam ~{normal_bam} \
+         -tumor ~{tumour_name} -tumor_bam ~{tumour_bam} \
+         -output_dir ~{tumour_name}.amber/ \
+         -loci ~{PON} \
+         -ref_genome_version ~{genomeVersion}
    
-```
-
-### Run COBALT 
-
-```   
+   ### Run COBALT 
+   
        ~{colbaltScript} \
          -reference ~{normal_name} -reference_bam ~{normal_bam} \
          -tumor ~{tumour_name} -tumor_bam ~{tumour_bam} \
          -output_dir ~{tumour_name}.cobalt/ \
          -gc_profile ~{gcProfile} \
          -pcf_gamma ~{gamma}
-```   
-
-### Filter structural variant VCFs using GRIPSS, this is optional but recommended
-```
+   
+   ### Filter structural variant VCFs using GRIPSS, this is optional but recommended
+   
        ~{gripssScript} \
            -vcf ~{vcf}  \
            -sample ~{tumour_name} -reference ~{normal_name} \
@@ -177,17 +176,15 @@ This section lists commands run by the PURPLE workflow
            -output_dir gripss/ \
            -hard_min_tumor_qual ~{hard_min_tumor_qual} \
            ~{filter_sgls}
-```
    
-### Filter small variant (SNV + in/del) VCFs using bcftools, this is optional but recommended
-```   
+   ### Filter small variant (SNV + in/del) VCFs using bcftools, this is optional but recommended
+   
         ~{bcftoolsScript} view -f "PASS" -S samples.txt -r ~{regions} ~{difficultRegions} ~{vcf} |\
         ~{bcftoolsScript} norm --multiallelics - --fasta-ref ~{genome} |\
-        ~{bcftoolsScript} filter -i "(FORMAT/AD[0:1])/(FORMAT/AD[0:0]+FORMAT/AD[0:1]) >= ~{tumorVAF}"  > ~{tumour_name}.PASS.vcf
-```
-
-### Run PURPLE 
-```   
+        ~{bcftoolsScript} filter -i "(FORMAT/AD[1:1])/(FORMAT/AD[1:0]+FORMAT/AD[1:1]) >= ~{tumorVAF}"  > ~{tumour_name}.PASS.vcf
+   
+   ### Run PURPLE 
+   
        ~{purpleScript} \
          -ref_genome_version ~{genomeVersion} \
          -ref_genome ~{refFasta}  \
@@ -199,10 +196,9 @@ This section lists commands run by the PURPLE workflow
          ~{"-somatic_vcf " + smalls_vcf} \
          -output_dir ~{tumour_name}.purple \
          -no_charts
-```
-
-### Run LINX, if structural variant calls from GRIDSS are included
-```   
+   
+   ### Run LINX, if structural variant calls from GRIDSS are included
+   
        ~{linxScript} \
          -sample ~{tumour_name} \
          -ref_genome_version ~{genomeVersion} \
@@ -210,8 +206,8 @@ This section lists commands run by the PURPLE workflow
          -check_fusions \
          -known_fusion_file ~{fusions_file} \
          -purple_dir ~{tumour_name}.purple \
-         -output_dir ~{tumour_name}.linx  ## Support
-```
+         -output_dir ~{tumour_name}.linx 
+ ## Support
 
 For support, please file an issue on the [Github project](https://github.com/oicr-gsi) or send an email to gsi@oicr.on.ca .
 
