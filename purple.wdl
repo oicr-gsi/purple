@@ -21,6 +21,8 @@ workflow purple {
     File tumour_bai
     File normal_bam
     File normal_bai
+    File? input_amber_directory
+    File? input_cobalt_directory
     String genomeVersion = "38"
     Boolean doSV = true
     Boolean doSMALL = true
@@ -71,34 +73,38 @@ Map[String,GenomeResources] resources = {
     inputBai = normal_bai
   }
 
-  call amber {
-    input:
-      tumour_bam = tumour_bam,
-      tumour_bai = tumour_bai,
-      normal_bam = normal_bam,
-      normal_bai = normal_bai,
-      normal_name = extractNormalName.input_name,
-      tumour_name = extractTumorName.input_name,
-      genomeVersion = genomeVersion,
-      modules = resources [ genomeVersion ].modules,
-      PON = resources [ genomeVersion ].PON
+  if (!defined(input_amber_directory)) {
+    call amber {
+      input:
+        tumour_bam = tumour_bam,
+        tumour_bai = tumour_bai,
+        normal_bam = normal_bam,
+        normal_bai = normal_bai,
+        normal_name = extractNormalName.input_name,
+        tumour_name = extractTumorName.input_name,
+        genomeVersion = genomeVersion,
+        modules = resources [ genomeVersion ].modules,
+        PON = resources [ genomeVersion ].PON
+    }
   }
 
-  call cobalt {
-    input:
-      tumour_bam = tumour_bam,
-      tumour_bai = tumour_bai,
-      normal_bam = normal_bam,
-      normal_bai = normal_bai,
-      normal_name = extractNormalName.input_name,
-      tumour_name = extractTumorName.input_name,
-      modules = resources [ genomeVersion ].modules,
-      gcProfile = resources [ genomeVersion ].gcProfile
+  if (!defined(input_cobalt_directory)) {
+    call cobalt {
+      input:
+        tumour_bam = tumour_bam,
+        tumour_bai = tumour_bai,
+        normal_bam = normal_bam,
+        normal_bai = normal_bai,
+        normal_name = extractNormalName.input_name,
+        tumour_name = extractTumorName.input_name,
+        modules = resources [ genomeVersion ].modules,
+        gcProfile = resources [ genomeVersion ].gcProfile
+    }
   }
 
   if(doSV) {
     call filterSV {
-      input: 
+      input:
         normal_name = extractNormalName.input_name,
         tumour_name = extractTumorName.input_name,
         genomeVersion = genomeVersion,
@@ -113,18 +119,21 @@ Map[String,GenomeResources] resources = {
 
   if(doSMALL) {
     call filterSMALL {
-      input: 
+      input:
         normal_name = extractNormalName.input_name,
         tumour_name = extractTumorName.input_name
     }
   }
 
+  File amber_dir_for_purple = if defined(input_amber_directory) then select_first([input_amber_directory]) else amber.output_directory
+  File cobalt_dir_for_purple = if defined(input_cobalt_directory) then select_first([input_cobalt_directory]) else cobalt.output_directory
+
   call runPURPLE {
     input:
       normal_name = extractNormalName.input_name,
       tumour_name = extractTumorName.input_name,
-      amber_directory = amber.output_directory,
-      cobalt_directory = cobalt.output_directory,
+      amber_directory = amber_dir_for_purple,
+      cobalt_directory = cobalt_dir_for_purple,
       SV_vcf = filterSV.filtered_vcf,
       smalls_vcf = filterSMALL.filtered_vcf,
       genomeVersion = genomeVersion,
@@ -168,7 +177,7 @@ Map[String,GenomeResources] resources = {
       input:
           tumour_name = extractTumorName.input_name,
           ensemblDir = resources [ genomeVersion ].ensemblDir,
-          genomeVersion = genomeVersion, 
+          genomeVersion = genomeVersion,
           fusions_file = resources [ genomeVersion ].knownfusion,
           purple_dir = runPURPLE.purple_directory,
           modules = resources [ genomeVersion ].modules
@@ -276,8 +285,8 @@ Map[String,GenomeResources] resources = {
 task extractName {
   input {
     String modules
-    String refFasta 
-    String refFai 
+    String refFasta
+    String refFai
     File inputBam
     File inputBai
     Int memory = 4
@@ -317,7 +326,7 @@ task extractName {
   }
 
   output {
-    String input_name = read_string(stdout()) 
+    String input_name = read_string(stdout())
   }
 }
 
@@ -361,7 +370,7 @@ task amber {
   command <<<
     set -euo pipefail
 
-    mkdir ~{tumour_name}.amber  
+    mkdir ~{tumour_name}.amber
 
     ~{amberScript} \
       -reference ~{normal_name} -reference_bam ~{normal_bam} \
@@ -370,9 +379,7 @@ task amber {
       -loci ~{PON} \
       -ref_genome_version ~{genomeVersion} \
       -min_mapping_quality ~{min_mapping_quality} \
-      -min_base_quality ~{min_base_quality} 
-
-    zip -r ~{tumour_name}.amber.zip ~{tumour_name}.amber/
+      -min_base_quality ~{min_base_quality}
 
   >>>
 
@@ -384,17 +391,16 @@ task amber {
   }
 
   output {
-    File output_directory = "~{tumour_name}.amber.zip"
+    Directory output_directory = "~{tumour_name}.amber"
   }
 
   meta {
 		output_meta: {
-			output_directory: "Zipped AMBER results directory"
+			output_directory: "Unzipped AMBER results directory"
 		}
 	}
 
 }
-
 task cobalt {
   input {
     String tumour_name
@@ -433,7 +439,7 @@ task cobalt {
   command <<<
     set -euo pipefail
 
-    mkdir ~{tumour_name}.cobalt 
+    mkdir ~{tumour_name}.cobalt
 
     ~{colbaltScript} \
       -reference ~{normal_name} -reference_bam ~{normal_bam} \
@@ -442,8 +448,6 @@ task cobalt {
       -gc_profile ~{gcProfile} \
       -pcf_gamma ~{gamma} \
       -min_quality ~{min_mapping_quality}
-
-    zip -r ~{tumour_name}.cobalt.zip ~{tumour_name}.cobalt/
 
   >>>
 
@@ -455,19 +459,19 @@ task cobalt {
   }
 
   output {
-    File output_directory = "~{tumour_name}.cobalt.zip"
+    Directory output_directory = "~{tumour_name}.cobalt"
   }
 
   meta {
 		output_meta: {
-			output_directory: "Zipped COBALT results directory"
+			output_directory: "Unzipped COBALT results directory"
 		}
 	}
 
 }
 
 task filterSV {
-  
+
   input {
     String normal_name
     String tumour_name
@@ -505,7 +509,7 @@ task filterSV {
 		threads: "Requested CPU threads"
 		timeout: "Hours before task timeout"
 	}
-  
+
   command <<<
     set -euo pipefail
 
@@ -548,7 +552,7 @@ task filterSV {
 }
 
 task filterSMALL {
-  
+
   input {
     String tumour_name
     String normal_name
@@ -625,7 +629,7 @@ task runPURPLE {
     String ensemblDir
     String refFasta
     String genomeVersion
-    String gcProfile 
+    String gcProfile
     Int min_diploid_tumor_ratio_count = 60
     String purpleScript = "java -Xmx8G -jar $HMFTOOLS_ROOT/purple.jar"
     String? min_ploidy
@@ -670,8 +674,12 @@ task runPURPLE {
   command <<<
     set -euo pipefail
 
-    unzip ~{amber_directory} 
-    unzip ~{cobalt_directory} 
+    # Symlink the amber directory to the expected name
+    ln -s ~{amber_directory} ~{tumour_name}.amber
+
+    # Symlink the cobalt directory to the expected name
+    ln -s ~{cobalt_directory} ~{tumour_name}.cobalt
+
     mkdir ~{outfilePrefix}.purple 
 
     ~{purpleScript} \
