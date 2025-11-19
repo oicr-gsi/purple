@@ -21,8 +21,8 @@ workflow purple {
     File tumour_bai
     File normal_bam
     File normal_bai
-    File? input_amber_directory
-    File? input_cobalt_directory
+    String? input_amber_directory
+    String? input_cobalt_directory
     String genomeVersion = "38"
     Boolean doSV = true
     Boolean doSMALL = true
@@ -125,15 +125,12 @@ Map[String,GenomeResources] resources = {
     }
   }
 
-  File amber_dir_for_purple = if defined(input_amber_directory) then select_first([input_amber_directory]) else amber.output_directory
-  File cobalt_dir_for_purple = if defined(input_cobalt_directory) then select_first([input_cobalt_directory]) else cobalt.output_directory
-
   call runPURPLE {
     input:
       normal_name = extractNormalName.input_name,
       tumour_name = extractTumorName.input_name,
-      amber_directory = amber_dir_for_purple,
-      cobalt_directory = cobalt_dir_for_purple,
+      amber_directory = select_first([input_amber_directory, amber.output_directory]),
+      cobalt_directory = select_first([input_cobalt_directory, cobalt.output_directory]),
       SV_vcf = filterSV.filtered_vcf,
       smalls_vcf = filterSMALL.filtered_vcf,
       genomeVersion = genomeVersion,
@@ -154,8 +151,8 @@ Map[String,GenomeResources] resources = {
           max_ploidy = alternate[1],
           normal_name = extractNormalName.input_name,
           tumour_name = extractTumorName.input_name,
-          amber_directory = amber.output_directory,
-          cobalt_directory = cobalt.output_directory,
+          amber_directory = select_first([input_amber_directory, amber.output_directory]),
+          cobalt_directory = select_first([input_cobalt_directory, cobalt.output_directory]),
           SV_vcf = filterSV.filtered_vcf,
           smalls_vcf = filterSMALL.filtered_vcf,
           genomeVersion = genomeVersion,
@@ -391,7 +388,7 @@ task amber {
   }
 
   output {
-    Directory output_directory = "~{tumour_name}.amber"
+    String output_directory = "~{tumour_name}.amber"
   }
 
   meta {
@@ -459,7 +456,7 @@ task cobalt {
   }
 
   output {
-    Directory output_directory = "~{tumour_name}.cobalt"
+    String output_directory = "~{tumour_name}.cobalt"
   }
 
   meta {
@@ -622,8 +619,8 @@ task runPURPLE {
     String tumour_name
     String solution_name = "Primary"
     String outfilePrefix = tumour_name + ".sol" + solution_name
-    File amber_directory
-    File cobalt_directory
+    String amber_directory
+    String cobalt_directory
     File? SV_vcf
     File? smalls_vcf
     String ensemblDir
