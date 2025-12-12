@@ -53,7 +53,7 @@
             "purple.normal_name": "COLO_R",
             "purple.doSV": false,
             "purple.doSMALL": true,
-            "purple.genomeVersion": "38",
+            "purple.genomeVersion": "hg38",
             "purple.amber.amberScript": "java -Xmx32G -cp $HMFTOOLS_ROOT/amber.jar com.hartwig.hmftools.amber.AmberApplication",
             "purple.amber.threads": 8,
             "purple.amber.memory": 32,
