@@ -1,6 +1,7 @@
 version 1.0
 
 struct GenomeResources {
+    String version    
     String PON
     String modules
     String gatkModules
@@ -21,7 +22,7 @@ workflow purple {
     File tumour_bai
     File normal_bam
     File normal_bai
-    String genomeVersion = "38"
+    String genomeVersion = "hg38"
     Boolean doSV = true
     Boolean doSMALL = true
   }
@@ -31,14 +32,15 @@ workflow purple {
     tumour_bai: "Input tumor file index (bai)"
     normal_bam: "Input normal file (bam)"
     normal_bai: "Input normal file index (bai)"
-    genomeVersion: "Genome Version, only 38 supported"
+    genomeVersion: "Genome Version"
     doSV: "include somatic structural variant calls, true/false"
     doSMALL: "include somatic small (SNV+indel) calls, true/false"
   }
 
 Map[String,GenomeResources] resources = {
-  "38": {
-    "modules": "hmftools/1.1 hg38/p12 hmftools-data/53138",
+  "hg38": {
+    "version": "38",
+    "modules": "hmftools/1.2 hg38/p12 hmftools-data/53138",
     "gatkModules": "hg38-gridss-index/1.0 gatk/4.1.6.0",
     "refFasta": "$HG38_ROOT/hg38_random.fa",
     "refFai": "$HG38_GRIDSS_INDEX_ROOT/hg38_random.fa.fai",
@@ -50,7 +52,37 @@ Map[String,GenomeResources] resources = {
     "known_hotspot_file": "$HMFTOOLS_DATA_ROOT/sv/known_fusions.38.bedpe",
     "repeat_mask_file": "$HMFTOOLS_DATA_ROOT/sv/repeat_mask_data.38.fa.gz",
     "knownfusion": "$HMFTOOLS_DATA_ROOT/sv/known_fusions.38.bedpe"
-  }
+  },
+  "hg38_noAlt": {
+    "version": "38",
+    "modules": "hmftools/1.2 hg38-noalt/p12 hmftools-data/53138",
+    "gatkModules": "hg38-noalt-gridss-index/1.0 gatk/4.1.6.0",
+    "refFasta": "$HG38_NOALT_ROOT/hg38_noAlt.fa",
+    "refFai": "$HG38_GRIDSS_INDEX_ROOT/hg38_random.fa.fai",
+    "PON" : "$HMFTOOLS_DATA_ROOT/copy_number/GermlineHetPon.38.vcf.gz",
+    "ensemblDir": "$HMFTOOLS_DATA_ROOT/ensembl_data",
+    "gcProfile": "$HMFTOOLS_DATA_ROOT/copy_number/GC_profile.1000bp.38.cnp",
+    "pon_sgl_file": "$HMFTOOLS_DATA_ROOT/sv/sgl_pon.38.bed.gz",
+    "pon_sv_file": "$HMFTOOLS_DATA_ROOT/sv/sv_pon.38.bedpe.gz",
+    "known_hotspot_file": "$HMFTOOLS_DATA_ROOT/sv/known_fusions.38.bedpe",
+    "repeat_mask_file": "$HMFTOOLS_DATA_ROOT/sv/repeat_mask_data.38.fa.gz",
+    "knownfusion": "$HMFTOOLS_DATA_ROOT/sv/known_fusions.38.bedpe"
+  },
+  "grch38": {
+    "version": "38",
+    "modules": "hmftools/1.2 grch38/p15 hmftools-data/53138",
+    "gatkModules": "grch38-gridss-index/1.0 gatk/4.1.6.0",
+    "refFasta": "$GRCH38_ROOT/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna",
+    "refFai": "$GRCH38_GRIDSS_INDEX_ROOT/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna.fai",
+    "PON" : "$HMFTOOLS_DATA_ROOT/copy_number/GermlineHetPon.38.vcf.gz",
+    "ensemblDir": "$HMFTOOLS_DATA_ROOT/ensembl_data",
+    "gcProfile": "$HMFTOOLS_DATA_ROOT/copy_number/GC_profile.1000bp.38.cnp",
+    "pon_sgl_file": "$HMFTOOLS_DATA_ROOT/sv/sgl_pon.38.bed.gz",
+    "pon_sv_file": "$HMFTOOLS_DATA_ROOT/sv/sv_pon.38.bedpe.gz",
+    "known_hotspot_file": "$HMFTOOLS_DATA_ROOT/sv/known_fusions.38.bedpe",
+    "repeat_mask_file": "$HMFTOOLS_DATA_ROOT/sv/repeat_mask_data.38.fa.gz",
+    "knownfusion": "$HMFTOOLS_DATA_ROOT/sv/known_fusions.38.bedpe"
+  } 
 }
 
   call extractName as extractTumorName {
@@ -79,7 +111,7 @@ Map[String,GenomeResources] resources = {
       normal_bai = normal_bai,
       normal_name = extractNormalName.input_name,
       tumour_name = extractTumorName.input_name,
-      genomeVersion = genomeVersion,
+      genomeVersion = resources [genomeVersion].version,
       modules = resources [ genomeVersion ].modules,
       PON = resources [ genomeVersion ].PON
   }
@@ -101,7 +133,7 @@ Map[String,GenomeResources] resources = {
       input: 
         normal_name = extractNormalName.input_name,
         tumour_name = extractTumorName.input_name,
-        genomeVersion = genomeVersion,
+        genomeVersion = resources [genomeVersion].version,
         refFasta = resources [ genomeVersion ].refFasta,
         pon_sgl_file = resources [ genomeVersion ].pon_sgl_file,
         pon_sv_file = resources [ genomeVersion ].pon_sv_file,
@@ -127,7 +159,7 @@ Map[String,GenomeResources] resources = {
       cobalt_directory = cobalt.output_directory,
       SV_vcf = filterSV.filtered_vcf,
       smalls_vcf = filterSMALL.filtered_vcf,
-      genomeVersion = genomeVersion,
+      genomeVersion = resources [genomeVersion].version,
       modules = resources [ genomeVersion ].modules,
       gcProfile = resources [ genomeVersion ].gcProfile,
       ensemblDir = resources [ genomeVersion ].ensemblDir,
@@ -149,7 +181,7 @@ Map[String,GenomeResources] resources = {
           cobalt_directory = cobalt.output_directory,
           SV_vcf = filterSV.filtered_vcf,
           smalls_vcf = filterSMALL.filtered_vcf,
-          genomeVersion = genomeVersion,
+          genomeVersion = resources [genomeVersion].version,
           modules = resources [ genomeVersion ].modules,
           gcProfile = resources [ genomeVersion ].gcProfile,
           ensemblDir = resources [ genomeVersion ].ensemblDir,
@@ -168,7 +200,7 @@ Map[String,GenomeResources] resources = {
       input:
           tumour_name = extractTumorName.input_name,
           ensemblDir = resources [ genomeVersion ].ensemblDir,
-          genomeVersion = genomeVersion, 
+          genomeVersion = resources [genomeVersion].version, 
           fusions_file = resources [ genomeVersion ].knownfusion,
           purple_dir = runPURPLE.purple_directory,
           modules = resources [ genomeVersion ].modules
@@ -201,7 +233,8 @@ Map[String,GenomeResources] resources = {
       url: "https://www.htslib.org/doc/1.9/bcftools.html"
     }
     ]
-    output_meta: {
+ 
+  output_meta: {
     purple_directory: {
         description: "Zipped results from PURPLE",
         vidarr_label: "purple_directory"
@@ -211,23 +244,23 @@ Map[String,GenomeResources] resources = {
         vidarr_label: "purple_qc"
     },
     purple_purity: {
-        description: "tab seperated Purity estimate from PURPLE",
+        description: "tab separated Purity estimate from PURPLE",
         vidarr_label: "purple_purity"
     },
     purple_purity_range: {
-        description: "tab seperated range of Purity estimate from PURPLE",
+        description: "tab separated range of Purity estimate from PURPLE",
         vidarr_label: "purple_purity_range"
     },
     purple_segments: {
-        description: "tab seperated segments estimated by PURPLE",
+        description: "tab separated segments estimated by PURPLE",
         vidarr_label: "purple_segments"
     },
     purple_cnv: {
-        description: "tab seperated somatic copy number variants from PURPLE",
+        description: "tab separated somatic copy number variants from PURPLE",
         vidarr_label: "purple_cnv"
     },
     purple_cnv_gene: {
-        description: "tab seperated somatic gene-level copy number variants from PURPLE",
+        description: "tab separated somatic gene-level copy number variants from PURPLE",
         vidarr_label: "purple_cnv_gene"
     },
     purple_SV_index: {
@@ -249,6 +282,26 @@ Map[String,GenomeResources] resources = {
     purple_alternate_directory: {
         description: "Directory for alternate solution files",
         vidarr_label: "purple_alternate_directory"
+    },
+    amber_directory: {
+        description: "Directory with AMBER result files",
+        vidarr_label: "amber_directory"
+    },
+    cobalt_directory: {
+        description: "Directory with COBALT result files",
+        vidarr_label: "cobalt_directory"
+    },
+    linx_fusions: {
+        description: "tsv file with Linx-identified fusions",
+        vidarr_label: "linx_fusions"
+    },
+    linx_svs: {
+        description: "tsv file with Linx-identified SVs",
+        vidarr_label: "linx_svs"
+    },
+    linx_drivers_svs: {
+        description: "tsv file with Linx-identified driver SVs",
+        vidarr_label: "linx_drivers_svs"
     }
 }
   }
@@ -266,6 +319,11 @@ Map[String,GenomeResources] resources = {
     File? purple_SV = runPURPLE.purple_SV
     File? purple_SMALL_index = runPURPLE.purple_SMALL_index
     File? purple_SMALL = runPURPLE.purple_SMALL
+    File amber_directory = amber.output_directory
+    File cobalt_directory = cobalt.output_directory
+    File? linx_fusions = LINX.linx_fusions
+    File? linx_svs = LINX.linx_svs
+    File? linx_drivers_svs = LINX.drivers_svs
   }
 }
 
@@ -369,7 +427,7 @@ task amber {
       -output_dir ~{tumour_name}.amber/ \
       -loci ~{PON} \
       -ref_genome_version ~{genomeVersion} \
-      -min_mapping_quality ~{min_mapping_quality} \
+      -min_map_quality ~{min_mapping_quality} \
       -min_base_quality ~{min_base_quality} 
 
     zip -r ~{tumour_name}.amber.zip ~{tumour_name}.amber/
@@ -653,7 +711,7 @@ task runPURPLE {
     refFasta: "fasta of reference genome"
     gcProfile: "GC profile, generated for COBALT"
     min_diploid_tumor_ratio_count: "smooth over contiguous segments which are fewer than this number of depth windows long and which have no SV support on either side and which are bounded on both sides by copy number regions which could be smoothed together using our normal smoothing rules."
-    genomeVersion: "genome version for AMBER, default set to V38"
+    genomeVersion: "genome version for AMBER"
     purpleScript: "location of PURPLE script"
     min_ploidy: "minimum ploidy"
     max_ploidy: "max ploidy"
@@ -722,11 +780,11 @@ task runPURPLE {
 		output_meta: {
 			purple_directory: "Zipped Output PURPLE directory",
       purple_qc: "QC results from PURPLE",
-      purple_purity: "tab seperated Purity estimate from PURPLE",
-      purple_purity_range: "tab seperated range of Purity estimate from PURPLE",
-      purple_segments: "tab seperated segments estimated by PURPLE",
-      purple_cnv: "tab seperated somatic copy number variants from PURPLE",
-      purple_cnv_gene: "tab seperated somatic gene-level copy number variants from PURPLE",
+      purple_purity: "tab separated Purity estimate from PURPLE",
+      purple_purity_range: "tab separated range of Purity estimate from PURPLE",
+      purple_segments: "tab separated segments estimated by PURPLE",
+      purple_cnv: "tab separated somatic copy number variants from PURPLE",
+      purple_cnv_gene: "tab separated somatic gene-level copy number variants from PURPLE",
       purple_SV_index: "Structural Variant .vcf index edited by PURPLE",
       purple_SV: "Structural Variant .vcf edited by PURPLE",
       purple_SMALL_index: "SNV+IN/DEL .vcf index edited by PURPLE",
@@ -831,7 +889,7 @@ task LINX {
   parameter_meta {
     tumour_name: "Name for Tumour sample"
     ensemblDir: "Directory of Ensembl data for PURPLE"
-    genomeVersion: "genome version for AMBER, default set to V38"
+    genomeVersion: "genome version for AMBER"
     linxScript: "location of LINX script"
     modules: "Required environment modules"
 		memory: "Memory allocated for this job (GB)"
@@ -871,9 +929,9 @@ task LINX {
 
   meta {
       output_meta: {
-      linx_fusions: "tab seperated LINX fusions",
-      linx_svs: "tab seperated LINX Structural Variants",
-      drivers_svs: "tab seperated LINX Driver Structural Variants"
+      linx_fusions: "tab separated LINX fusions",
+      linx_svs: "tab separated LINX Structural Variants",
+      drivers_svs: "tab separated LINX Driver Structural Variants"
       }
   }
 }

@@ -43,7 +43,7 @@ Parameter|Value|Description
 #### Optional workflow parameters:
 Parameter|Value|Default|Description
 ---|---|---|---
-`genomeVersion`|String|"38"|Genome Version, only 38 supported
+`genomeVersion`|String|"hg38"|Genome Version
 `doSV`|Boolean|true|include somatic structural variant calls, true/false
 `doSMALL`|Boolean|true|include somatic small (SNV+indel) calls, true/false
 
@@ -130,15 +130,20 @@ Output | Type | Description | Labels
 `purple_directory`|File?|Zipped results from PURPLE|vidarr_label: purple_directory
 `purple_alternate_directory`|File|Directory for alternate solution files|vidarr_label: purple_alternate_directory
 `purple_qc`|File|QC results from PURPLE|vidarr_label: purple_qc
-`purple_purity`|File|tab seperated Purity estimate from PURPLE|vidarr_label: purple_purity
-`purple_purity_range`|File|tab seperated range of Purity estimate from PURPLE|vidarr_label: purple_purity_range
-`purple_segments`|File|tab seperated segments estimated by PURPLE|vidarr_label: purple_segments
-`purple_cnv`|File|tab seperated somatic copy number variants from PURPLE|vidarr_label: purple_cnv
-`purple_cnv_gene`|File|tab seperated somatic gene-level copy number variants from PURPLE|vidarr_label: purple_cnv_gene
+`purple_purity`|File|tab separated Purity estimate from PURPLE|vidarr_label: purple_purity
+`purple_purity_range`|File|tab separated range of Purity estimate from PURPLE|vidarr_label: purple_purity_range
+`purple_segments`|File|tab separated segments estimated by PURPLE|vidarr_label: purple_segments
+`purple_cnv`|File|tab separated somatic copy number variants from PURPLE|vidarr_label: purple_cnv
+`purple_cnv_gene`|File|tab separated somatic gene-level copy number variants from PURPLE|vidarr_label: purple_cnv_gene
 `purple_SV_index`|File?|Structural Variant .vcf index edited by PURPLE|vidarr_label: purple_SV_index
 `purple_SV`|File?|Structural Variant .vcf edited by PURPLE|vidarr_label: purple_SV
 `purple_SMALL_index`|File?|SNV+IN/DEL .vcf index edited by PURPLE|vidarr_label: purple_SMALL_index
 `purple_SMALL`|File?|SNV+IN/DEL .vcf edited by PURPLE|vidarr_label: purple_SMALL
+`amber_directory`|File|Directory with AMBER result files|vidarr_label: amber_directory
+`cobalt_directory`|File|Directory with COBALT result files|vidarr_label: cobalt_directory
+`linx_fusions`|File?|tsv file with Linx-identified fusions|vidarr_label: linx_fusions
+`linx_svs`|File?|tsv file with Linx-identified SVs|vidarr_label: linx_svs
+`linx_drivers_svs`|File?|tsv file with Linx-identified driver SVs|vidarr_label: linx_drivers_svs
 
 
 ## Commands
