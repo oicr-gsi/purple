@@ -297,7 +297,7 @@
             {
                 "metrics_calculate": "@CHECKOUT@/tests/calculate.sh",
                 "metrics_compare": "@CHECKOUT@/tests/compare.sh",
-                "output_metrics": "/.mounts/labs/gsi/testdata/Purple/output_metrics/1.1/workflow_test_01.metrics",
+                "output_metrics": "/.mounts/labs/gsi/testdata/Purple/output_metrics/1.2.4/workflow_test_01.metrics",
                 "type": "script"
             }  
         ]
