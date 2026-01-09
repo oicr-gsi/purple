@@ -58,7 +58,7 @@ Map[String,GenomeResources] resources = {
     "modules": "hmftools/1.2 hg38-noalt/p12 hmftools-data/53138",
     "gatkModules": "hg38-noalt-gridss-index/1.0 gatk/4.1.6.0",
     "refFasta": "$HG38_NOALT_ROOT/hg38_noAlt.fa",
-    "refFai": "$HG38_GRIDSS_INDEX_ROOT/hg38_random.fa.fai",
+    "refFai": "$HG38_NOALT_GRIDSS_INDEX_ROOT/hg38_random.fa.fai",
     "PON" : "$HMFTOOLS_DATA_ROOT/copy_number/GermlineHetPon.38.vcf.gz",
     "ensemblDir": "$HMFTOOLS_DATA_ROOT/ensembl_data",
     "gcProfile": "$HMFTOOLS_DATA_ROOT/copy_number/GC_profile.1000bp.38.cnp",
