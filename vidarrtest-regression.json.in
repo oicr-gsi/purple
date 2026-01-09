@@ -265,6 +265,30 @@
                     }
                 ],
                 "type": "ALL"
+            },
+            "purple.linx_fusions": {
+                "contents": [
+                    {
+                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_COLO_Test_@JENKINSID@"
+                    }
+                ],
+                "type": "ALL"
+            },
+            "purple.linx_svs": {
+                "contents": [
+                    {
+                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_COLO_Test_@JENKINSID@"
+                    }
+                ],
+                "type": "ALL"
+            },
+            "purple.linx_drivers_svs": {
+                "contents": [
+                    {
+                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_COLO_Test_@JENKINSID@"
+                    }
+                ],
+                "type": "ALL"
             }
         },
         "validators": [
@@ -542,8 +566,31 @@
                     }
                 ],
                 "type": "ALL"
+            },
+            "purple.linx_fusions": {
+                "contents": [
+                    {
+                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_COLO_Test_@JENKINSID@"
+                    }
+                ],
+                "type": "ALL"
+            },
+            "purple.linx_svs": {
+                "contents": [
+                    {
+                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_COLO_Test_@JENKINSID@"
+                    }
+                ],
+                "type": "ALL"
+            },
+            "purple.linx_drivers_svs": {
+                "contents": [
+                    {
+                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_COLO_Test_@JENKINSID@"
+                    }
+                ],
+                "type": "ALL"
             }
-
         },
         "validators": [
             {
