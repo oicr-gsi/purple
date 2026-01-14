@@ -338,7 +338,7 @@ task extractName {
     String refFai 
     File inputBam
     File inputBai
-    Int memory = 4
+    Int jobMemory = 4
     Int timeout = 4
   }
 
@@ -348,7 +348,7 @@ task extractName {
     refFasta: "Reference FASTA file"
     refFai: "Reference fai index"
     modules: "Required environment modules"
-    memory: "Memory allocated for this job (GB)"
+    jobMemory: "Memory allocated for this job (GB)"
     timeout: "Hours before task timeout"
   }
 
@@ -356,21 +356,21 @@ task extractName {
     set -euo pipefail
 
     if [ -f "~{inputBam}" ]; then
-      gatk --java-options "-Xmx1g" GetSampleName -R ~{refFasta} -I ~{inputBam} -O input_name.txt -encode
+      gatk --java-options "-Xmx~{jobMemory - 3}g" GetSampleName -R ~{refFasta} -I ~{inputBam} -O input_name.txt -encode
     fi
 
     cat input_name.txt
   >>>
 
   runtime {
-    memory:  "~{memory} GB"
+    memory:  "~{jobMemory} GB"
     modules: "~{modules}"
     timeout: "~{timeout}"
   }
 
   meta {
     output_meta: {
-      input_name: "name of the input"
+    input_name: "name of the input"
     }
   }
 
@@ -387,14 +387,14 @@ task amber {
     String normal_name
     File normal_bam
     File normal_bai
-    String amberScript = "java -Xmx32G -cp $HMFTOOLS_ROOT/amber.jar com.hartwig.hmftools.amber.AmberApplication"
+    String amberScript = "$HMFTOOLS_ROOT/amber.jar com.hartwig.hmftools.amber.AmberApplication"
     String PON
     String genomeVersion
     Int min_mapping_quality = 30
     Int min_base_quality = 25
     String modules
     Int threads = 8
-    Int memory = 32
+    Int jobMemory = 32
     Int timeout = 100
   }
 
@@ -410,25 +410,25 @@ task amber {
     genomeVersion: "genome version (37 or 38)"
     min_mapping_quality: "Minimum mapping quality for an alignment to be used"
     min_base_quality: "Minimum quality for a base to be considered"
-		modules: "Required environment modules"
-		memory: "Memory allocated for this job (GB)"
-		threads: "Requested CPU threads"
-		timeout: "Hours before task timeout"
-	}
+    modules: "Required environment modules"
+    jobMemory: "Memory allocated for this job (GB)"
+    threads: "Requested CPU threads"
+    timeout: "Hours before task timeout"
+  }
 
   command <<<
     set -euo pipefail
 
     mkdir ~{tumour_name}.amber  
 
-    ~{amberScript} \
-      -reference ~{normal_name} -reference_bam ~{normal_bam} \
-      -tumor ~{tumour_name} -tumor_bam ~{tumour_bam} \
-      -output_dir ~{tumour_name}.amber/ \
-      -loci ~{PON} \
-      -ref_genome_version ~{genomeVersion} \
-      -min_map_quality ~{min_mapping_quality} \
-      -min_base_quality ~{min_base_quality} 
+    java -Xmx~{jobMemory-6}G -cp ~{amberScript} \
+    -reference ~{normal_name} -reference_bam ~{normal_bam} \
+    -tumor ~{tumour_name} -tumor_bam ~{tumour_bam} \
+    -output_dir ~{tumour_name}.amber/ \
+    -loci ~{PON} \
+    -ref_genome_version ~{genomeVersion} \
+    -min_map_quality ~{min_mapping_quality} \
+    -min_base_quality ~{min_base_quality} 
 
     zip -r ~{tumour_name}.amber.zip ~{tumour_name}.amber/
 
@@ -436,7 +436,7 @@ task amber {
 
   runtime {
     cpu: "~{threads}"
-    memory:  "~{memory} GB"
+    memory:  "~{jobMemory} GB"
     modules: "~{modules}"
     timeout: "~{timeout}"
   }
@@ -446,10 +446,10 @@ task amber {
   }
 
   meta {
-		output_meta: {
-			output_directory: "Zipped AMBER results directory"
-		}
-	}
+    output_meta: {
+    output_directory: "Zipped AMBER results directory"
+    }
+  }
 
 }
 
@@ -461,13 +461,13 @@ task cobalt {
     String normal_name
     File normal_bam
     File normal_bai
-    String colbaltScript = "java -Xmx8G -cp $HMFTOOLS_ROOT/cobalt.jar com.hartwig.hmftools.cobalt.CobaltApplication"
+    String colbaltScript = "$HMFTOOLS_ROOT/cobalt.jar com.hartwig.hmftools.cobalt.CobaltApplication"
     String gcProfile
     String gamma = 300
     Int min_mapping_quality = 30
     String modules
     Int threads = 8
-    Int memory = 32
+    Int jobMemory = 32
     Int timeout = 100
   }
 
@@ -482,18 +482,18 @@ task cobalt {
     gcProfile: "GC profile, generated for COBALT"
     gamma: "gamma (penalty) value for segmenting"
     min_mapping_quality: "Minimum mapping quality for an alignment to be used"
-		modules: "Required environment modules"
-		memory: "Memory allocated for this job (GB)"
-		threads: "Requested CPU threads"
-		timeout: "Hours before task timeout"
-	}
+    modules: "Required environment modules"
+    jobMemory: "Memory allocated for this job (GB)"
+    threads: "Requested CPU threads"
+    timeout: "Hours before task timeout"
+  }
 
   command <<<
     set -euo pipefail
 
     mkdir ~{tumour_name}.cobalt 
 
-    ~{colbaltScript} \
+      java -Xmx~{jobMemory-6}G -cp ~{colbaltScript} \
       -reference ~{normal_name} -reference_bam ~{normal_bam} \
       -tumor ~{tumour_name} -tumor_bam ~{tumour_bam} \
       -output_dir ~{tumour_name}.cobalt/ \
@@ -507,7 +507,7 @@ task cobalt {
 
   runtime {
     cpu: "~{threads}"
-    memory:  "~{memory} GB"
+    memory:  "~{jobMemory} GB"
     modules: "~{modules}"
     timeout: "~{timeout}"
   }
@@ -517,10 +517,10 @@ task cobalt {
   }
 
   meta {
-		output_meta: {
-			output_directory: "Zipped COBALT results directory"
-		}
-	}
+    output_meta: {
+    output_directory: "Zipped COBALT results directory"
+    }
+  }
 
 }
 
@@ -530,7 +530,7 @@ task filterSV {
     String normal_name
     String tumour_name
     File? vcf
-    String gripssScript = "java -Xmx80G -jar $HMFTOOLS_ROOT/gripss.jar"
+    String gripssScript = "$HMFTOOLS_ROOT/gripss.jar"
     String refFasta
     String genomeVersion
     String pon_sgl_file
@@ -540,7 +540,7 @@ task filterSV {
     Int hard_min_tumor_qual = 500
     String filter_sgls = "-filter_sgls"
     String modules
-    Int memory = 80
+    Int jobMemory = 80
     Int threads = 1
     Int timeout = 100
   }
@@ -558,35 +558,35 @@ task filterSV {
     repeat_mask_file: "repeating masking information"
     hard_min_tumor_qual: "Any variant with QUAL less than x is filtered "
     filter_sgls: "include filtering of single breakends"
-		modules: "Required environment modules"
-		memory: "Memory allocated for this job (GB)"
-		threads: "Requested CPU threads"
-		timeout: "Hours before task timeout"
-	}
+    modules: "Required environment modules"
+    jobMemory: "Memory allocated for this job (GB)"
+    threads: "Requested CPU threads"
+    timeout: "Hours before task timeout"
+  }
   
   command <<<
     set -euo pipefail
 
     mkdir gripss
 
-    ~{gripssScript} \
-        -vcf ~{vcf}  \
-        -sample ~{tumour_name} -reference ~{normal_name} \
-        -ref_genome_version ~{genomeVersion} \
-        -ref_genome ~{refFasta} \
-        -pon_sgl_file ~{pon_sgl_file} \
-        -pon_sv_file ~{pon_sv_file} \
-        -known_hotspot_file ~{known_hotspot_file} \
-        -repeat_mask_file ~{repeat_mask_file} \
-        -output_dir gripss/ \
-        -hard_min_tumor_qual ~{hard_min_tumor_qual} \
-        ~{filter_sgls}
+    java -Xmx~{jobMemory-6}G -jar ~{gripssScript} \
+    -vcf ~{vcf}  \
+    -sample ~{tumour_name} -reference ~{normal_name} \
+    -ref_genome_version ~{genomeVersion} \
+    -ref_genome ~{refFasta} \
+    -pon_sgl_file ~{pon_sgl_file} \
+    -pon_sv_file ~{pon_sv_file} \
+    -known_hotspot_file ~{known_hotspot_file} \
+    -repeat_mask_file ~{repeat_mask_file} \
+    -output_dir gripss/ \
+    -hard_min_tumor_qual ~{hard_min_tumor_qual} \
+    ~{filter_sgls}
 
   >>>
 
   runtime {
     cpu: "~{threads}"
-    memory:  "~{memory} GB"
+    memory:  "~{jobMemory} GB"
     modules: "~{modules}"
     timeout: "~{timeout}"
   }
@@ -597,11 +597,11 @@ task filterSV {
   }
 
   meta {
-		output_meta: {
-			filtered_vcf: "high confidence structural variant VCF",
+    output_meta: {
+      filtered_vcf: "high confidence structural variant VCF",
       soft_filtered_vcf: "structural variant VCF after first filtering"
-		}
-	}
+    }
+  }
 
 }
 
@@ -619,7 +619,7 @@ task filterSMALL {
     String tumorVAF = "0.01"
     String modules = "bcftools/1.9 hg38/p12 hg38-dac-exclusion/1.0"
     Int threads = 8
-    Int memory = 32
+    Int jobMemory = 32
     Int timeout = 100
   }
 
@@ -633,10 +633,10 @@ task filterSMALL {
     regions: "regions/chromosomes to include"
     difficultRegions: "regions to exclude because they are difficult"
     tumorVAF: "minimum variant allele frequency for tumour calls to pass filter"
-		modules: "Required environment modules"
-		memory: "Memory allocated for this job (GB)"
-		threads: "Requested CPU threads"
-		timeout: "Hours before task timeout"
+    modules: "Required environment modules"
+    jobMemory: "Memory allocated for this job (GB)"
+    threads: "Requested CPU threads"
+    timeout: "Hours before task timeout"
   }
 
   command <<<
@@ -653,7 +653,7 @@ task filterSMALL {
 
   runtime {
     cpu: "~{threads}"
-    memory:  "~{memory} GB"
+    memory:  "~{jobMemory} GB"
     modules: "~{modules}"
     timeout: "~{timeout}"
   }
@@ -685,7 +685,7 @@ task runPURPLE {
     String genomeVersion
     String gcProfile 
     Int min_diploid_tumor_ratio_count = 60
-    String purpleScript = "java -Xmx8G -jar $HMFTOOLS_ROOT/purple.jar"
+    String purpleScript = "$HMFTOOLS_ROOT/purple.jar"
     String? min_ploidy
     String? max_ploidy
     String? min_purity
@@ -694,7 +694,7 @@ task runPURPLE {
     String? ploidy_penalty_standard_deviation
     String modules
     Int threads = 8
-    Int memory = 32
+    Int jobMemory = 32
     Int timeout = 100
   }
 
@@ -720,10 +720,10 @@ task runPURPLE {
     ploidy_penalty_factor: "multiplies aggregate event penalty by this factor"
     ploidy_penalty_standard_deviation: "not entirely sure what this does"
     modules: "Required environment modules"
-		memory: "Memory allocated for this job (GB)"
-		threads: "Requested CPU threads"
-		timeout: "Hours before task timeout"
-	}
+    jobMemory: "Memory allocated for this job (GB)"
+    threads: "Requested CPU threads"
+    timeout: "Hours before task timeout"
+ }
 
   command <<<
     set -euo pipefail
@@ -732,24 +732,24 @@ task runPURPLE {
     unzip ~{cobalt_directory} 
     mkdir ~{outfilePrefix}.purple 
 
-    ~{purpleScript} \
-      -ref_genome_version ~{genomeVersion} \
-      -ref_genome ~{refFasta}  \
-      -gc_profile ~{gcProfile} \
-      -ensembl_data_dir ~{ensemblDir}  \
-      -reference ~{normal_name} -tumor ~{tumour_name}  \
-      -amber ~{tumour_name}.amber -cobalt ~{tumour_name}.cobalt \
-      ~{"-ploidy_penalty_factor" + ploidy_penalty_factor} \
-      ~{"-ploidy_penalty_standard_deviation" + ploidy_penalty_standard_deviation} \
-      ~{"-somatic_sv_vcf " + SV_vcf} \
-      ~{"-somatic_vcf " + smalls_vcf} \
-      ~{"-min_ploidy " + min_ploidy} \
-      ~{"-max_ploidy " + max_ploidy} \
-      ~{"-min_purity " + min_purity} \
-      ~{"-max_purity " + max_purity} \
-      -no_charts \
-      -min_diploid_tumor_ratio_count ~{min_diploid_tumor_ratio_count} \
-      -output_dir ~{outfilePrefix}.purple 
+    java -Xmx~{jobMemory-6}G -jar ~{purpleScript} \
+    -ref_genome_version ~{genomeVersion} \
+    -ref_genome ~{refFasta}  \
+    -gc_profile ~{gcProfile} \
+    -ensembl_data_dir ~{ensemblDir}  \
+    -reference ~{normal_name} -tumor ~{tumour_name}  \
+    -amber ~{tumour_name}.amber -cobalt ~{tumour_name}.cobalt \
+    ~{"-ploidy_penalty_factor" + ploidy_penalty_factor} \
+    ~{"-ploidy_penalty_standard_deviation" + ploidy_penalty_standard_deviation} \
+    ~{"-somatic_sv_vcf " + SV_vcf} \
+    ~{"-somatic_vcf " + smalls_vcf} \
+    ~{"-min_ploidy " + min_ploidy} \
+    ~{"-max_ploidy " + max_ploidy} \
+    ~{"-min_purity " + min_purity} \
+    ~{"-max_purity " + max_purity} \
+    -no_charts \
+    -min_diploid_tumor_ratio_count ~{min_diploid_tumor_ratio_count} \
+    -output_dir ~{outfilePrefix}.purple 
 
     zip -r ~{outfilePrefix}.purple.zip ~{outfilePrefix}.purple/
 
@@ -757,7 +757,7 @@ task runPURPLE {
 
   runtime {
     cpu: "~{threads}"
-    memory:  "~{memory} GB"
+    memory:  "~{jobMemory} GB"
     modules: "~{modules}"
     timeout: "~{timeout}"
   }
@@ -777,8 +777,8 @@ task runPURPLE {
   }
 
   meta {
-		output_meta: {
-			purple_directory: "Zipped Output PURPLE directory",
+    output_meta: {
+      purple_directory: "Zipped Output PURPLE directory",
       purple_qc: "QC results from PURPLE",
       purple_purity: "tab separated Purity estimate from PURPLE",
       purple_purity_range: "tab separated range of Purity estimate from PURPLE",
@@ -789,8 +789,8 @@ task runPURPLE {
       purple_SV: "Structural Variant .vcf edited by PURPLE",
       purple_SMALL_index: "SNV+IN/DEL .vcf index edited by PURPLE",
       purple_SMALL: "SNV+IN/DEL .vcf edited by PURPLE"
-		}
-	}
+    }
+  }
 }
 
 task expandAlternates {
@@ -799,7 +799,7 @@ task expandAlternates {
     Int max_alternate_ploidy = 8
     Int alternate_ploidy_step = 1
     Int jobMemory = 1
-		Int timeout = 1
+    Int timeout = 1
     String modules = "python/3.10.6"
   }
   parameter_meta {
@@ -807,29 +807,29 @@ task expandAlternates {
     max_alternate_ploidy : "Maximum of alternative ploidy"
     alternate_ploidy_step: "NUmber of steps"
     modules: "Required environment modules"
-		jobMemory: "Memory allocated for this job (GB)"
-		timeout: "Hours before task timeout"
-	}
+    jobMemory: "Memory allocated for this job (GB)"
+    timeout: "Hours before task timeout"
+  }
 
   command <<<
-    python<<CODE
+    python3<<CODE
 
     for ploidy in range(~{min_alternate_ploidy},~{max_alternate_ploidy},~{alternate_ploidy_step}):
       ploidy_plus_one = ploidy+~{alternate_ploidy_step}
       print(str(ploidy)+"\t"+str(ploidy_plus_one)+"\n")
 
     CODE
-	>>>
+    >>>
 
   runtime {
-		memory:  "~{jobMemory} GB"
-		timeout: "~{timeout}"
+    memory:  "~{jobMemory} GB"
+    timeout: "~{timeout}"
     modules: "~{modules}"
-	}
+  }
 
-	output {
-		Array[Array[String]] alternates_ploidies = read_tsv(stdout())
-	}
+  output {
+    Array[Array[String]] alternates_ploidies = read_tsv(stdout())
+  }
 }
 
 
@@ -844,20 +844,17 @@ task group_alternates {
 
   parameter_meta {
     alternate_solutions: "Name for alternate_solutions"
-		jobMemory: "Memory allocated for this job (GB)"
-		threads: "Requested CPU threads"
-		timeout: "Hours before task timeout"
-	}
+    jobMemory: "Memory allocated for this job (GB)"
+    threads: "Requested CPU threads"
+    timeout: "Hours before task timeout"
+  }
+  
   command <<<
     set -euo pipefail
 
     mkdir ~{tumour_name}.purple_alternates
-
     cp ~{sep=' ' alternate_solutions} ~{tumour_name}.purple_alternates/
-
     zip -r ~{tumour_name}.purple_alternates.zip ~{tumour_name}.purple_alternates/
-
-
   >>>
 
   runtime {
@@ -879,10 +876,10 @@ task LINX {
     String ensemblDir
     String genomeVersion
     String fusions_file
-    String linxScript = "java -Xmx32G -cp $HMFTOOLS_ROOT/linx.jar com.hartwig.hmftools.linx.LinxApplication"
+    String linxScript = "$HMFTOOLS_ROOT/linx.jar com.hartwig.hmftools.linx.LinxApplication"
     String modules
     Int threads = 8
-    Int memory = 32
+    Int jobMemory = 32
     Int timeout = 100
   }
 
@@ -892,10 +889,10 @@ task LINX {
     genomeVersion: "genome version for AMBER"
     linxScript: "location of LINX script"
     modules: "Required environment modules"
-		memory: "Memory allocated for this job (GB)"
-		threads: "Requested CPU threads"
-		timeout: "Hours before task timeout"
-	}
+    jobMemory: "Memory allocated for this job (GB)"
+    threads: "Requested CPU threads"
+    timeout: "Hours before task timeout"
+  }
 
   command <<<
     set -euo pipefail
@@ -903,20 +900,19 @@ task LINX {
     unzip ~{purple_dir} 
     mkdir ~{tumour_name}.linx 
      
-    ~{linxScript} \
-      -sample ~{tumour_name} \
-      -ref_genome_version ~{genomeVersion} \
-      -ensembl_data_dir ~{ensemblDir}  \
-      -check_fusions \
-      -known_fusion_file ~{fusions_file} \
-      -purple_dir ~{tumour_name}.solPrimary.purple \
-      -output_dir ~{tumour_name}.linx 
-
+    java -Xmx~{jobMemory-6}G -cp ~{linxScript} \
+    -sample ~{tumour_name} \
+    -ref_genome_version ~{genomeVersion} \
+    -ensembl_data_dir ~{ensemblDir}  \
+    -check_fusions \
+    -known_fusion_file ~{fusions_file} \
+    -purple_dir ~{tumour_name}.solPrimary.purple \
+    -output_dir ~{tumour_name}.linx 
   >>>
 
   runtime {
     cpu: "~{threads}"
-    memory:  "~{memory} GB"
+    memory:  "~{jobMemory} GB"
     modules: "~{modules}"
     timeout: "~{timeout}"
   }
@@ -928,10 +924,10 @@ task LINX {
   }
 
   meta {
-      output_meta: {
+    output_meta: {
       linx_fusions: "tab separated LINX fusions",
       linx_svs: "tab separated LINX Structural Variants",
       drivers_svs: "tab separated LINX Driver Structural Variants"
-      }
+    }
   }
 }
