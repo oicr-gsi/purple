@@ -4,8 +4,9 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.3.0] - 2026-01-10
+## [1.3.0] - 2026-01-16
 ### Changed
+- [GRD-1021](https://jira.oicr.on.ca/browse/GRD-1021)
 - switched to hmftools/1.2 with tools of the same versions as used by Heartwig pipeline at the time of comparison to GSI pipeline
 
 ## [1.2.3] - 2025-12-18
