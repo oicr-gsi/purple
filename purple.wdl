@@ -22,6 +22,7 @@ workflow purple {
     File tumour_bai
     File normal_bam
     File normal_bai
+    File? vcfSV
     String genomeVersion = "hg38"
     Boolean doSV = true
     Boolean doSMALL = true
@@ -32,6 +33,7 @@ workflow purple {
     tumour_bai: "Input tumor file index (bai)"
     normal_bam: "Input normal file (bam)"
     normal_bai: "Input normal file index (bai)"
+    vcfSV: "Optional SV vcf, i.e GRIDSS output"
     genomeVersion: "Genome Version"
     doSV: "include somatic structural variant calls, true/false"
     doSMALL: "include somatic small (SNV+indel) calls, true/false"
@@ -128,9 +130,10 @@ Map[String,GenomeResources] resources = {
       gcProfile = resources [ genomeVersion ].gcProfile
   }
 
-  if(doSV) {
+  if (defined(vcfSV)) {
     call filterSV {
       input: 
+        vcf = vcfSV,
         normal_name = extractNormalName.input_name,
         tumour_name = extractTumorName.input_name,
         genomeVersion = resources [genomeVersion].version,
@@ -570,7 +573,7 @@ task filterSV {
     mkdir gripss
 
     java -Xmx~{jobMemory-6}G -jar ~{gripssScript} \
-    -vcf ~{vcf}  \
+    ~{"-vcf " + vcf}  \
     -sample ~{tumour_name} -reference ~{normal_name} \
     -ref_genome_version ~{genomeVersion} \
     -ref_genome ~{refFasta} \
@@ -626,7 +629,7 @@ task filterSMALL {
   parameter_meta {
     normal_name:  "Name for normal sample"
     tumour_name: "Name for Tumour sample"
-    vcf: "VCF file for filtering"
+    vcf: "VCF file with SNV calls for filtering"
     vcf_index: "index of VCF file for filtering"
     bcftoolsScript: "location for bcftools"
     genome: "reference fasta"
