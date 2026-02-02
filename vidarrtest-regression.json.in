@@ -680,7 +680,18 @@
             "purple.extractNormalName.timeout": null,
             "purple.extractTumorName.jobMemory": null,
             "purple.extractTumorName.timeout": null,
-            "purple.vcfSV": null,
+            "purple.vcfSV": {
+                "contents": {
+                    "configuration": "/.mounts/labs/gsi/testdata/Purple/test_inputs/COLO_Test.chr21_gridss.vcf",
+                    "externalIds": [
+                        {
+                            "id": "TEST",
+                            "provider": "TEST"
+                        }
+                    ]
+                },
+                "type": "EXTERNAL"
+            },
             "purple.filterSV.vcf": null,
             "purple.filterSV.gripssScript": null,
             "purple.filterSV.hard_min_tumor_qual": null,
