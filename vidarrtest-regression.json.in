@@ -60,7 +60,7 @@
             "purple.amber.timeout": 100,
             "purple.amber.min_mapping_quality": 30,
             "purple.amber.min_base_quality": 30,
-            "purple.cobalt.colbaltScript": null,
+            "purple.cobalt.cobaltScript": null,
             "purple.cobalt.min_mapping_quality": 30,
             "purple.cobalt.gamma": null,
             "purple.cobalt.threads": 8,
@@ -361,7 +361,7 @@
             "purple.amber.timeout": 100,
             "purple.amber.min_mapping_quality": 30,
             "purple.amber.min_base_quality": 30,
-            "purple.cobalt.colbaltScript": null,
+            "purple.cobalt.cobaltScript": null,
             "purple.cobalt.min_mapping_quality": 30,
             "purple.cobalt.gamma": null,
             "purple.cobalt.threads": 8,
@@ -597,6 +597,307 @@
                 "metrics_calculate": "@CHECKOUT@/tests/calculate.sh",
                 "metrics_compare": "@CHECKOUT@/tests/compare.sh",
                 "output_metrics": "/.mounts/labs/gsi/testdata/Purple/output_metrics/1.2.4/workflow_test_noAlt.metrics",
+                "type": "script"
+            }  
+        ]
+    },
+    {
+        "arguments": {
+            "purple.normal_bam": {
+                "contents": {
+                    "configuration": "/.mounts/labs/gsi/testdata/Purple/test_inputs/COLO_Test02.fdrr.chr21.bam",
+                    "externalIds": [
+                        {
+                            "id": "TEST",
+                            "provider": "TEST"
+                        }
+                    ]
+                },
+                "type": "EXTERNAL"
+            },
+            "purple.normal_bai": {
+                "contents": {
+                    "configuration": "/.mounts/labs/gsi/testdata/Purple/test_inputs/COLO_Test02.fdrr.chr21.bam.bai",
+                    "externalIds": [
+                        {
+                            "id": "TEST",
+                            "provider": "TEST"
+                        }
+                    ]
+                },
+                "type": "EXTERNAL"
+            },
+            "purple.tumour_bam": {
+                "contents": {
+                    "configuration": "/.mounts/labs/gsi/testdata/Purple/test_inputs/COLO_Test01.fdrr.chr21.bam",
+                    "externalIds": [
+                        {
+                            "id": "TEST",
+                            "provider": "TEST"
+                        }
+                    ]
+                },
+                "type": "EXTERNAL"
+            },
+            "purple.tumour_bai": {
+                "contents": {
+                    "configuration": "/.mounts/labs/gsi/testdata/Purple/test_inputs/COLO_Test01.fdrr.chr21.bam.bai",
+                    "externalIds": [
+                        {
+                            "id": "TEST",
+                            "provider": "TEST"
+                        }
+                    ]
+                },
+                "type": "EXTERNAL"
+            },
+            "purple.tumour_name": "COLO_P",
+            "purple.normal_name": "COLO_R",
+            "purple.doSV": true,
+            "purple.doSMALL": true,
+            "purple.genomeVersion": "hg38_noAlt",
+            "purple.amber.amberScript": null,
+            "purple.amber.threads": 8,
+            "purple.amber.jobMemory": 32,
+            "purple.amber.timeout": 100,
+            "purple.amber.min_mapping_quality": 30,
+            "purple.amber.min_base_quality": 30,
+            "purple.cobalt.cobaltScript": null,
+            "purple.cobalt.min_mapping_quality": 30,
+            "purple.cobalt.gamma": null,
+            "purple.cobalt.threads": 8,
+            "purple.cobalt.jobMemory": 32,
+            "purple.cobalt.timeout": 100,
+            "purple.expandAlternates.min_alternate_ploidy": 1,
+            "purple.expandAlternates.max_alternate_ploidy": 8,
+            "purple.expandAlternates.alternate_ploidy_step": 1,
+            "purple.expandAlternates.jobMemory": 1,
+            "purple.expandAlternates.timeout": 1,
+            "purple.expandAlternates.modules": "python/3.10.6",
+            "purple.extractNormalName.jobMemory": null,
+            "purple.extractNormalName.timeout": null,
+            "purple.extractTumorName.jobMemory": null,
+            "purple.extractTumorName.timeout": null,
+            "purple.filterSV.vcf": null,
+            "purple.filterSV.gripssScript": null,
+            "purple.filterSV.hard_min_tumor_qual": null,
+            "purple.filterSV.filter_sgls": null,
+            "purple.filterSV.jobMemory": null,
+            "purple.filterSV.threads": null,
+            "purple.filterSV.timeout": null,
+            "purple.filterSMALL.bcftoolsScript": null,
+            "purple.filterSMALL.genome": null,
+            "purple.filterSMALL.regions": null,
+            "purple.filterSMALL.difficultRegions": null,
+            "purple.filterSMALL.tumorVAF": null,
+            "purple.filterSMALL.modules": null,
+            "purple.filterSMALL.threads": null,
+            "purple.filterSMALL.jobMemory": null,
+            "purple.filterSMALL.timeout": null,
+            "purple.group_alternates.threads": null,
+            "purple.group_alternates.jobMemory": null,
+            "purple.group_alternates.timeout": null,
+            "purple.runPURPLE.purpleScript": null,
+            "purple.runPURPLE.min_diploid_tumor_ratio_count": 60,
+            "purple.runPURPLE.max_ploidy": null,
+            "purple.runPURPLE.min_ploidy": null,
+            "purple.runPURPLE.max_purity": null,
+            "purple.runPURPLE.min_purity": null,
+            "purple.runPURPLE.outfilePrefix": null,
+            "purple.runPURPLEAlternates.ploidy_penalty_factor": null,
+            "purple.runPURPLEAlternates.ploidy_penalty_standard_deviation": null,
+            "purple.runPURPLE.ploidy_penalty_factor": null,
+            "purple.runPURPLE.ploidy_penalty_standard_deviation": null,
+            "purple.runPURPLEAlternates.jobMemory": null,
+            "purple.runPURPLEAlternates.timeout": null,
+            "purple.runPURPLEAlternates.threads": null,
+            "purple.runPURPLEAlternates.outfilePrefix": null,
+            "purple.runPURPLEAlternates.purpleScript": null,
+            "purple.runPURPLEAlternates.max_purity": null,
+            "purple.runPURPLEAlternates.min_purity": null,
+            "purple.runPURPLEAlternates.min_diploid_tumor_ratio_count": null,
+            "purple.runPURPLE.solution_name": null,
+            "purple.runPURPLE.threads": null,
+            "purple.runPURPLE.jobMemory": null,
+            "purple.runPURPLE.timeout": null,
+            "purple.LINX.linxScript": null,
+            "purple.LINX.threads": null,
+            "purple.LINX.jobMemory": null,
+            "purple.LINX.timeout": null,
+            "purple.filterSMALL.vcf": {
+                "contents": {
+                    "configuration": "/.mounts/labs/gsi/testdata/Purple/test_inputs/COLO_Test.chr21.vcf.gz",
+                    "externalIds": [
+                        {
+                            "id": "TEST",
+                            "provider": "TEST"
+                        }
+                    ]
+                },
+                "type": "EXTERNAL"
+            },
+            "purple.filterSMALL.vcf_index": {
+                "contents": {
+                    "configuration": "/.mounts/labs/gsi/testdata/Purple/test_inputs/COLO_Test.chr21.vcf.gz.tbi",
+                    "externalIds": [
+                        {
+                            "id": "TEST",
+                            "provider": "TEST"
+                        }
+                    ]
+                },
+                "type": "EXTERNAL"
+            }
+     },
+        "description": "purple_workflow test with noAlt reference",
+        "engineArguments": {
+          "write_to_cache": false,
+          "read_from_cache": false
+        },
+        "id": "COLO_Test_LINX",
+        "metadata": {
+            "purple.purple_directory": {
+                "contents": [
+                    {
+                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_COLO_Test_LINX_@JENKINSID@"
+                    }
+                ],
+                "type": "ALL"
+            },
+            "purple.purple_qc": {
+                "contents": [
+                    {
+                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_COLO_Test_LINX_@JENKINSID@"
+                    }
+                ],
+                "type": "ALL"
+            },
+            "purple.purple_purity": {
+                "contents": [
+                    {
+                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_COLO_Test_LINX_@JENKINSID@"
+                    }
+                ],
+                "type": "ALL"
+            },
+            "purple.purple_purity_range": {
+                "contents": [
+                    {
+                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_COLO_Test_LINX_@JENKINSID@"
+                    }
+                ],
+                "type": "ALL"
+            },
+            "purple.purple_segments": {
+                "contents": [
+                    {
+                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_COLO_Test_LINX_@JENKINSID@"
+                    }
+                ],
+                "type": "ALL"
+            },
+            "purple.purple_cnv": {
+                "contents": [
+                    {
+                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_COLO_Test_LINX_@JENKINSID@"
+                    }
+                ],
+                "type": "ALL"
+            },
+            "purple.purple_cnv_gene": {
+                "contents": [
+                    {
+                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_COLO_Test_LINX_@JENKINSID@"
+                    }
+                ],
+                "type": "ALL"
+            },
+            "purple.purple_SV": {
+                "contents": [
+                    {
+                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_COLO_Test_LINX_@JENKINSID@"
+                    }
+                ],
+                "type": "ALL"
+            },
+            "purple.purple_SV_index": {
+                "contents": [
+                    {
+                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_COLO_Test_LINX_@JENKINSID@"
+                    }
+                ],
+                "type": "ALL"
+            },
+            "purple.purple_SMALL": {
+                "contents": [
+                    {
+                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_COLO_Test_LINX_@JENKINSID@"
+                    }
+                ],
+                "type": "ALL"
+            },
+            "purple.purple_SMALL_index": {
+                "contents": [
+                    {
+                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_COLO_Test_LINX_@JENKINSID@"
+                    }
+                ],
+                "type": "ALL"
+            },
+            "purple.purple_alternate_directory": {
+                "contents": [
+                    {
+                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_COLO_Test_LINX_@JENKINSID@"
+                    }
+                ],
+                "type": "ALL"
+            },
+            "purple.amber_directory": {
+                "contents": [
+                    {
+                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_COLO_Test_LINX_@JENKINSID@"
+                    }
+                ],
+                "type": "ALL"
+            },
+            "purple.cobalt_directory": {
+                "contents": [
+                    {
+                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_COLO_Test_LINX_@JENKINSID@"
+                    }
+                ],
+                "type": "ALL"
+            },
+            "purple.linx_fusions": {
+                "contents": [
+                    {
+                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_COLO_Test_LINX_@JENKINSID@"
+                    }
+                ],
+                "type": "ALL"
+            },
+            "purple.linx_svs": {
+                "contents": [
+                    {
+                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_COLO_Test_LINX_@JENKINSID@"
+                    }
+                ],
+                "type": "ALL"
+            },
+            "purple.linx_drivers_svs": {
+                "contents": [
+                    {
+                        "outputDirectory": "@SCRATCH@/@DATE@_workflow_purple_COLO_Test_LINX_@JENKINSID@"
+                    }
+                ],
+                "type": "ALL"
+            }
+        },
+        "validators": [
+            {
+                "metrics_calculate": "@CHECKOUT@/tests/calculate.sh",
+                "metrics_compare": "@CHECKOUT@/tests/compare.sh",
+                "output_metrics": "/.mounts/labs/gsi/testdata/Purple/output_metrics/1.3.1/workflow_test_LINX.metrics",
                 "type": "script"
             }  
         ]

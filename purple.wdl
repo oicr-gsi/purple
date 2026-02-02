@@ -461,7 +461,7 @@ task cobalt {
     String normal_name
     File normal_bam
     File normal_bai
-    String colbaltScript = "$HMFTOOLS_ROOT/cobalt.jar com.hartwig.hmftools.cobalt.CobaltApplication"
+    String cobaltScript = "$HMFTOOLS_ROOT/cobalt.jar com.hartwig.hmftools.cobalt.CobaltApplication"
     String gcProfile
     String gamma = 300
     Int min_mapping_quality = 30
@@ -478,7 +478,7 @@ task cobalt {
     normal_name: "Name for Normal sample"
     normal_bam: "Normal bam"
     normal_bai: "Matching bai for Normal bam"
-    colbaltScript: "location of COBALT script"
+    cobaltScript: "location of COBALT script"
     gcProfile: "GC profile, generated for COBALT"
     gamma: "gamma (penalty) value for segmenting"
     min_mapping_quality: "Minimum mapping quality for an alignment to be used"
@@ -493,7 +493,7 @@ task cobalt {
 
     mkdir ~{tumour_name}.cobalt 
 
-      java -Xmx~{jobMemory-6}G -cp ~{colbaltScript} \
+      java -Xmx~{jobMemory-6}G -cp ~{cobaltScript} \
       -reference ~{normal_name} -reference_bam ~{normal_bam} \
       -tumor ~{tumour_name} -tumor_bam ~{tumour_bam} \
       -output_dir ~{tumour_name}.cobalt/ \
@@ -904,7 +904,6 @@ task LINX {
     -sample ~{tumour_name} \
     -ref_genome_version ~{genomeVersion} \
     -ensembl_data_dir ~{ensemblDir}  \
-    -check_fusions \
     -known_fusion_file ~{fusions_file} \
     -purple_dir ~{tumour_name}.solPrimary.purple \
     -output_dir ~{tumour_name}.linx 
