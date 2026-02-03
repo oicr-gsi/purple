@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [GRD-1021](https://jira.oicr.on.ca/browse/GRD-1021)
 - switched to hmftools/1.2 with tools of the same versions as used by Heartwig pipeline at the time of comparison to GSI pipeline
 
+## [1.2.4] - 2026-01-10
+### Added
+- Added ability to configure Java Heap for tasks
+
 ## [1.2.3] - 2025-12-18
 ### Added
 - Added more reference options, noAlt and ncbi references 
