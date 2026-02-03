@@ -198,17 +198,17 @@ Map[String,GenomeResources] resources = {
       alternate_solutions = select_all(runPURPLEAlternates.purple_directory)
   }
 
-  if(doSV) {
-    call LINX{
-      input:
-          tumour_name = extractTumorName.input_name,
-          ensemblDir = resources [ genomeVersion ].ensemblDir,
-          genomeVersion = resources [genomeVersion].version, 
-          fusions_file = resources [ genomeVersion ].knownfusion,
-          purple_dir = runPURPLE.purple_directory,
-          modules = resources [ genomeVersion ].modules
-    }
-  }
+  #if(doSV) {
+  #  call LINX{
+  #    input:
+  #        tumour_name = extractTumorName.input_name,
+  #        ensemblDir = resources [ genomeVersion ].ensemblDir,
+  #        genomeVersion = resources [genomeVersion].version, 
+  #        fusions_file = resources [ genomeVersion ].knownfusion,
+  #        purple_dir = runPURPLE.purple_directory,
+  #        modules = resources [ genomeVersion ].modules
+  #  }
+  #}
 
   meta {
     author: "Felix Beaudry, Lawrence Heisler"
@@ -293,20 +293,8 @@ Map[String,GenomeResources] resources = {
     cobalt_directory: {
         description: "Directory with COBALT result files",
         vidarr_label: "cobalt_directory"
-    },
-    linx_fusions: {
-        description: "tsv file with Linx-identified fusions",
-        vidarr_label: "linx_fusions"
-    },
-    linx_svs: {
-        description: "tsv file with Linx-identified SVs",
-        vidarr_label: "linx_svs"
-    },
-    linx_drivers_svs: {
-        description: "tsv file with Linx-identified driver SVs",
-        vidarr_label: "linx_drivers_svs"
     }
-}
+    }
   }
 
   output {
@@ -324,9 +312,6 @@ Map[String,GenomeResources] resources = {
     File? purple_SMALL = runPURPLE.purple_SMALL
     File amber_directory = amber.output_directory
     File cobalt_directory = cobalt.output_directory
-    File? linx_fusions = LINX.linx_fusions
-    File? linx_svs = LINX.linx_svs
-    File? linx_drivers_svs = LINX.drivers_svs
   }
 }
 
