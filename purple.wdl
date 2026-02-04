@@ -22,7 +22,6 @@ workflow purple {
     File tumour_bai
     File normal_bam
     File normal_bai
-    File? vcfSV
     String genomeVersion = "hg38"
     Boolean doSV = true
     Boolean doSMALL = true
@@ -33,7 +32,6 @@ workflow purple {
     tumour_bai: "Input tumor file index (bai)"
     normal_bam: "Input normal file (bam)"
     normal_bai: "Input normal file index (bai)"
-    vcfSV: "Optional SV vcf, i.e GRIDSS output"
     genomeVersion: "Genome Version"
     doSV: "include somatic structural variant calls, true/false"
     doSMALL: "include somatic small (SNV+indel) calls, true/false"
@@ -130,10 +128,9 @@ Map[String,GenomeResources] resources = {
       gcProfile = resources [ genomeVersion ].gcProfile
   }
 
-  if (defined(vcfSV)) {
+  if(doSV) {
     call filterSV {
       input: 
-        vcf = vcfSV,
         normal_name = extractNormalName.input_name,
         tumour_name = extractTumorName.input_name,
         genomeVersion = resources [genomeVersion].version,
@@ -198,17 +195,17 @@ Map[String,GenomeResources] resources = {
       alternate_solutions = select_all(runPURPLEAlternates.purple_directory)
   }
 
-  #if(doSV) {
-  #  call LINX{
-  #    input:
-  #        tumour_name = extractTumorName.input_name,
-  #        ensemblDir = resources [ genomeVersion ].ensemblDir,
-  #        genomeVersion = resources [genomeVersion].version, 
-  #        fusions_file = resources [ genomeVersion ].knownfusion,
-  #        purple_dir = runPURPLE.purple_directory,
-  #        modules = resources [ genomeVersion ].modules
-  #  }
-  #}
+  if(doSV) {
+    call LINX{
+      input:
+          tumour_name = extractTumorName.input_name,
+          ensemblDir = resources [ genomeVersion ].ensemblDir,
+          genomeVersion = resources [genomeVersion].version, 
+          fusions_file = resources [ genomeVersion ].knownfusion,
+          purple_dir = runPURPLE.purple_directory,
+          modules = resources [ genomeVersion ].modules
+    }
+  }
 
   meta {
     author: "Felix Beaudry, Lawrence Heisler"
@@ -285,14 +282,6 @@ Map[String,GenomeResources] resources = {
     purple_alternate_directory: {
         description: "Directory for alternate solution files",
         vidarr_label: "purple_alternate_directory"
-    },
-    amber_directory: {
-        description: "Directory with AMBER result files",
-        vidarr_label: "amber_directory"
-    },
-    cobalt_directory: {
-        description: "Directory with COBALT result files",
-        vidarr_label: "cobalt_directory"
     }
     }
   }
@@ -310,8 +299,6 @@ Map[String,GenomeResources] resources = {
     File? purple_SV = runPURPLE.purple_SV
     File? purple_SMALL_index = runPURPLE.purple_SMALL_index
     File? purple_SMALL = runPURPLE.purple_SMALL
-    File amber_directory = amber.output_directory
-    File cobalt_directory = cobalt.output_directory
   }
 }
 
@@ -449,7 +436,7 @@ task cobalt {
     String normal_name
     File normal_bam
     File normal_bai
-    String cobaltScript = "$HMFTOOLS_ROOT/cobalt.jar com.hartwig.hmftools.cobalt.CobaltApplication"
+    String colbaltScript = "$HMFTOOLS_ROOT/cobalt.jar com.hartwig.hmftools.cobalt.CobaltApplication"
     String gcProfile
     String gamma = 300
     Int min_mapping_quality = 30
@@ -466,7 +453,7 @@ task cobalt {
     normal_name: "Name for Normal sample"
     normal_bam: "Normal bam"
     normal_bai: "Matching bai for Normal bam"
-    cobaltScript: "location of COBALT script"
+    colbaltScript: "location of COBALT script"
     gcProfile: "GC profile, generated for COBALT"
     gamma: "gamma (penalty) value for segmenting"
     min_mapping_quality: "Minimum mapping quality for an alignment to be used"
@@ -481,7 +468,7 @@ task cobalt {
 
     mkdir ~{tumour_name}.cobalt 
 
-      java -Xmx~{jobMemory-6}G -cp ~{cobaltScript} \
+      java -Xmx~{jobMemory-6}G -cp ~{colbaltScript} \
       -reference ~{normal_name} -reference_bam ~{normal_bam} \
       -tumor ~{tumour_name} -tumor_bam ~{tumour_bam} \
       -output_dir ~{tumour_name}.cobalt/ \
@@ -558,7 +545,7 @@ task filterSV {
     mkdir gripss
 
     java -Xmx~{jobMemory-6}G -jar ~{gripssScript} \
-    ~{"-vcf " + vcf}  \
+    -vcf ~{vcf}  \
     -sample ~{tumour_name} -reference ~{normal_name} \
     -ref_genome_version ~{genomeVersion} \
     -ref_genome ~{refFasta} \
@@ -614,7 +601,7 @@ task filterSMALL {
   parameter_meta {
     normal_name:  "Name for normal sample"
     tumour_name: "Name for Tumour sample"
-    vcf: "VCF file with SNV calls for filtering"
+    vcf: "VCF file for filtering"
     vcf_index: "index of VCF file for filtering"
     bcftoolsScript: "location for bcftools"
     genome: "reference fasta"
@@ -892,6 +879,7 @@ task LINX {
     -sample ~{tumour_name} \
     -ref_genome_version ~{genomeVersion} \
     -ensembl_data_dir ~{ensemblDir}  \
+    -check_fusions \
     -known_fusion_file ~{fusions_file} \
     -purple_dir ~{tumour_name}.solPrimary.purple \
     -output_dir ~{tumour_name}.linx 
