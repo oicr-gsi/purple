@@ -43,6 +43,7 @@ Parameter|Value|Description
 #### Optional workflow parameters:
 Parameter|Value|Default|Description
 ---|---|---|---
+`vcfSV`|File?|None|Optional SV vcf, i.e GRIDSS output
 `genomeVersion`|String|"hg38"|Genome Version
 `doSV`|Boolean|true|include somatic structural variant calls, true/false
 `doSMALL`|Boolean|true|include somatic small (SNV+indel) calls, true/false
@@ -51,30 +52,29 @@ Parameter|Value|Default|Description
 #### Optional task parameters:
 Parameter|Value|Default|Description
 ---|---|---|---
-`extractTumorName.memory`|Int|4|Memory allocated for this job (GB)
+`extractTumorName.jobMemory`|Int|4|Memory allocated for this job (GB)
 `extractTumorName.timeout`|Int|4|Hours before task timeout
-`extractNormalName.memory`|Int|4|Memory allocated for this job (GB)
+`extractNormalName.jobMemory`|Int|4|Memory allocated for this job (GB)
 `extractNormalName.timeout`|Int|4|Hours before task timeout
-`amber.amberScript`|String|"java -Xmx32G -cp $HMFTOOLS_ROOT/amber.jar com.hartwig.hmftools.amber.AmberApplication"|location of AMBER script
+`amber.amberScript`|String|"$HMFTOOLS_ROOT/amber.jar com.hartwig.hmftools.amber.AmberApplication"|location of AMBER script
 `amber.min_mapping_quality`|Int|30|Minimum mapping quality for an alignment to be used
 `amber.min_base_quality`|Int|25|Minimum quality for a base to be considered
 `amber.threads`|Int|8|Requested CPU threads
-`amber.memory`|Int|32|Memory allocated for this job (GB)
+`amber.jobMemory`|Int|32|Memory allocated for this job (GB)
 `amber.timeout`|Int|100|Hours before task timeout
-`cobalt.colbaltScript`|String|"java -Xmx8G -cp $HMFTOOLS_ROOT/cobalt.jar com.hartwig.hmftools.cobalt.CobaltApplication"|location of COBALT script
+`cobalt.cobaltScript`|String|"$HMFTOOLS_ROOT/cobalt.jar com.hartwig.hmftools.cobalt.CobaltApplication"|location of COBALT script
 `cobalt.gamma`|String|300|gamma (penalty) value for segmenting
 `cobalt.min_mapping_quality`|Int|30|Minimum mapping quality for an alignment to be used
 `cobalt.threads`|Int|8|Requested CPU threads
-`cobalt.memory`|Int|32|Memory allocated for this job (GB)
+`cobalt.jobMemory`|Int|32|Memory allocated for this job (GB)
 `cobalt.timeout`|Int|100|Hours before task timeout
-`filterSV.vcf`|File?|None|VCF file for filtering
-`filterSV.gripssScript`|String|"java -Xmx80G -jar $HMFTOOLS_ROOT/gripss.jar"|location and java call for gripss jar
+`filterSV.gripssScript`|String|"$HMFTOOLS_ROOT/gripss.jar"|location and java call for gripss jar
 `filterSV.hard_min_tumor_qual`|Int|500|Any variant with QUAL less than x is filtered 
 `filterSV.filter_sgls`|String|"-filter_sgls"|include filtering of single breakends
-`filterSV.memory`|Int|80|Memory allocated for this job (GB)
+`filterSV.jobMemory`|Int|80|Memory allocated for this job (GB)
 `filterSV.threads`|Int|1|Requested CPU threads
 `filterSV.timeout`|Int|100|Hours before task timeout
-`filterSMALL.vcf`|File?|None|VCF file for filtering
+`filterSMALL.vcf`|File?|None|VCF file with SNV calls for filtering
 `filterSMALL.vcf_index`|File?|None|index of VCF file for filtering
 `filterSMALL.bcftoolsScript`|String|"$BCFTOOLS_ROOT/bin/bcftools"|location for bcftools
 `filterSMALL.genome`|String|"$HG38_ROOT/hg38_random.fa"|reference fasta
@@ -83,12 +83,12 @@ Parameter|Value|Default|Description
 `filterSMALL.tumorVAF`|String|"0.01"|minimum variant allele frequency for tumour calls to pass filter
 `filterSMALL.modules`|String|"bcftools/1.9 hg38/p12 hg38-dac-exclusion/1.0"|Required environment modules
 `filterSMALL.threads`|Int|8|Requested CPU threads
-`filterSMALL.memory`|Int|32|Memory allocated for this job (GB)
+`filterSMALL.jobMemory`|Int|32|Memory allocated for this job (GB)
 `filterSMALL.timeout`|Int|100|Hours before task timeout
 `runPURPLE.solution_name`|String|"Primary"|Name of solution
 `runPURPLE.outfilePrefix`|String|tumour_name + ".sol" + solution_name|Prefix of output file
 `runPURPLE.min_diploid_tumor_ratio_count`|Int|60|smooth over contiguous segments which are fewer than this number of depth windows long and which have no SV support on either side and which are bounded on both sides by copy number regions which could be smoothed together using our normal smoothing rules.
-`runPURPLE.purpleScript`|String|"java -Xmx8G -jar $HMFTOOLS_ROOT/purple.jar"|location of PURPLE script
+`runPURPLE.purpleScript`|String|"$HMFTOOLS_ROOT/purple.jar"|location of PURPLE script
 `runPURPLE.min_ploidy`|String?|None|minimum ploidy
 `runPURPLE.max_ploidy`|String?|None|max ploidy
 `runPURPLE.min_purity`|String?|None|mininimum purity
@@ -96,7 +96,7 @@ Parameter|Value|Default|Description
 `runPURPLE.ploidy_penalty_factor`|String?|None|multiplies aggregate event penalty by this factor
 `runPURPLE.ploidy_penalty_standard_deviation`|String?|None|not entirely sure what this does
 `runPURPLE.threads`|Int|8|Requested CPU threads
-`runPURPLE.memory`|Int|32|Memory allocated for this job (GB)
+`runPURPLE.jobMemory`|Int|32|Memory allocated for this job (GB)
 `runPURPLE.timeout`|Int|100|Hours before task timeout
 `expandAlternates.min_alternate_ploidy`|Int|1|Minimum of alternative ploidy
 `expandAlternates.max_alternate_ploidy`|Int|8|Maximum of alternative ploidy
@@ -106,21 +106,17 @@ Parameter|Value|Default|Description
 `expandAlternates.modules`|String|"python/3.10.6"|Required environment modules
 `runPURPLEAlternates.outfilePrefix`|String|tumour_name + ".sol" + solution_name|Prefix of output file
 `runPURPLEAlternates.min_diploid_tumor_ratio_count`|Int|60|smooth over contiguous segments which are fewer than this number of depth windows long and which have no SV support on either side and which are bounded on both sides by copy number regions which could be smoothed together using our normal smoothing rules.
-`runPURPLEAlternates.purpleScript`|String|"java -Xmx8G -jar $HMFTOOLS_ROOT/purple.jar"|location of PURPLE script
+`runPURPLEAlternates.purpleScript`|String|"$HMFTOOLS_ROOT/purple.jar"|location of PURPLE script
 `runPURPLEAlternates.min_purity`|String?|None|mininimum purity
 `runPURPLEAlternates.max_purity`|String?|None|max purity
 `runPURPLEAlternates.ploidy_penalty_factor`|String?|None|multiplies aggregate event penalty by this factor
 `runPURPLEAlternates.ploidy_penalty_standard_deviation`|String?|None|not entirely sure what this does
 `runPURPLEAlternates.threads`|Int|8|Requested CPU threads
-`runPURPLEAlternates.memory`|Int|32|Memory allocated for this job (GB)
+`runPURPLEAlternates.jobMemory`|Int|32|Memory allocated for this job (GB)
 `runPURPLEAlternates.timeout`|Int|100|Hours before task timeout
 `group_alternates.jobMemory`|Int|1|Memory allocated for this job (GB)
 `group_alternates.threads`|Int|1|Requested CPU threads
 `group_alternates.timeout`|Int|2|Hours before task timeout
-`LINX.linxScript`|String|"java -Xmx32G -cp $HMFTOOLS_ROOT/linx.jar com.hartwig.hmftools.linx.LinxApplication"|location of LINX script
-`LINX.threads`|Int|8|Requested CPU threads
-`LINX.memory`|Int|32|Memory allocated for this job (GB)
-`LINX.timeout`|Int|100|Hours before task timeout
 
 
 ### Outputs
@@ -141,77 +137,168 @@ Output | Type | Description | Labels
 `purple_SMALL`|File?|SNV+IN/DEL .vcf edited by PURPLE|vidarr_label: purple_SMALL
 `amber_directory`|File|Directory with AMBER result files|vidarr_label: amber_directory
 `cobalt_directory`|File|Directory with COBALT result files|vidarr_label: cobalt_directory
-`linx_fusions`|File?|tsv file with Linx-identified fusions|vidarr_label: linx_fusions
-`linx_svs`|File?|tsv file with Linx-identified SVs|vidarr_label: linx_svs
-`linx_drivers_svs`|File?|tsv file with Linx-identified driver SVs|vidarr_label: linx_drivers_svs
 
 
 ## Commands
   This section lists commands run by the PURPLE workflow
-  
-  ### Run AMBER 
-   
-       ~{amberScript} \
-         -reference ~{normal_name} -reference_bam ~{normal_bam} \
-         -tumor ~{tumour_name} -tumor_bam ~{tumour_bam} \
-         -output_dir ~{tumour_name}.amber/ \
-         -loci ~{PON} \
-         -ref_genome_version ~{genomeVersion}
-   
-   ### Run COBALT 
-   
-       ~{colbaltScript} \
-         -reference ~{normal_name} -reference_bam ~{normal_bam} \
-         -tumor ~{tumour_name} -tumor_bam ~{tumour_bam} \
-         -output_dir ~{tumour_name}.cobalt/ \
-         -gc_profile ~{gcProfile} \
-         -pcf_gamma ~{gamma}
-   
-   ### Filter structural variant VCFs using GRIPSS, this is optional but recommended
-   
-       ~{gripssScript} \
-           -vcf ~{vcf}  \
-           -sample ~{tumour_name} -reference ~{normal_name} \
-           -ref_genome_version ~{genomeVersion} \
-           -ref_genome ~{refFasta} \
-           -pon_sgl_file ~{pon_sgl_file} \
-           -pon_sv_file ~{pon_sv_file} \
-           -known_hotspot_file ~{known_hotspot_file} \
-           -repeat_mask_file ~{repeat_mask_file} \
-           -output_dir gripss/ \
-           -hard_min_tumor_qual ~{hard_min_tumor_qual} \
-           ~{filter_sgls}
-   
-   ### Filter small variant (SNV + in/del) VCFs using bcftools, this is optional but recommended
-   
-        ~{bcftoolsScript} view -f "PASS" -S samples.txt -r ~{regions} ~{difficultRegions} ~{vcf} |\
-        ~{bcftoolsScript} norm --multiallelics - --fasta-ref ~{genome} |\
-        ~{bcftoolsScript} filter -i "(FORMAT/AD[1:1])/(FORMAT/AD[1:0]+FORMAT/AD[1:1]) >= ~{tumorVAF}"  > ~{tumour_name}.PASS.vcf
-   
-   ### Run PURPLE 
-   
-       ~{purpleScript} \
-         -ref_genome_version ~{genomeVersion} \
-         -ref_genome ~{refFasta}  \
-         -gc_profile ~{gcProfile} \
-         -ensembl_data_dir ~{ensemblDir}  \
-         -reference ~{normal_name} -tumor ~{tumour_name}  \
-         -amber ~{tumour_name}.amber -cobalt ~{tumour_name}.cobalt \
-         ~{"-somatic_sv_vcf " + SV_vcf} \
-         ~{"-somatic_vcf " + smalls_vcf} \
-         -output_dir ~{tumour_name}.purple \
-         -no_charts
-   
-   ### Run LINX, if structural variant calls from GRIDSS are included
-   
-       ~{linxScript} \
-         -sample ~{tumour_name} \
-         -ref_genome_version ~{genomeVersion} \
-         -ensembl_data_dir ~{ensemblDir}  \
-         -check_fusions \
-         -known_fusion_file ~{fusions_file} \
-         -purple_dir ~{tumour_name}.purple \
-         -output_dir ~{tumour_name}.linx 
+ 
+ 
+ ### Name extraction
+ 
+ ```
+     set -euo pipefail
+ 
+     if [ -f "~{inputBam}" ]; then
+       gatk --java-options "-Xmx~{jobMemory - 3}g" GetSampleName -R ~{refFasta} -I ~{inputBam} -O input_name.txt -encode
+     fi
+ 
+     cat input_name.txt
+ ```
+ 
+ ### Run AMBER
+ 
+ ```
+     set -euo pipefail
+ 
+     mkdir ~{tumour_name}.amber  
+ 
+     java -Xmx~{jobMemory-6}G -cp ~{amberScript} \
+     -reference ~{normal_name} -reference_bam ~{normal_bam} \
+     -tumor ~{tumour_name} -tumor_bam ~{tumour_bam} \
+     -output_dir ~{tumour_name}.amber/ \
+     -loci ~{PON} \
+     -ref_genome_version ~{genomeVersion} \
+     -min_map_quality ~{min_mapping_quality} \
+     -min_base_quality ~{min_base_quality} 
+ 
+     zip -r ~{tumour_name}.amber.zip ~{tumour_name}.amber/
+ 
+ ```
+ 
+ ### Run COBALT
+ 
+ 
+ ```
+     set -euo pipefail
+ 
+     mkdir ~{tumour_name}.cobalt 
+ 
+       java -Xmx~{jobMemory-6}G -cp ~{cobaltScript} \
+       -reference ~{normal_name} -reference_bam ~{normal_bam} \
+       -tumor ~{tumour_name} -tumor_bam ~{tumour_bam} \
+       -output_dir ~{tumour_name}.cobalt/ \
+       -gc_profile ~{gcProfile} \
+       -pcf_gamma ~{gamma} \
+       -min_quality ~{min_mapping_quality}
+ 
+     zip -r ~{tumour_name}.cobalt.zip ~{tumour_name}.cobalt/
+ 
+ ```
+ 
+ ### Optional filtering of SV calls with GRIPSS
+ 
+ ```
+     set -euo pipefail
+ 
+     mkdir gripss
+ 
+     java -Xmx~{jobMemory-6}G -jar ~{gripssScript} \
+     ~{"-vcf " + vcf}  \
+     -sample ~{tumour_name} -reference ~{normal_name} \
+     -ref_genome_version ~{genomeVersion} \
+     -ref_genome ~{refFasta} \
+     -pon_sgl_file ~{pon_sgl_file} \
+     -pon_sv_file ~{pon_sv_file} \
+     -known_hotspot_file ~{known_hotspot_file} \
+     -repeat_mask_file ~{repeat_mask_file} \
+     -output_dir gripss/ \
+     -hard_min_tumor_qual ~{hard_min_tumor_qual} \
+     ~{filter_sgls}
+ 
+ ```
+ ### Filtering with BCFTOOLS
+ 
+ ```
+     set -euo pipefail
+ 
+     echo ~{normal_name} >samples.txt
+     echo ~{tumour_name} >>samples.txt
+ 
+      ~{bcftoolsScript} view -f "PASS" -S samples.txt -r ~{regions} ~{difficultRegions} ~{vcf} |\
+      ~{bcftoolsScript} norm --multiallelics - --fasta-ref ~{genome} |\
+      ~{bcftoolsScript} filter -i "(FORMAT/AD[1:1])/(FORMAT/AD[1:0]+FORMAT/AD[1:1]) >= ~{tumorVAF}"  > ~{tumour_name}.PASS.vcf
+ 
+ ```
+ 
+ ### Run Purple
+ 
+ ```
+     set -euo pipefail
+ 
+     unzip ~{amber_directory} 
+     unzip ~{cobalt_directory} 
+     mkdir ~{outfilePrefix}.purple 
+ 
+     java -Xmx~{jobMemory-6}G -jar ~{purpleScript} \
+     -ref_genome_version ~{genomeVersion} \
+     -ref_genome ~{refFasta}  \
+     -gc_profile ~{gcProfile} \
+     -ensembl_data_dir ~{ensemblDir}  \
+     -reference ~{normal_name} -tumor ~{tumour_name}  \
+     -amber ~{tumour_name}.amber -cobalt ~{tumour_name}.cobalt \
+     ~{"-ploidy_penalty_factor" + ploidy_penalty_factor} \
+     ~{"-ploidy_penalty_standard_deviation" + ploidy_penalty_standard_deviation} \
+     ~{"-somatic_sv_vcf " + SV_vcf} \
+     ~{"-somatic_vcf " + smalls_vcf} \
+     ~{"-min_ploidy " + min_ploidy} \
+     ~{"-max_ploidy " + max_ploidy} \
+     ~{"-min_purity " + min_purity} \
+     ~{"-max_purity " + max_purity} \
+     -no_charts \
+     -min_diploid_tumor_ratio_count ~{min_diploid_tumor_ratio_count} \
+     -output_dir ~{outfilePrefix}.purple 
+ 
+     zip -r ~{outfilePrefix}.purple.zip ~{outfilePrefix}.purple/
+ 
+ ```
+ ### Process ploidy data
+ 
+ ```
+     python3<<CODE
+ 
+     for ploidy in range(~{min_alternate_ploidy},~{max_alternate_ploidy},~{alternate_ploidy_step}):
+       ploidy_plus_one = ploidy+~{alternate_ploidy_step}
+       print(str(ploidy)+"\t"+str(ploidy_plus_one)+"\n")
+ 
+     CODE
+ ```
+ 
+ ### Utility task, organize purple alternative solutions
+ 
+ ```
+     set -euo pipefail
+ 
+     mkdir ~{tumour_name}.purple_alternates
+     cp ~{sep=' ' alternate_solutions} ~{tumour_name}.purple_alternates/
+     zip -r ~{tumour_name}.purple_alternates.zip ~{tumour_name}.purple_alternates/
+ ```
+ 
+ ### Run LINX (currently disabled)
+ 
+ ```
+     set -euo pipefail
+ 
+     unzip ~{purple_dir} 
+     mkdir ~{tumour_name}.linx 
+      
+     java -Xmx~{jobMemory-6}G -cp ~{linxScript} \
+     -sample ~{tumour_name} \
+     -ref_genome_version ~{genomeVersion} \
+     -ensembl_data_dir ~{ensemblDir}  \
+     -known_fusion_file ~{fusions_file} \
+     -purple_dir ~{tumour_name}.solPrimary.purple \
+     -output_dir ~{tumour_name}.linx 
+ ```
  ## Support
 
 For support, please file an issue on the [Github project](https://github.com/oicr-gsi) or send an email to gsi@oicr.on.ca .
