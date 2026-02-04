@@ -1,160 +1,66 @@
 ## Commands
  This section lists commands run by the PURPLE workflow
-
-
-### Name extraction
-
-```
-    set -euo pipefail
-
-    if [ -f "~{inputBam}" ]; then
-      gatk --java-options "-Xmx~{jobMemory - 3}g" GetSampleName -R ~{refFasta} -I ~{inputBam} -O input_name.txt -encode
-    fi
-
-    cat input_name.txt
-```
-
-### Run AMBER
-
-```
-    set -euo pipefail
-
-    mkdir ~{tumour_name}.amber  
-
-    java -Xmx~{jobMemory-6}G -cp ~{amberScript} \
-    -reference ~{normal_name} -reference_bam ~{normal_bam} \
-    -tumor ~{tumour_name} -tumor_bam ~{tumour_bam} \
-    -output_dir ~{tumour_name}.amber/ \
-    -loci ~{PON} \
-    -ref_genome_version ~{genomeVersion} \
-    -min_map_quality ~{min_mapping_quality} \
-    -min_base_quality ~{min_base_quality} 
-
-    zip -r ~{tumour_name}.amber.zip ~{tumour_name}.amber/
-
-```
-
-### Run COBALT
-
-
-```
-    set -euo pipefail
-
-    mkdir ~{tumour_name}.cobalt 
-
-      java -Xmx~{jobMemory-6}G -cp ~{cobaltScript} \
-      -reference ~{normal_name} -reference_bam ~{normal_bam} \
-      -tumor ~{tumour_name} -tumor_bam ~{tumour_bam} \
-      -output_dir ~{tumour_name}.cobalt/ \
-      -gc_profile ~{gcProfile} \
-      -pcf_gamma ~{gamma} \
-      -min_quality ~{min_mapping_quality}
-
-    zip -r ~{tumour_name}.cobalt.zip ~{tumour_name}.cobalt/
-
-```
-
-### Optional filtering of SV calls with GRIPSS
-
-```
-    set -euo pipefail
-
-    mkdir gripss
-
-    java -Xmx~{jobMemory-6}G -jar ~{gripssScript} \
-    ~{"-vcf " + vcf}  \
-    -sample ~{tumour_name} -reference ~{normal_name} \
-    -ref_genome_version ~{genomeVersion} \
-    -ref_genome ~{refFasta} \
-    -pon_sgl_file ~{pon_sgl_file} \
-    -pon_sv_file ~{pon_sv_file} \
-    -known_hotspot_file ~{known_hotspot_file} \
-    -repeat_mask_file ~{repeat_mask_file} \
-    -output_dir gripss/ \
-    -hard_min_tumor_qual ~{hard_min_tumor_qual} \
-    ~{filter_sgls}
-
-```
-### Filtering with BCFTOOLS
-
-```
-    set -euo pipefail
-
-    echo ~{normal_name} >samples.txt
-    echo ~{tumour_name} >>samples.txt
-
-     ~{bcftoolsScript} view -f "PASS" -S samples.txt -r ~{regions} ~{difficultRegions} ~{vcf} |\
-     ~{bcftoolsScript} norm --multiallelics - --fasta-ref ~{genome} |\
-     ~{bcftoolsScript} filter -i "(FORMAT/AD[1:1])/(FORMAT/AD[1:0]+FORMAT/AD[1:1]) >= ~{tumorVAF}"  > ~{tumour_name}.PASS.vcf
-
-```
-
-### Run Purple
-
-```
-    set -euo pipefail
-
-    unzip ~{amber_directory} 
-    unzip ~{cobalt_directory} 
-    mkdir ~{outfilePrefix}.purple 
-
-    java -Xmx~{jobMemory-6}G -jar ~{purpleScript} \
-    -ref_genome_version ~{genomeVersion} \
-    -ref_genome ~{refFasta}  \
-    -gc_profile ~{gcProfile} \
-    -ensembl_data_dir ~{ensemblDir}  \
-    -reference ~{normal_name} -tumor ~{tumour_name}  \
-    -amber ~{tumour_name}.amber -cobalt ~{tumour_name}.cobalt \
-    ~{"-ploidy_penalty_factor" + ploidy_penalty_factor} \
-    ~{"-ploidy_penalty_standard_deviation" + ploidy_penalty_standard_deviation} \
-    ~{"-somatic_sv_vcf " + SV_vcf} \
-    ~{"-somatic_vcf " + smalls_vcf} \
-    ~{"-min_ploidy " + min_ploidy} \
-    ~{"-max_ploidy " + max_ploidy} \
-    ~{"-min_purity " + min_purity} \
-    ~{"-max_purity " + max_purity} \
-    -no_charts \
-    -min_diploid_tumor_ratio_count ~{min_diploid_tumor_ratio_count} \
-    -output_dir ~{outfilePrefix}.purple 
-
-    zip -r ~{outfilePrefix}.purple.zip ~{outfilePrefix}.purple/
-
-```
-### Process ploidy data
-
-```
-    python3<<CODE
-
-    for ploidy in range(~{min_alternate_ploidy},~{max_alternate_ploidy},~{alternate_ploidy_step}):
-      ploidy_plus_one = ploidy+~{alternate_ploidy_step}
-      print(str(ploidy)+"\t"+str(ploidy_plus_one)+"\n")
-
-    CODE
-```
-
-### Utility task, organize purple alternative solutions
-
-```
-    set -euo pipefail
-
-    mkdir ~{tumour_name}.purple_alternates
-    cp ~{sep=' ' alternate_solutions} ~{tumour_name}.purple_alternates/
-    zip -r ~{tumour_name}.purple_alternates.zip ~{tumour_name}.purple_alternates/
-```
-
-### Run LINX (currently disabled)
-
-```
-    set -euo pipefail
-
-    unzip ~{purple_dir} 
-    mkdir ~{tumour_name}.linx 
-     
-    java -Xmx~{jobMemory-6}G -cp ~{linxScript} \
-    -sample ~{tumour_name} \
-    -ref_genome_version ~{genomeVersion} \
-    -ensembl_data_dir ~{ensemblDir}  \
-    -known_fusion_file ~{fusions_file} \
-    -purple_dir ~{tumour_name}.solPrimary.purple \
-    -output_dir ~{tumour_name}.linx 
-```
+ 
+ ### Run AMBER 
+  
+      ~{amberScript} \
+        -reference ~{normal_name} -reference_bam ~{normal_bam} \
+        -tumor ~{tumour_name} -tumor_bam ~{tumour_bam} \
+        -output_dir ~{tumour_name}.amber/ \
+        -loci ~{PON} \
+        -ref_genome_version ~{genomeVersion}
+  
+  ### Run COBALT 
+  
+      ~{colbaltScript} \
+        -reference ~{normal_name} -reference_bam ~{normal_bam} \
+        -tumor ~{tumour_name} -tumor_bam ~{tumour_bam} \
+        -output_dir ~{tumour_name}.cobalt/ \
+        -gc_profile ~{gcProfile} \
+        -pcf_gamma ~{gamma}
+  
+  ### Filter structural variant VCFs using GRIPSS, this is optional but recommended
+  
+      ~{gripssScript} \
+          -vcf ~{vcf}  \
+          -sample ~{tumour_name} -reference ~{normal_name} \
+          -ref_genome_version ~{genomeVersion} \
+          -ref_genome ~{refFasta} \
+          -pon_sgl_file ~{pon_sgl_file} \
+          -pon_sv_file ~{pon_sv_file} \
+          -known_hotspot_file ~{known_hotspot_file} \
+          -repeat_mask_file ~{repeat_mask_file} \
+          -output_dir gripss/ \
+          -hard_min_tumor_qual ~{hard_min_tumor_qual} \
+          ~{filter_sgls}
+  
+  ### Filter small variant (SNV + in/del) VCFs using bcftools, this is optional but recommended
+  
+       ~{bcftoolsScript} view -f "PASS" -S samples.txt -r ~{regions} ~{difficultRegions} ~{vcf} |\
+       ~{bcftoolsScript} norm --multiallelics - --fasta-ref ~{genome} |\
+       ~{bcftoolsScript} filter -i "(FORMAT/AD[1:1])/(FORMAT/AD[1:0]+FORMAT/AD[1:1]) >= ~{tumorVAF}"  > ~{tumour_name}.PASS.vcf
+  
+  ### Run PURPLE 
+  
+      ~{purpleScript} \
+        -ref_genome_version ~{genomeVersion} \
+        -ref_genome ~{refFasta}  \
+        -gc_profile ~{gcProfile} \
+        -ensembl_data_dir ~{ensemblDir}  \
+        -reference ~{normal_name} -tumor ~{tumour_name}  \
+        -amber ~{tumour_name}.amber -cobalt ~{tumour_name}.cobalt \
+        ~{"-somatic_sv_vcf " + SV_vcf} \
+        ~{"-somatic_vcf " + smalls_vcf} \
+        -output_dir ~{tumour_name}.purple \
+        -no_charts
+  
+  ### Run LINX, if structural variant calls from GRIDSS are included
+  
+      ~{linxScript} \
+        -sample ~{tumour_name} \
+        -ref_genome_version ~{genomeVersion} \
+        -ensembl_data_dir ~{ensemblDir}  \
+        -check_fusions \
+        -known_fusion_file ~{fusions_file} \
+        -purple_dir ~{tumour_name}.purple \
+        -output_dir ~{tumour_name}.linx 
