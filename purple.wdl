@@ -42,7 +42,7 @@ workflow purple {
 Map[String,GenomeResources] resources = {
   "hg38": {
     "version": "38",
-    "modules": "hmftools/1.1 hg38/p12 hmftools-data/53138",
+    "modules": "hmftools/1.2 hg38/p12 hmftools-data/53138",
     "gatkModules": "hg38-gridss-index/1.0 gatk/4.1.6.0",
     "refFasta": "$HG38_ROOT/hg38_random.fa",
     "refFai": "$HG38_GRIDSS_INDEX_ROOT/hg38_random.fa.fai",
@@ -57,7 +57,7 @@ Map[String,GenomeResources] resources = {
   },
   "hg38_noAlt": {
     "version": "38",
-    "modules": "hmftools/1.1 hg38-noalt/p12 hmftools-data/53138",
+    "modules": "hmftools/1.2 hg38-noalt/p12 hmftools-data/53138",
     "gatkModules": "hg38-noalt-gridss-index/1.0 gatk/4.1.6.0",
     "refFasta": "$HG38_NOALT_ROOT/hg38_noAlt.fa",
     "refFai": "$HG38_NOALT_GRIDSS_INDEX_ROOT/hg38_random.fa.fai",
@@ -72,7 +72,7 @@ Map[String,GenomeResources] resources = {
   },
   "grch38": {
     "version": "38",
-    "modules": "hmftools/1.1 grch38/p15 hmftools-data/53138",
+    "modules": "hmftools/1.2 grch38/p15 hmftools-data/53138",
     "gatkModules": "grch38-gridss-index/1.0 gatk/4.1.6.0",
     "refFasta": "$GRCH38_ROOT/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna",
     "refFai": "$GRCH38_GRIDSS_INDEX_ROOT/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna.fai",
@@ -415,7 +415,7 @@ task amber {
     -output_dir ~{tumour_name}.amber/ \
     -loci ~{PON} \
     -ref_genome_version ~{genomeVersion} \
-    -min_mapping_quality ~{min_mapping_quality} \
+    -min_map_quality ~{min_mapping_quality} \
     -min_base_quality ~{min_base_quality} 
 
     zip -r ~{tumour_name}.amber.zip ~{tumour_name}.amber/
