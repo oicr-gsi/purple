@@ -23,6 +23,8 @@ workflow purple {
     File normal_bam
     File normal_bai
     File? vcfSV
+    String? input_amber_directory
+    String? input_cobalt_directory
     String genomeVersion = "hg38"
     Boolean doSV = true
     Boolean doSMALL = true
@@ -34,6 +36,8 @@ workflow purple {
     normal_bam: "Input normal file (bam)"
     normal_bai: "Input normal file index (bai)"
     vcfSV: "Optional SV vcf, i.e GRIDSS output"
+    input_amber_directory: "Optional path to a pre-computed AMBER output directory. When set, the AMBER task is skipped and PURPLE reads from this directory."
+    input_cobalt_directory: "Optional path to a pre-computed COBALT output directory. When set, the COBALT task is skipped and PURPLE reads from this directory."
     genomeVersion: "Genome Version"
     doSV: "include somatic structural variant calls, true/false"
     doSMALL: "include somatic small (SNV+indel) calls, true/false"
@@ -105,30 +109,34 @@ Map[String,GenomeResources] resources = {
     inputBai = normal_bai
   }
 
-  call amber {
-    input:
-      tumour_bam = tumour_bam,
-      tumour_bai = tumour_bai,
-      normal_bam = normal_bam,
-      normal_bai = normal_bai,
-      normal_name = extractNormalName.input_name,
-      tumour_name = extractTumorName.input_name,
-      genomeVersion = resources [genomeVersion].version,
-      modules = resources [ genomeVersion ].modules,
-      PON = resources [ genomeVersion ].PON
+  if (!defined(input_amber_directory)) {
+    call amber {
+      input:
+        tumour_bam = tumour_bam,
+        tumour_bai = tumour_bai,
+        normal_bam = normal_bam,
+        normal_bai = normal_bai,
+        normal_name = extractNormalName.input_name,
+        tumour_name = extractTumorName.input_name,
+        genomeVersion = resources [genomeVersion].version,
+        modules = resources [ genomeVersion ].modules,
+        PON = resources [ genomeVersion ].PON
+    }
   }
 
-  call cobalt {
-    input:
-      tumour_bam = tumour_bam,
-      tumour_bai = tumour_bai,
-      normal_bam = normal_bam,
-      normal_bai = normal_bai,
-      normal_name = extractNormalName.input_name,
-      tumour_name = extractTumorName.input_name,
-      genomeVersion = resources [genomeVersion].version,
-      modules = resources [ genomeVersion ].modules,
-      gcProfile = resources [ genomeVersion ].gcProfile
+  if (!defined(input_cobalt_directory)) {
+    call cobalt {
+      input:
+        tumour_bam = tumour_bam,
+        tumour_bai = tumour_bai,
+        normal_bam = normal_bam,
+        normal_bai = normal_bai,
+        normal_name = extractNormalName.input_name,
+        tumour_name = extractTumorName.input_name,
+        genomeVersion = resources [genomeVersion].version,
+        modules = resources [ genomeVersion ].modules,
+        gcProfile = resources [ genomeVersion ].gcProfile
+    }
   }
 
   if (defined(vcfSV)) {
@@ -159,8 +167,10 @@ Map[String,GenomeResources] resources = {
     input:
       normal_name = extractNormalName.input_name,
       tumour_name = extractTumorName.input_name,
-      amber_directory = amber.output_directory,
-      cobalt_directory = cobalt.output_directory,
+      amber_zip = amber.output_directory,
+      cobalt_zip = cobalt.output_directory,
+      amber_dir = input_amber_directory,
+      cobalt_dir = input_cobalt_directory,
       SV_vcf = filterSV.filtered_vcf,
       smalls_vcf = filterSMALL.filtered_vcf,
       genomeVersion = resources [genomeVersion].version,
@@ -181,8 +191,10 @@ Map[String,GenomeResources] resources = {
           max_ploidy = alternate[1],
           normal_name = extractNormalName.input_name,
           tumour_name = extractTumorName.input_name,
-          amber_directory = amber.output_directory,
-          cobalt_directory = cobalt.output_directory,
+          amber_zip = amber.output_directory,
+          cobalt_zip = cobalt.output_directory,
+          amber_dir = input_amber_directory,
+          cobalt_dir = input_cobalt_directory,
           SV_vcf = filterSV.filtered_vcf,
           smalls_vcf = filterSMALL.filtered_vcf,
           genomeVersion = resources [genomeVersion].version,
@@ -311,8 +323,8 @@ Map[String,GenomeResources] resources = {
     File? purple_SV = runPURPLE.purple_SV
     File? purple_SMALL_index = runPURPLE.purple_SMALL_index
     File? purple_SMALL = runPURPLE.purple_SMALL
-    File amber_directory = amber.output_directory
-    File cobalt_directory = cobalt.output_directory
+    File? amber_directory = amber.output_directory
+    File? cobalt_directory = cobalt.output_directory
   }
 }
 
@@ -674,8 +686,10 @@ task runPURPLE {
     String tumour_name
     String solution_name = "Primary"
     String outfilePrefix = tumour_name + ".sol" + solution_name
-    File amber_directory
-    File cobalt_directory
+    File? amber_zip
+    File? cobalt_zip
+    String? amber_dir
+    String? cobalt_dir
     File? SV_vcf
     File? smalls_vcf
     String ensemblDir
@@ -702,8 +716,10 @@ task runPURPLE {
     normal_name: "Name for Normal sample"
     solution_name: "Name of solution"
     outfilePrefix: "Prefix of output file"
-    amber_directory: "zipped output from AMBER"
-    cobalt_directory: "zipped output from COBALT"
+    amber_zip: "zipped output from the AMBER task (used when AMBER is run in-workflow)"
+    cobalt_zip: "zipped output from the COBALT task (used when COBALT is run in-workflow)"
+    amber_dir: "path to a pre-computed AMBER directory (used when AMBER is skipped)"
+    cobalt_dir: "path to a pre-computed COBALT directory (used when COBALT is skipped)"
     SV_vcf: "filtered structural variant (SV) vcf"
     smalls_vcf: "filtered SNV and indel (smalls) vcf"
     ensemblDir: "Directory of Ensembl data for PURPLE"
@@ -727,9 +743,22 @@ task runPURPLE {
 
   command <<<
     set -euo pipefail
-    unzip ~{amber_directory} 
-    unzip ~{cobalt_directory} 
-    mkdir ~{outfilePrefix}.purple 
+
+    if [ -n "~{amber_zip}" ]; then
+      unzip ~{amber_zip}
+      AMBER_DIR="~{tumour_name}.amber"
+    else
+      AMBER_DIR="~{amber_dir}"
+    fi
+
+    if [ -n "~{cobalt_zip}" ]; then
+      unzip ~{cobalt_zip}
+      COBALT_DIR="~{tumour_name}.cobalt"
+    else
+      COBALT_DIR="~{cobalt_dir}"
+    fi
+
+    mkdir ~{outfilePrefix}.purple
 
     java -Xmx~{jobMemory-overhead}G -jar ~{purpleScript} \
     -ref_genome_version ~{genomeVersion} \
@@ -737,7 +766,7 @@ task runPURPLE {
     -gc_profile ~{gcProfile} \
     -ensembl_data_dir ~{ensemblDir}  \
     -reference ~{normal_name} -tumor ~{tumour_name}  \
-    -amber ~{tumour_name}.amber -cobalt ~{tumour_name}.cobalt \
+    -amber "$AMBER_DIR" -cobalt "$COBALT_DIR" \
     ~{"-ploidy_penalty_factor" + ploidy_penalty_factor} \
     ~{"-ploidy_penalty_standard_deviation" + ploidy_penalty_standard_deviation} \
     ~{"-somatic_sv_vcf " + SV_vcf} \
