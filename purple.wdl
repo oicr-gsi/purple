@@ -18,26 +18,30 @@ struct GenomeResources {
 
 workflow purple {
   input {
-    File tumour_bam
-    File tumour_bai
-    File normal_bam
-    File normal_bai
+    File tumour
+    File tumour_index
+    File normal
+    File normal_index
     File? vcfSV
     String? input_amber_directory
     String? input_cobalt_directory
+    String? refFasta
+    String? refFai
     String genomeVersion = "hg38"
     Boolean doSV = true
     Boolean doSMALL = true
   }
 
   parameter_meta {
-    tumour_bam: "Input tumor file (bam)"
-    tumour_bai: "Input tumor file index (bai)"
-    normal_bam: "Input normal file (bam)"
-    normal_bai: "Input normal file index (bai)"
+    tumour: "Input tumor alignment file (bam or cram)"
+    tumour_index: "Input tumor alignment index (bai or crai)"
+    normal: "Input normal alignment file (bam or cram)"
+    normal_index: "Input normal alignment index (bai or crai)"
     vcfSV: "Optional SV vcf, i.e GRIDSS output"
     input_amber_directory: "Optional path to a pre-computed AMBER output directory. When set, the AMBER task is skipped and PURPLE reads from this directory."
     input_cobalt_directory: "Optional path to a pre-computed COBALT output directory. When set, the COBALT task is skipped and PURPLE reads from this directory."
+    refFasta: "Optional reference genome fasta override, applied to all tasks. Defaults to the reference for the selected genomeVersion. Set this to the reference the input CRAM/BAM was aligned against (e.g. the HMF reference) when it differs from the default."
+    refFai: "Optional reference fai index override; pair with refFasta."
     genomeVersion: "Genome Version"
     doSV: "include somatic structural variant calls, true/false"
     doSMALL: "include somatic small (SNV+indel) calls, true/false"
@@ -88,37 +92,42 @@ Map[String,GenomeResources] resources = {
     "known_hotspot_file": "$HMFTOOLS_DATA_ROOT/sv/known_fusions.38.bedpe",
     "repeat_mask_file": "$HMFTOOLS_DATA_ROOT/sv/repeat_mask_data.38.fa.gz",
     "knownfusion": "$HMFTOOLS_DATA_ROOT/sv/known_fusions.38.bedpe"
-  } 
+  }
 }
+
+  # Reference used by all tasks: the optional override if provided, otherwise the genomeVersion default
+  String refFastaResolved = select_first([refFasta, resources [ genomeVersion ].refFasta])
+  String refFaiResolved = select_first([refFai, resources [ genomeVersion ].refFai])
 
   call extractName as extractTumorName {
     input:
-    refFasta = resources [ genomeVersion ].refFasta,
-    refFai = resources [ genomeVersion ].refFai,
+    refFasta = refFastaResolved,
+    refFai = refFaiResolved,
     modules = resources [ genomeVersion ].gatkModules,
-    inputBam = tumour_bam,
-    inputBai = tumour_bai
+    inputBam = tumour,
+    inputBai = tumour_index
   }
 
   call extractName as extractNormalName {
     input:
-    refFasta = resources [ genomeVersion ].refFasta,
-    refFai = resources [ genomeVersion ].refFai,
+    refFasta = refFastaResolved,
+    refFai = refFaiResolved,
     modules = resources [ genomeVersion ].gatkModules,
-    inputBam = normal_bam,
-    inputBai = normal_bai
+    inputBam = normal,
+    inputBai = normal_index
   }
 
   if (!defined(input_amber_directory)) {
     call amber {
       input:
-        tumour_bam = tumour_bam,
-        tumour_bai = tumour_bai,
-        normal_bam = normal_bam,
-        normal_bai = normal_bai,
+        tumour_bam = tumour,
+        tumour_bai = tumour_index,
+        normal_bam = normal,
+        normal_bai = normal_index,
         normal_name = extractNormalName.input_name,
         tumour_name = extractTumorName.input_name,
         genomeVersion = resources [genomeVersion].version,
+        refFasta = refFastaResolved,
         modules = resources [ genomeVersion ].modules,
         PON = resources [ genomeVersion ].PON
     }
@@ -127,13 +136,14 @@ Map[String,GenomeResources] resources = {
   if (!defined(input_cobalt_directory)) {
     call cobalt {
       input:
-        tumour_bam = tumour_bam,
-        tumour_bai = tumour_bai,
-        normal_bam = normal_bam,
-        normal_bai = normal_bai,
+        tumour_bam = tumour,
+        tumour_bai = tumour_index,
+        normal_bam = normal,
+        normal_bai = normal_index,
         normal_name = extractNormalName.input_name,
         tumour_name = extractTumorName.input_name,
         genomeVersion = resources [genomeVersion].version,
+        refFasta = refFastaResolved,
         modules = resources [ genomeVersion ].modules,
         gcProfile = resources [ genomeVersion ].gcProfile
     }
@@ -146,7 +156,7 @@ Map[String,GenomeResources] resources = {
         normal_name = extractNormalName.input_name,
         tumour_name = extractTumorName.input_name,
         genomeVersion = resources [genomeVersion].version,
-        refFasta = resources [ genomeVersion ].refFasta,
+        refFasta = refFastaResolved,
         pon_sgl_file = resources [ genomeVersion ].pon_sgl_file,
         pon_sv_file = resources [ genomeVersion ].pon_sv_file,
         known_hotspot_file = resources [ genomeVersion ].known_hotspot_file,
@@ -177,7 +187,7 @@ Map[String,GenomeResources] resources = {
       modules = resources [ genomeVersion ].modules,
       gcProfile = resources [ genomeVersion ].gcProfile,
       ensemblDir = resources [ genomeVersion ].ensemblDir,
-      refFasta = resources [ genomeVersion ].refFasta
+      refFasta = refFastaResolved
   }
 
   call expandAlternates {
@@ -201,7 +211,7 @@ Map[String,GenomeResources] resources = {
           modules = resources [ genomeVersion ].modules,
           gcProfile = resources [ genomeVersion ].gcProfile,
           ensemblDir = resources [ genomeVersion ].ensemblDir,
-          refFasta = resources [ genomeVersion ].refFasta
+          refFasta = refFastaResolved
       }
   }
 
@@ -393,6 +403,7 @@ task amber {
     String amberScript = "$HMFTOOLS_ROOT/amber.jar com.hartwig.hmftools.amber.AmberApplication"
     String PON
     String genomeVersion
+    String refFasta
     Int min_mapping_quality = 30
     Int min_base_quality = 25
     String modules
@@ -412,6 +423,7 @@ task amber {
     amberScript: "location of AMBER script"
     PON: "Panel of Normal (PON) file, generated for AMBER"
     genomeVersion: "genome version (37 or 38)"
+    refFasta: "reference genome fasta; required by AMBER to decode CRAM inputs"
     min_mapping_quality: "Minimum mapping quality for an alignment to be used"
     min_base_quality: "Minimum quality for a base to be considered"
     modules: "Required environment modules"
@@ -430,6 +442,7 @@ task amber {
     -tumor ~{tumour_name} -tumor_bam ~{tumour_bam} \
     -output_dir ~{tumour_name}.amber/ \
     -loci ~{PON} \
+    -ref_genome ~{refFasta} \
     -ref_genome_version ~{genomeVersion} \
     -min_map_quality ~{min_mapping_quality} \
     -min_base_quality ~{min_base_quality} 
@@ -471,6 +484,7 @@ task cobalt {
     Int min_mapping_quality = 30
     String modules
     String genomeVersion
+    String refFasta
     Int threads = 8
     Int jobMemory = 32
     Int overhead = 6
@@ -488,6 +502,7 @@ task cobalt {
     cobaltScript: "location of COBALT script"
     gcProfile: "GC profile, generated for COBALT"
     gamma: "gamma (penalty) value for segmenting"
+    refFasta: "reference genome fasta; required by COBALT to decode CRAM inputs"
     min_mapping_quality: "Minimum mapping quality for an alignment to be used"
     modules: "Required environment modules"
     jobMemory: "Memory allocated for this job (GB)"
@@ -502,6 +517,7 @@ task cobalt {
 
       java -Xmx~{jobMemory-overhead}G -cp ~{cobaltScript} \
       -reference ~{normal_name} -reference_bam ~{normal_bam} \
+      -ref_genome ~{refFasta} \
       -ref_genome_version ~{genomeVersion} \
       -tumor ~{tumour_name} -tumor_bam ~{tumour_bam} \
       -output_dir ~{tumour_name}.cobalt/ \
