@@ -1,7 +1,7 @@
 [
     {
         "arguments": {
-            "purple.normal_bam": {
+            "purple.normal": {
                 "contents": {
                     "configuration": "/.mounts/labs/gsi/testdata/Purple/test_inputs/COLO_Test02.fdrr.chr21.bam",
                     "externalIds": [
@@ -13,7 +13,7 @@
                 },
                 "type": "EXTERNAL"
             },
-            "purple.normal_bai": {
+            "purple.normal_index": {
                 "contents": {
                     "configuration": "/.mounts/labs/gsi/testdata/Purple/test_inputs/COLO_Test02.fdrr.chr21.bam.bai",
                     "externalIds": [
@@ -25,7 +25,7 @@
                 },
                 "type": "EXTERNAL"
             },
-            "purple.tumour_bam": {
+            "purple.tumour": {
                 "contents": {
                     "configuration": "/.mounts/labs/gsi/testdata/Purple/test_inputs/COLO_Test01.fdrr.chr21.bam",
                     "externalIds": [
@@ -37,7 +37,7 @@
                 },
                 "type": "EXTERNAL"
             },
-            "purple.tumour_bai": {
+            "purple.tumour_index": {
                 "contents": {
                     "configuration": "/.mounts/labs/gsi/testdata/Purple/test_inputs/COLO_Test01.fdrr.chr21.bam.bai",
                     "externalIds": [
@@ -54,6 +54,10 @@
             "purple.doSV": false,
             "purple.doSMALL": true,
             "purple.genomeVersion": "hg38",
+            "purple.input_amber_directory": null,
+            "purple.input_cobalt_directory": null,
+            "purple.refFasta": null,
+            "purple.refFai": null,
             "purple.amber.amberScript": null,
             "purple.amber.overhead": null,
             "purple.amber.threads": 8,
@@ -286,7 +290,7 @@
     },
     {
         "arguments": {
-            "purple.normal_bam": {
+            "purple.normal": {
                 "contents": {
                     "configuration": "/.mounts/labs/gsi/testdata/Purple/test_inputs/COLO_Test02.fdrr.chr21.bam",
                     "externalIds": [
@@ -298,7 +302,7 @@
                 },
                 "type": "EXTERNAL"
             },
-            "purple.normal_bai": {
+            "purple.normal_index": {
                 "contents": {
                     "configuration": "/.mounts/labs/gsi/testdata/Purple/test_inputs/COLO_Test02.fdrr.chr21.bam.bai",
                     "externalIds": [
@@ -310,7 +314,7 @@
                 },
                 "type": "EXTERNAL"
             },
-            "purple.tumour_bam": {
+            "purple.tumour": {
                 "contents": {
                     "configuration": "/.mounts/labs/gsi/testdata/Purple/test_inputs/COLO_Test01.fdrr.chr21.bam",
                     "externalIds": [
@@ -322,7 +326,7 @@
                 },
                 "type": "EXTERNAL"
             },
-            "purple.tumour_bai": {
+            "purple.tumour_index": {
                 "contents": {
                     "configuration": "/.mounts/labs/gsi/testdata/Purple/test_inputs/COLO_Test01.fdrr.chr21.bam.bai",
                     "externalIds": [
@@ -339,6 +343,10 @@
             "purple.doSV": false,
             "purple.doSMALL": true,
             "purple.genomeVersion": "hg38_noAlt",
+            "purple.input_amber_directory": null,
+            "purple.input_cobalt_directory": null,
+            "purple.refFasta": null,
+            "purple.refFai": null,
             "purple.amber.amberScript": null,
             "purple.amber.threads": 8,
             "purple.amber.jobMemory": 32,
@@ -571,7 +579,7 @@
     },
     {
         "arguments": {
-            "purple.normal_bam": {
+            "purple.normal": {
                 "contents": {
                     "configuration": "/.mounts/labs/gsi/testdata/Purple/test_inputs/COLO_Test02.fdrr.chr21.bam",
                     "externalIds": [
@@ -583,7 +591,7 @@
                 },
                 "type": "EXTERNAL"
             },
-            "purple.normal_bai": {
+            "purple.normal_index": {
                 "contents": {
                     "configuration": "/.mounts/labs/gsi/testdata/Purple/test_inputs/COLO_Test02.fdrr.chr21.bam.bai",
                     "externalIds": [
@@ -595,7 +603,7 @@
                 },
                 "type": "EXTERNAL"
             },
-            "purple.tumour_bam": {
+            "purple.tumour": {
                 "contents": {
                     "configuration": "/.mounts/labs/gsi/testdata/Purple/test_inputs/COLO_Test01.fdrr.chr21.bam",
                     "externalIds": [
@@ -607,7 +615,7 @@
                 },
                 "type": "EXTERNAL"
             },
-            "purple.tumour_bai": {
+            "purple.tumour_index": {
                 "contents": {
                     "configuration": "/.mounts/labs/gsi/testdata/Purple/test_inputs/COLO_Test01.fdrr.chr21.bam.bai",
                     "externalIds": [
@@ -624,6 +632,10 @@
             "purple.doSV": true,
             "purple.doSMALL": true,
             "purple.genomeVersion": "hg38_noAlt",
+            "purple.input_amber_directory": null,
+            "purple.input_cobalt_directory": null,
+            "purple.refFasta": null,
+            "purple.refFai": null,
             "purple.amber.amberScript": null,
             "purple.amber.threads": 8,
             "purple.amber.jobMemory": 32,
