@@ -33,8 +33,8 @@ workflow purple {
   }
 
   parameter_meta {
-    tumour: "Input tumor alignment file (bam or cram)"
-    tumour_index: "Input tumor alignment index (bai or crai)"
+    tumour: "Input tumour alignment file (bam or cram)"
+    tumour_index: "Input tumour alignment index (bai or crai)"
     normal: "Input normal alignment file (bam or cram)"
     normal_index: "Input normal alignment index (bai or crai)"
     vcfSV: "Optional SV vcf, i.e GRIDSS output"
