@@ -7,12 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## UNRELEASED
 ### Added
-- [GCGI-1666](https://jira.oicr.on.ca/browse/GCGI-1666) - CRAM support: `refFasta`/`refFai` workflow-level overrides applied to every task, and `-ref_genome` passed to AMBER and COBALT so CRAM inputs can be decoded
+- [GCGI-1666](https://jira.oicr.on.ca/browse/GCGI-1666) - CRAM support: the reference from the selected `genomeVersion` is passed to every task, including `-ref_genome` for AMBER and COBALT so CRAM inputs can be decoded
 - Optional `input_amber_directory` and `input_cobalt_directory`; when set the corresponding task is skipped and PURPLE reads from the pre-computed directory
 ### Changed
 - Renamed required workflow inputs: `tumour_bam`/`tumour_bai`/`normal_bam`/`normal_bai` are now `tumour`/`tumour_index`/`normal`/`normal_index`, since they accept bam or cram
 - `runPURPLE` inputs `amber_directory`/`cobalt_directory` split into `amber_zip`/`cobalt_zip` (in-workflow task output) and `amber_dir`/`cobalt_dir` (pre-computed directory)
 - `amber_directory` and `cobalt_directory` outputs are now optional, as those tasks may be skipped
+- `genomeVersion` now defaults to `hg38_noAlt`; all regression tests run against it
+- `filterSMALL` defaults now point at the hg38-noAlt reference and modules
 - Updated regression tests, README and commands.txt for the renamed and added parameters
 
 ## [1.4.0] - 2026-02-26

@@ -25,9 +25,7 @@ workflow purple {
     File? vcfSV
     String? input_amber_directory
     String? input_cobalt_directory
-    String? refFasta
-    String? refFai
-    String genomeVersion = "hg38"
+    String genomeVersion = "hg38_noAlt"
     Boolean doSV = true
     Boolean doSMALL = true
   }
@@ -40,8 +38,6 @@ workflow purple {
     vcfSV: "Optional SV vcf, i.e GRIDSS output"
     input_amber_directory: "Optional path to a pre-computed AMBER output directory. When set, the AMBER task is skipped and PURPLE reads from this directory."
     input_cobalt_directory: "Optional path to a pre-computed COBALT output directory. When set, the COBALT task is skipped and PURPLE reads from this directory."
-    refFasta: "Optional reference genome fasta override, applied to all tasks. Defaults to the reference for the selected genomeVersion. Set this to the reference the input CRAM/BAM was aligned against (e.g. the HMF reference) when it differs from the default."
-    refFai: "Optional reference fai index override; pair with refFasta."
     genomeVersion: "Genome Version"
     doSV: "include somatic structural variant calls, true/false"
     doSMALL: "include somatic small (SNV+indel) calls, true/false"
@@ -95,14 +91,10 @@ Map[String,GenomeResources] resources = {
   }
 }
 
-  # Reference used by all tasks: the optional override if provided, otherwise the genomeVersion default
-  String refFastaResolved = select_first([refFasta, resources [ genomeVersion ].refFasta])
-  String refFaiResolved = select_first([refFai, resources [ genomeVersion ].refFai])
-
   call extractName as extractTumorName {
     input:
-    refFasta = refFastaResolved,
-    refFai = refFaiResolved,
+    refFasta = resources [ genomeVersion ].refFasta,
+    refFai = resources [ genomeVersion ].refFai,
     modules = resources [ genomeVersion ].gatkModules,
     inputBam = tumour,
     inputBai = tumour_index
@@ -110,8 +102,8 @@ Map[String,GenomeResources] resources = {
 
   call extractName as extractNormalName {
     input:
-    refFasta = refFastaResolved,
-    refFai = refFaiResolved,
+    refFasta = resources [ genomeVersion ].refFasta,
+    refFai = resources [ genomeVersion ].refFai,
     modules = resources [ genomeVersion ].gatkModules,
     inputBam = normal,
     inputBai = normal_index
@@ -127,7 +119,7 @@ Map[String,GenomeResources] resources = {
         normal_name = extractNormalName.input_name,
         tumour_name = extractTumorName.input_name,
         genomeVersion = resources [genomeVersion].version,
-        refFasta = refFastaResolved,
+        refFasta = resources [ genomeVersion ].refFasta,
         modules = resources [ genomeVersion ].modules,
         PON = resources [ genomeVersion ].PON
     }
@@ -143,7 +135,7 @@ Map[String,GenomeResources] resources = {
         normal_name = extractNormalName.input_name,
         tumour_name = extractTumorName.input_name,
         genomeVersion = resources [genomeVersion].version,
-        refFasta = refFastaResolved,
+        refFasta = resources [ genomeVersion ].refFasta,
         modules = resources [ genomeVersion ].modules,
         gcProfile = resources [ genomeVersion ].gcProfile
     }
@@ -156,7 +148,7 @@ Map[String,GenomeResources] resources = {
         normal_name = extractNormalName.input_name,
         tumour_name = extractTumorName.input_name,
         genomeVersion = resources [genomeVersion].version,
-        refFasta = refFastaResolved,
+        refFasta = resources [ genomeVersion ].refFasta,
         pon_sgl_file = resources [ genomeVersion ].pon_sgl_file,
         pon_sv_file = resources [ genomeVersion ].pon_sv_file,
         known_hotspot_file = resources [ genomeVersion ].known_hotspot_file,
@@ -187,7 +179,7 @@ Map[String,GenomeResources] resources = {
       modules = resources [ genomeVersion ].modules,
       gcProfile = resources [ genomeVersion ].gcProfile,
       ensemblDir = resources [ genomeVersion ].ensemblDir,
-      refFasta = refFastaResolved
+      refFasta = resources [ genomeVersion ].refFasta
   }
 
   call expandAlternates {
@@ -211,7 +203,7 @@ Map[String,GenomeResources] resources = {
           modules = resources [ genomeVersion ].modules,
           gcProfile = resources [ genomeVersion ].gcProfile,
           ensemblDir = resources [ genomeVersion ].ensemblDir,
-          refFasta = refFastaResolved
+          refFasta = resources [ genomeVersion ].refFasta
       }
   }
 
@@ -639,11 +631,11 @@ task filterSMALL {
     File? vcf
     File? vcf_index
     String bcftoolsScript = "$BCFTOOLS_ROOT/bin/bcftools"
-    String genome = "$HG38_ROOT/hg38_random.fa"
+    String genome = "$HG38_NOALT_ROOT/hg38_noAlt.fa"
     String regions = "chr1,chr10,chr11,chr12,chr13,chr14,chr15,chr16,chr17,chr18,chr19,chr2,chr20,chr21,chr22,chr3,chr4,chr5,chr6,chr7,chr8,chr9,chrX"
     String difficultRegions = "--targets-file $HG38_DAC_EXCLUSION_ROOT/hg38-dac-exclusion.v2.bed"
     String tumorVAF = "0.01"
-    String modules = "bcftools/1.9 hg38/p12 hg38-dac-exclusion/1.0"
+    String modules = "bcftools/1.9 hg38-noalt/p12 hg38-dac-exclusion/1.0"
     Int threads = 8
     Int jobMemory = 32
     Int timeout = 100
