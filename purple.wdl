@@ -25,7 +25,7 @@ workflow purple {
     File? vcfSV
     String? input_amber_directory
     String? input_cobalt_directory
-    String genomeVersion = "hg38_noAlt"
+    String genomeVersion = "grch38_hmf"
     Boolean doSV = true
     Boolean doSMALL = true
   }
@@ -38,7 +38,7 @@ workflow purple {
     vcfSV: "Optional SV vcf, i.e GRIDSS output"
     input_amber_directory: "Optional path to a pre-computed AMBER output directory. When set, the AMBER task is skipped and PURPLE reads from this directory."
     input_cobalt_directory: "Optional path to a pre-computed COBALT output directory. When set, the COBALT task is skipped and PURPLE reads from this directory."
-    genomeVersion: "Genome Version"
+    genomeVersion: "Genome Version, one of hg38, hg38_noAlt, grch38 or grch38_hmf."
     doSV: "include somatic structural variant calls, true/false"
     doSMALL: "include somatic small (SNV+indel) calls, true/false"
   }
@@ -80,6 +80,21 @@ Map[String,GenomeResources] resources = {
     "gatkModules": "grch38-gridss-index/1.0 gatk/4.1.6.0",
     "refFasta": "$GRCH38_ROOT/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna",
     "refFai": "$GRCH38_GRIDSS_INDEX_ROOT/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna.fai",
+    "PON" : "$HMFTOOLS_DATA_ROOT/copy_number/GermlineHetPon.38.vcf.gz",
+    "ensemblDir": "$HMFTOOLS_DATA_ROOT/ensembl_data",
+    "gcProfile": "$HMFTOOLS_DATA_ROOT/copy_number/GC_profile.1000bp.38.cnp",
+    "pon_sgl_file": "$HMFTOOLS_DATA_ROOT/sv/sgl_pon.38.bed.gz",
+    "pon_sv_file": "$HMFTOOLS_DATA_ROOT/sv/sv_pon.38.bedpe.gz",
+    "known_hotspot_file": "$HMFTOOLS_DATA_ROOT/sv/known_fusions.38.bedpe",
+    "repeat_mask_file": "$HMFTOOLS_DATA_ROOT/sv/repeat_mask_data.38.fa.gz",
+    "knownfusion": "$HMFTOOLS_DATA_ROOT/sv/known_fusions.38.bedpe"
+  },
+  "grch38_hmf": {
+    "version": "38",
+    "modules": "hmftools/1.3 grch38-hmf/25.1 hmftools-data/53138",
+    "gatkModules": "grch38-hmf/25.1 gatk/4.1.6.0",
+    "refFasta": "$GRCH38_HMF_ROOT/GRCh38_masked_exclusions_alts_hlas_25.1.fa",
+    "refFai": "$GRCH38_HMF_ROOT/GRCh38_masked_exclusions_alts_hlas_25.1.fa.fai",
     "PON" : "$HMFTOOLS_DATA_ROOT/copy_number/GermlineHetPon.38.vcf.gz",
     "ensemblDir": "$HMFTOOLS_DATA_ROOT/ensembl_data",
     "gcProfile": "$HMFTOOLS_DATA_ROOT/copy_number/GC_profile.1000bp.38.cnp",
@@ -631,11 +646,11 @@ task filterSMALL {
     File? vcf
     File? vcf_index
     String bcftoolsScript = "$BCFTOOLS_ROOT/bin/bcftools"
-    String genome = "$HG38_NOALT_ROOT/hg38_noAlt.fa"
+    String genome = "$GRCH38_HMF_ROOT/GRCh38_masked_exclusions_alts_hlas_25.1.fa"
     String regions = "chr1,chr10,chr11,chr12,chr13,chr14,chr15,chr16,chr17,chr18,chr19,chr2,chr20,chr21,chr22,chr3,chr4,chr5,chr6,chr7,chr8,chr9,chrX"
     String difficultRegions = "--targets-file $HG38_DAC_EXCLUSION_ROOT/hg38-dac-exclusion.v2.bed"
     String tumorVAF = "0.01"
-    String modules = "bcftools/1.9 hg38-noalt/p12 hg38-dac-exclusion/1.0"
+    String modules = "bcftools/1.9 grch38-hmf/25.1 hg38-dac-exclusion/1.0"
     Int threads = 8
     Int jobMemory = 32
     Int timeout = 100
