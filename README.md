@@ -9,7 +9,7 @@ The optional tasks are filterSMALL, which uses bcftools to filter a vcf, provide
 
 If performed the optional task filterSV, then the results of PURPLE will go through a step to run on LINX, which is an annotation, interpretation and visualisation tool for structural variants. The primary function of LINX is grouping together individual SV calls into distinct events and properly classify and annotating the event to understand both its mechanism and genomic impact.
 
-The mandatory arguments for this workflow are paired tumor-normal bam files for AMBER and COBALT. The optional arguments are a vcf input from mutect2 (for optional task filterSMALL), and a vcf input from GRIDSS (for optional task filterSV). All vcf file tumor and normal sample names in the header should match the sample names in the tumor bam and normal bam header respectively.
+The mandatory arguments for this workflow are paired tumor-normal alignment files (bam or cram) for AMBER and COBALT. The optional arguments are a vcf input from mutect2 (for optional task filterSMALL), and a vcf input from GRIDSS (for optional task filterSV). All vcf file tumor and normal sample names in the header should match the sample names in the tumor bam and normal bam header respectively.
 
 ![flowchart](./flowchart.jpg)
 
@@ -34,17 +34,19 @@ java -jar cromwell.jar run purple.wdl --inputs inputs.json
 #### Required workflow parameters:
 Parameter|Value|Description
 ---|---|---
-`tumour_bam`|File|Input tumor file (bam)
-`tumour_bai`|File|Input tumor file index (bai)
-`normal_bam`|File|Input normal file (bam)
-`normal_bai`|File|Input normal file index (bai)
+`tumour`|File|Input tumor alignment file (bam or cram)
+`tumour_index`|File|Input tumor alignment index (bai or crai)
+`normal`|File|Input normal alignment file (bam or cram)
+`normal_index`|File|Input normal alignment index (bai or crai)
 
 
 #### Optional workflow parameters:
 Parameter|Value|Default|Description
 ---|---|---|---
 `vcfSV`|File?|None|Optional SV vcf, i.e GRIDSS output
-`genomeVersion`|String|"hg38"|Genome Version
+`input_amber_directory`|String?|None|Optional path to a pre-computed AMBER output directory. When set, the AMBER task is skipped and PURPLE reads from this directory.
+`input_cobalt_directory`|String?|None|Optional path to a pre-computed COBALT output directory. When set, the COBALT task is skipped and PURPLE reads from this directory.
+`genomeVersion`|String|"grch38_hmf"|Genome Version, one of hg38, hg38_noAlt, grch38 or grch38_hmf.
 `doSV`|Boolean|true|include somatic structural variant calls, true/false
 `doSMALL`|Boolean|true|include somatic small (SNV+indel) calls, true/false
 
@@ -82,11 +84,11 @@ Parameter|Value|Default|Description
 `filterSMALL.vcf`|File?|None|VCF file with SNV calls for filtering
 `filterSMALL.vcf_index`|File?|None|index of VCF file for filtering
 `filterSMALL.bcftoolsScript`|String|"$BCFTOOLS_ROOT/bin/bcftools"|location for bcftools
-`filterSMALL.genome`|String|"$HG38_ROOT/hg38_random.fa"|reference fasta
+`filterSMALL.genome`|String|"$GRCH38_HMF_ROOT/GRCh38_masked_exclusions_alts_hlas_25.1.fa"|reference fasta
 `filterSMALL.regions`|String|"chr1,chr10,chr11,chr12,chr13,chr14,chr15,chr16,chr17,chr18,chr19,chr2,chr20,chr21,chr22,chr3,chr4,chr5,chr6,chr7,chr8,chr9,chrX"|regions/chromosomes to include
 `filterSMALL.difficultRegions`|String|"--targets-file $HG38_DAC_EXCLUSION_ROOT/hg38-dac-exclusion.v2.bed"|regions to exclude because they are difficult
 `filterSMALL.tumorVAF`|String|"0.01"|minimum variant allele frequency for tumour calls to pass filter
-`filterSMALL.modules`|String|"bcftools/1.9 hg38/p12 hg38-dac-exclusion/1.0"|Required environment modules
+`filterSMALL.modules`|String|"bcftools/1.9 grch38-hmf/25.1 hg38-dac-exclusion/1.0"|Required environment modules
 `filterSMALL.threads`|Int|8|Requested CPU threads
 `filterSMALL.jobMemory`|Int|32|Memory allocated for this job (GB)
 `filterSMALL.timeout`|Int|100|Hours before task timeout
@@ -142,8 +144,8 @@ Output | Type | Description | Labels
 `purple_SV`|File?|Structural Variant .vcf edited by PURPLE|vidarr_label: purple_SV
 `purple_SMALL_index`|File?|SNV+IN/DEL .vcf index edited by PURPLE|vidarr_label: purple_SMALL_index
 `purple_SMALL`|File?|SNV+IN/DEL .vcf edited by PURPLE|vidarr_label: purple_SMALL
-`amber_directory`|File|Directory with AMBER result files|vidarr_label: amber_directory
-`cobalt_directory`|File|Directory with COBALT result files|vidarr_label: cobalt_directory
+`amber_directory`|File?|Directory with AMBER result files|vidarr_label: amber_directory
+`cobalt_directory`|File?|Directory with COBALT result files|vidarr_label: cobalt_directory
 
 
 ## Commands
@@ -174,6 +176,7 @@ Output | Type | Description | Labels
      -tumor ~{tumour_name} -tumor_bam ~{tumour_bam} \
      -output_dir ~{tumour_name}.amber/ \
      -loci ~{PON} \
+     -ref_genome ~{refFasta} \
      -ref_genome_version ~{genomeVersion} \
      -min_map_quality ~{min_mapping_quality} \
      -min_base_quality ~{min_base_quality} 
@@ -192,6 +195,7 @@ Output | Type | Description | Labels
  
        java -Xmx~{jobMemory-overhead}G -cp ~{cobaltScript} \
        -reference ~{normal_name} -reference_bam ~{normal_bam} \
+       -ref_genome ~{refFasta} \
        -ref_genome_version ~{genomeVersion} \
        -tumor ~{tumour_name} -tumor_bam ~{tumour_bam} \
        -output_dir ~{tumour_name}.cobalt/ \
@@ -243,9 +247,21 @@ Output | Type | Description | Labels
  ```
      set -euo pipefail
  
-     unzip ~{amber_directory} 
-     unzip ~{cobalt_directory} 
-     mkdir ~{outfilePrefix}.purple 
+     if [ -n "~{amber_zip}" ]; then
+       unzip ~{amber_zip}
+       AMBER_DIR="~{tumour_name}.amber"
+     else
+       AMBER_DIR="~{amber_dir}"
+     fi
+
+     if [ -n "~{cobalt_zip}" ]; then
+       unzip ~{cobalt_zip}
+       COBALT_DIR="~{tumour_name}.cobalt"
+     else
+       COBALT_DIR="~{cobalt_dir}"
+     fi
+
+     mkdir ~{outfilePrefix}.purple
  
      java -Xmx~{jobMemory-overhead}G -jar ~{purpleScript} \
      -ref_genome_version ~{genomeVersion} \
@@ -253,7 +269,7 @@ Output | Type | Description | Labels
      -gc_profile ~{gcProfile} \
      -ensembl_data_dir ~{ensemblDir}  \
      -reference ~{normal_name} -tumor ~{tumour_name}  \
-     -amber ~{tumour_name}.amber -cobalt ~{tumour_name}.cobalt \
+     -amber "$AMBER_DIR" -cobalt "$COBALT_DIR" \
      ~{"-ploidy_penalty_factor" + ploidy_penalty_factor} \
      ~{"-ploidy_penalty_standard_deviation" + ploidy_penalty_standard_deviation} \
      ~{"-somatic_sv_vcf " + SV_vcf} \

@@ -5,6 +5,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## UNRELEASED
+### Added
+- [GCGI-1666](https://jira.oicr.on.ca/browse/GCGI-1666) - CRAM support: the reference from the selected `genomeVersion` is passed to every task, including `-ref_genome` for AMBER and COBALT so CRAM inputs can be decoded
+- Optional `input_amber_directory` and `input_cobalt_directory`; when set the corresponding task is skipped and PURPLE reads from the pre-computed directory
+- New `genomeVersion` option `grch38_hmf` added for the HMF GRCh38_masked_exclusions_alts_hlas reference
+### Changed
+- Renamed required workflow inputs: `tumour_bam`/`tumour_bai`/`normal_bam`/`normal_bai` are now `tumour`/`tumour_index`/`normal`/`normal_index`, since they accept bam or cram
+- `runPURPLE` inputs `amber_directory`/`cobalt_directory` split into `amber_zip`/`cobalt_zip` (in-workflow task output) and `amber_dir`/`cobalt_dir` (pre-computed directory)
+- `amber_directory` and `cobalt_directory` outputs are now optional, as those tasks may be skipped
+- `genomeVersion` now defaults to `grch38_hmf`
+- `filterSMALL` defaults now point at the grch38-hmf reference and modules, in line with the `genomeVersion` default
+- Updated regression tests, README and commands.txt for the renamed and added parameters
+
 ## [1.4.0] - 2026-02-26
 ### Changed
 - [GBS-6821](https://jira.oicr.on.ca/browse/GBS-6821) - continue to switch to new versions of tools
