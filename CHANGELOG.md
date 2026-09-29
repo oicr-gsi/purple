@@ -5,7 +5,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
-## UNRELEASED
+## [1.4.1] - 2026-09-29
 ### Added
 - [GCGI-1666](https://jira.oicr.on.ca/browse/GCGI-1666) - CRAM support: the reference from the selected `genomeVersion` is passed to every task, including `-ref_genome` for AMBER and COBALT so CRAM inputs can be decoded
 - Optional `input_amber_directory` and `input_cobalt_directory`; when set the corresponding task is skipped and PURPLE reads from the pre-computed directory
