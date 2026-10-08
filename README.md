@@ -34,10 +34,11 @@ java -jar cromwell.jar run purple.wdl --inputs inputs.json
 #### Required workflow parameters:
 Parameter|Value|Description
 ---|---|---
-`tumour`|File|Input tumor alignment file (bam or cram)
-`tumour_index`|File|Input tumor alignment index (bai or crai)
+`tumour`|File|Input tumour alignment file (bam or cram)
+`tumour_index`|File|Input tumour alignment index (bai or crai)
 `normal`|File|Input normal alignment file (bam or cram)
 `normal_index`|File|Input normal alignment index (bai or crai)
+`genomeVersion`|String|Genome Version, one of hg38, hg38_noAlt, grch38 or grch38_hmf.
 
 
 #### Optional workflow parameters:
@@ -46,7 +47,6 @@ Parameter|Value|Default|Description
 `vcfSV`|File?|None|Optional SV vcf, i.e GRIDSS output
 `input_amber_directory`|String?|None|Optional path to a pre-computed AMBER output directory. When set, the AMBER task is skipped and PURPLE reads from this directory.
 `input_cobalt_directory`|String?|None|Optional path to a pre-computed COBALT output directory. When set, the COBALT task is skipped and PURPLE reads from this directory.
-`genomeVersion`|String|"grch38_hmf"|Genome Version, one of hg38, hg38_noAlt, grch38 or grch38_hmf.
 `doSV`|Boolean|true|include somatic structural variant calls, true/false
 `doSMALL`|Boolean|true|include somatic small (SNV+indel) calls, true/false
 
