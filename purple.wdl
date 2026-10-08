@@ -47,7 +47,7 @@ workflow purple {
 Map[String,GenomeResources] resources = {
   "hg38": {
     "version": "38",
-    "modules": "hmftools/1.3 hg38/p12 hmftools-data/53138",
+    "modules": "hmftools/1.3 hg38/p12 hmftools-data/53138 hg38-dac-exclusion/1.0",
     "gatkModules": "hg38-gridss-index/1.0 gatk/4.1.6.0",
     "refFasta": "$HG38_ROOT/hg38_random.fa",
     "refFai": "$HG38_GRIDSS_INDEX_ROOT/hg38_random.fa.fai",
@@ -58,11 +58,12 @@ Map[String,GenomeResources] resources = {
     "pon_sv_file": "$HMFTOOLS_DATA_ROOT/sv/sv_pon.38.bedpe.gz",
     "known_hotspot_file": "$HMFTOOLS_DATA_ROOT/sv/known_fusions.38.bedpe",
     "repeat_mask_file": "$HMFTOOLS_DATA_ROOT/sv/repeat_mask_data.38.fa.gz",
-    "knownfusion": "$HMFTOOLS_DATA_ROOT/sv/known_fusions.38.bedpe"
+    "knownfusion": "$HMFTOOLS_DATA_ROOT/sv/known_fusions.38.bedpe",
+    "difficultRegions": "$HG38_DAC_EXCLUSION_ROOT/hg38-dac-exclusion.v2.bed"
   },
   "hg38_noAlt": {
     "version": "38",
-    "modules": "hmftools/1.3 hg38-noalt/p12 hmftools-data/53138",
+    "modules": "hmftools/1.3 hg38-noalt/p12 hmftools-data/53138 hg38-dac-exclusion/1.0",
     "gatkModules": "hg38-noalt-gridss-index/1.0 gatk/4.1.6.0",
     "refFasta": "$HG38_NOALT_ROOT/hg38_noAlt.fa",
     "refFai": "$HG38_NOALT_GRIDSS_INDEX_ROOT/hg38_random.fa.fai",
@@ -73,11 +74,12 @@ Map[String,GenomeResources] resources = {
     "pon_sv_file": "$HMFTOOLS_DATA_ROOT/sv/sv_pon.38.bedpe.gz",
     "known_hotspot_file": "$HMFTOOLS_DATA_ROOT/sv/known_fusions.38.bedpe",
     "repeat_mask_file": "$HMFTOOLS_DATA_ROOT/sv/repeat_mask_data.38.fa.gz",
-    "knownfusion": "$HMFTOOLS_DATA_ROOT/sv/known_fusions.38.bedpe"
+    "knownfusion": "$HMFTOOLS_DATA_ROOT/sv/known_fusions.38.bedpe",
+    "difficultRegions": "$HG38_DAC_EXCLUSION_ROOT/hg38-dac-exclusion.v2.bed"
   },
   "grch38": {
     "version": "38",
-    "modules": "hmftools/1.3 grch38/p15 hmftools-data/53138",
+    "modules": "hmftools/1.3 grch38/p15 hmftools-data/53138 hg38-dac-exclusion/1.0",
     "gatkModules": "grch38-gridss-index/1.0 gatk/4.1.6.0",
     "refFasta": "$GRCH38_ROOT/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna",
     "refFai": "$GRCH38_GRIDSS_INDEX_ROOT/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna.fai",
@@ -88,7 +90,8 @@ Map[String,GenomeResources] resources = {
     "pon_sv_file": "$HMFTOOLS_DATA_ROOT/sv/sv_pon.38.bedpe.gz",
     "known_hotspot_file": "$HMFTOOLS_DATA_ROOT/sv/known_fusions.38.bedpe",
     "repeat_mask_file": "$HMFTOOLS_DATA_ROOT/sv/repeat_mask_data.38.fa.gz",
-    "knownfusion": "$HMFTOOLS_DATA_ROOT/sv/known_fusions.38.bedpe"
+    "knownfusion": "$HMFTOOLS_DATA_ROOT/sv/known_fusions.38.bedpe",
+    "difficultRegions": "$HG38_DAC_EXCLUSION_ROOT/hg38-dac-exclusion.v2.bed"
   },
   "grch38_hmf": {
     "version": "38",
