@@ -14,6 +14,7 @@ struct GenomeResources {
     String known_hotspot_file
     String repeat_mask_file
     String knownfusion
+    String? difficultRegions
 }
 
 workflow purple {
@@ -25,7 +26,7 @@ workflow purple {
     File? vcfSV
     String? input_amber_directory
     String? input_cobalt_directory
-    String genomeVersion = "grch38_hmf"
+    String genomeVersion
     Boolean doSV = true
     Boolean doSMALL = true
   }
@@ -46,7 +47,7 @@ workflow purple {
 Map[String,GenomeResources] resources = {
   "hg38": {
     "version": "38",
-    "modules": "hmftools/1.3 hg38/p12 hmftools-data/53138",
+    "modules": "hmftools/1.3 hg38/p12 hmftools-data/53138 hg38-dac-exclusion/1.0",
     "gatkModules": "hg38-gridss-index/1.0 gatk/4.1.6.0",
     "refFasta": "$HG38_ROOT/hg38_random.fa",
     "refFai": "$HG38_GRIDSS_INDEX_ROOT/hg38_random.fa.fai",
@@ -57,11 +58,12 @@ Map[String,GenomeResources] resources = {
     "pon_sv_file": "$HMFTOOLS_DATA_ROOT/sv/sv_pon.38.bedpe.gz",
     "known_hotspot_file": "$HMFTOOLS_DATA_ROOT/sv/known_fusions.38.bedpe",
     "repeat_mask_file": "$HMFTOOLS_DATA_ROOT/sv/repeat_mask_data.38.fa.gz",
-    "knownfusion": "$HMFTOOLS_DATA_ROOT/sv/known_fusions.38.bedpe"
+    "knownfusion": "$HMFTOOLS_DATA_ROOT/sv/known_fusions.38.bedpe",
+    "difficultRegions": "$HG38_DAC_EXCLUSION_ROOT/hg38-dac-exclusion.v2.bed"
   },
   "hg38_noAlt": {
     "version": "38",
-    "modules": "hmftools/1.3 hg38-noalt/p12 hmftools-data/53138",
+    "modules": "hmftools/1.3 hg38-noalt/p12 hmftools-data/53138 hg38-dac-exclusion/1.0",
     "gatkModules": "hg38-noalt-gridss-index/1.0 gatk/4.1.6.0",
     "refFasta": "$HG38_NOALT_ROOT/hg38_noAlt.fa",
     "refFai": "$HG38_NOALT_GRIDSS_INDEX_ROOT/hg38_random.fa.fai",
@@ -72,11 +74,12 @@ Map[String,GenomeResources] resources = {
     "pon_sv_file": "$HMFTOOLS_DATA_ROOT/sv/sv_pon.38.bedpe.gz",
     "known_hotspot_file": "$HMFTOOLS_DATA_ROOT/sv/known_fusions.38.bedpe",
     "repeat_mask_file": "$HMFTOOLS_DATA_ROOT/sv/repeat_mask_data.38.fa.gz",
-    "knownfusion": "$HMFTOOLS_DATA_ROOT/sv/known_fusions.38.bedpe"
+    "knownfusion": "$HMFTOOLS_DATA_ROOT/sv/known_fusions.38.bedpe",
+    "difficultRegions": "$HG38_DAC_EXCLUSION_ROOT/hg38-dac-exclusion.v2.bed"
   },
   "grch38": {
     "version": "38",
-    "modules": "hmftools/1.3 grch38/p15 hmftools-data/53138",
+    "modules": "hmftools/1.3 grch38/p15 hmftools-data/53138 hg38-dac-exclusion/1.0",
     "gatkModules": "grch38-gridss-index/1.0 gatk/4.1.6.0",
     "refFasta": "$GRCH38_ROOT/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna",
     "refFai": "$GRCH38_GRIDSS_INDEX_ROOT/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna.fai",
@@ -87,11 +90,12 @@ Map[String,GenomeResources] resources = {
     "pon_sv_file": "$HMFTOOLS_DATA_ROOT/sv/sv_pon.38.bedpe.gz",
     "known_hotspot_file": "$HMFTOOLS_DATA_ROOT/sv/known_fusions.38.bedpe",
     "repeat_mask_file": "$HMFTOOLS_DATA_ROOT/sv/repeat_mask_data.38.fa.gz",
-    "knownfusion": "$HMFTOOLS_DATA_ROOT/sv/known_fusions.38.bedpe"
+    "knownfusion": "$HMFTOOLS_DATA_ROOT/sv/known_fusions.38.bedpe",
+    "difficultRegions": "$HG38_DAC_EXCLUSION_ROOT/hg38-dac-exclusion.v2.bed"
   },
   "grch38_hmf": {
     "version": "38",
-    "modules": "hmftools/1.3 grch38-hmf/25.1 hmftools-data/53138",
+    "modules": "hmftools/1.3 grch38-hmf/25.1 hmftools-data/53138 hg38-dac-exclusion/1.0",
     "gatkModules": "grch38-hmf/25.1 gatk/4.1.6.0",
     "refFasta": "$GRCH38_HMF_ROOT/GRCh38_masked_exclusions_alts_hlas_25.1.fa",
     "refFai": "$GRCH38_HMF_ROOT/GRCh38_masked_exclusions_alts_hlas_25.1.fa.fai",
@@ -102,7 +106,8 @@ Map[String,GenomeResources] resources = {
     "pon_sv_file": "$HMFTOOLS_DATA_ROOT/sv/sv_pon.38.bedpe.gz",
     "known_hotspot_file": "$HMFTOOLS_DATA_ROOT/sv/known_fusions.38.bedpe",
     "repeat_mask_file": "$HMFTOOLS_DATA_ROOT/sv/repeat_mask_data.38.fa.gz",
-    "knownfusion": "$HMFTOOLS_DATA_ROOT/sv/known_fusions.38.bedpe"
+    "knownfusion": "$HMFTOOLS_DATA_ROOT/sv/known_fusions.38.bedpe",
+    "difficultRegions": "$HG38_DAC_EXCLUSION_ROOT/hg38-dac-exclusion.v2.bed"
   }
 }
 
@@ -174,7 +179,10 @@ Map[String,GenomeResources] resources = {
 
   if(doSMALL) {
     call filterSMALL {
-      input: 
+      input:
+        modules = resources [ genomeVersion ].modules + " bcftools/1.9",
+        difficultRegions = resources [ genomeVersion ].difficultRegions,
+        genome = resources [ genomeVersion ].refFasta,
         normal_name = extractNormalName.input_name,
         tumour_name = extractTumorName.input_name
     }
@@ -646,11 +654,11 @@ task filterSMALL {
     File? vcf
     File? vcf_index
     String bcftoolsScript = "$BCFTOOLS_ROOT/bin/bcftools"
-    String genome = "$GRCH38_HMF_ROOT/GRCh38_masked_exclusions_alts_hlas_25.1.fa"
+    String genome
     String regions = "chr1,chr10,chr11,chr12,chr13,chr14,chr15,chr16,chr17,chr18,chr19,chr2,chr20,chr21,chr22,chr3,chr4,chr5,chr6,chr7,chr8,chr9,chrX"
-    String difficultRegions = "--targets-file $HG38_DAC_EXCLUSION_ROOT/hg38-dac-exclusion.v2.bed"
+    String? difficultRegions 
     String tumorVAF = "0.01"
-    String modules = "bcftools/1.9 grch38-hmf/25.1 hg38-dac-exclusion/1.0"
+    String modules
     Int threads = 8
     Int jobMemory = 32
     Int timeout = 100
@@ -678,7 +686,7 @@ task filterSMALL {
     echo ~{normal_name} >samples.txt
     echo ~{tumour_name} >>samples.txt
 
-     ~{bcftoolsScript} view -f "PASS" -S samples.txt -r ~{regions} ~{difficultRegions} ~{vcf} |\
+     ~{bcftoolsScript} view -f "PASS" -S samples.txt -r ~{regions} ~{"--targets-file " + difficultRegions} ~{vcf} |\
      ~{bcftoolsScript} norm --multiallelics - --fasta-ref ~{genome} |\
      ~{bcftoolsScript} filter -i "(FORMAT/AD[1:1])/(FORMAT/AD[1:0]+FORMAT/AD[1:1]) >= ~{tumorVAF}"  > ~{tumour_name}.PASS.vcf
 
